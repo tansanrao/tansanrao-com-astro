@@ -1,0 +1,41 @@
+---
+interface Props {
+  years: string[];
+  currentYear?: string;
+}
+
+const { years, currentYear } = Astro.props;
+
+// Add "All Posts" option at the beginning
+const filterOptions = ['All Posts', ...years];
+---
+
+<aside class="w-48">
+  <h2 class="font-medium text-light-tx dark:text-dark-tx mb-4">Filter Posts</h2>
+  <nav class="space-y-1">
+    {filterOptions.map((option) => {
+      const isActive = currentYear === option || (option === 'All Posts' && !currentYear);
+      return (
+        <a
+          href={option === 'All Posts' ? '/blog' : `/blog/${option.toLowerCase()}`}
+          class:list={[
+            'block px-3 py-2 text-sm rounded-md transition-all duration-200',
+            'relative overflow-hidden',
+            isActive ? [
+              'bg-light-bl/10 dark:bg-dark-bl/10',
+              'text-light-bl dark:text-dark-bl',
+              'font-medium',
+              'border-l-2 border-light-bl dark:border-dark-bl'
+            ] : [
+              'text-light-tx-2 dark:text-dark-tx-2',
+              'hover:bg-light-ui dark:hover:bg-dark-ui',
+              'hover:text-light-tx dark:hover:text-dark-tx'
+            ]
+          ]}
+        >
+          {option}
+        </a>
+      );
+    })}
+  </nav>
+</aside> 

@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+
 interface Props {
   image: ImageMetadata;
   name: string;
@@ -13,7 +14,7 @@ const { image, name, address } = Astro.props;
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-8 items-start">
       <div class="space-y-6 lg:justify-self-start max-w-full order-2 lg:order-1">
-        <h1 class="text-4xl font-bold tracking-tight text-light-tx dark:text-dark-tx sm:text-5xl">
+        <h1 class="font-serif text-4xl font-bold tracking-tight text-light-tx dark:text-dark-tx sm:text-5xl">
           {name}
         </h1>
         <div class="prose prose-lg text-light-tx-2 dark:text-dark-tx-2 max-w-full">

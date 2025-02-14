@@ -1,0 +1,244 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import PostHeader from '../components/PostHeader.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import Footnotes from '../components/Footnotes.astro';
+
+interface TocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+  subheadings: TocHeading[];
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, updatedDate, authors, readingTime, heroImage, tags, footnotes = [], draft = false } = post.data;
+const { headings } = await post.render();
+const toc = buildToc(headings);
+
+// Check if post is older than 2 years
+const twoYearsAgo = new Date();
+twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+const isOld = (updatedDate || pubDate) < twoYearsAgo;
+
+// Build nested TOC structure
+function buildToc(headings: Array<{ depth: number; slug: string; text: string }>): TocHeading[] {
+  const toc: TocHeading[] = [];
+  const parentHeadings = new Map<number, TocHeading>();
+  
+  headings.forEach((h) => {
+    const heading: TocHeading = { ...h, subheadings: [] };
+    parentHeadings.set(heading.depth, heading);
+    if (heading.depth === 2) {
+      toc.push(heading);
+    } else {
+      parentHeadings.get(heading.depth - 1)?.subheadings.push(heading);
+    }
+  });
+  
+  return toc;
+}
+---
+
+<BaseLayout title={title} description={description}>
+  <PostHeader
+    title={title}
+    description={description}
+    pubDate={pubDate}
+    updatedDate={updatedDate}
+    authors={authors}
+    readingTime={readingTime}
+    tags={tags}
+  />
+
+  <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col lg:flex-row lg:gap-8">
+      {/* Left Sidebar */}
+      <aside class="hidden lg:block lg:w-64">
+        <div class="lg:sticky lg:top-8 space-y-8">
+          {draft && (
+            <div class="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500">
+              <h2 class="text-base font-semibold text-amber-800 dark:text-amber-200 mb-1">
+                Draft Post
+              </h2>
+              <p class="text-sm text-amber-700 dark:text-amber-300">
+                This post is a draft and will not be visible in production.
+              </p>
+            </div>
+          )}
+          {isOld && (
+            <div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500">
+              <h2 class="text-base font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                Older Content
+              </h2>
+              <p class="text-sm text-blue-700 dark:text-blue-300">
+                This post is over 2 years old. While the core concepts may still be valid, some technical details may be outdated.
+              </p>
+            </div>
+          )}
+          {toc.length > 0 && (
+            <div class="p-4 rounded-lg bg-light-bg-2 dark:bg-dark-bg-2 shadow-sm">
+              <h2 class="text-base font-semibold text-light-tx dark:text-dark-tx mb-4">
+                On this page
+              </h2>
+              <TableOfContents toc={toc} />
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main class="min-w-0 flex-1 lg:max-w-2xl xl:max-w-3xl">
+        {/* Hero Image */}
+        {heroImage && (
+          <div class="mb-8">
+            <img
+              src={heroImage}
+              alt={title}
+              class="w-full h-auto rounded-lg shadow-md"
+            />
+          </div>
+        )}
+
+        {/* Article Content */}
+        <article class="prose dark:prose-invert max-w-none article-content">
+          <slot />
+          <Footnotes footnotes={footnotes} />
+        </article>
+      </main>
+    </div>
+  </div>
+
+  {/* Mobile Floating TOC */}
+  {toc.length > 0 && (
+    <div class="fixed lg:hidden bottom-6 right-6 z-50" id="mobile-toc-container">
+      <button
+        id="mobile-toc-button"
+        class="flex items-center justify-center w-12 h-12 rounded-full bg-light-bl dark:bg-dark-bl text-white shadow-lg hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 transition-colors"
+        aria-label="Table of Contents"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+      </button>
+      <div
+        id="mobile-toc-content"
+        class="hidden fixed bottom-20 right-6 w-[calc(100vw-3rem)] max-w-sm max-h-[70vh] overflow-auto rounded-lg bg-light-bg-2 dark:bg-dark-bg-2 shadow-xl p-4"
+      >
+        <h2 class="text-base font-semibold text-light-tx dark:text-dark-tx mb-4">
+          On this page
+        </h2>
+        <TableOfContents toc={toc} />
+      </div>
+    </div>
+  )}
+</BaseLayout>
+
+<script>
+  const mobileButton = document.getElementById('mobile-toc-button');
+  const mobileContent = document.getElementById('mobile-toc-content');
+  const mobileContainer = document.getElementById('mobile-toc-container');
+
+  if (mobileButton && mobileContent && mobileContainer) {
+    // Toggle TOC visibility
+    mobileButton.addEventListener('click', () => {
+      mobileContent.classList.toggle('hidden');
+    });
+
+    // Close TOC when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!mobileContainer.contains(event.target as Node)) {
+        mobileContent.classList.add('hidden');
+      }
+    });
+
+    // Close TOC when clicking a link
+    mobileContent.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mobileContent.classList.add('hidden');
+      });
+    });
+  }
+</script>
+
+<style>
+  /* Custom styles for article content */
+  .article-content :global(p) {
+    @apply mb-6 leading-relaxed text-light-tx dark:text-dark-tx;
+  }
+
+  .article-content :global(h2) {
+    @apply font-serif text-2xl sm:text-3xl font-bold mt-12 mb-6 text-light-tx dark:text-dark-tx scroll-mt-20;
+  }
+
+  .article-content :global(h3) {
+    @apply font-serif text-xl sm:text-2xl font-bold mt-8 mb-4 text-light-tx dark:text-dark-tx scroll-mt-20;
+  }
+
+  .article-content :global(ul),
+  .article-content :global(ol) {
+    @apply my-6 ml-6 text-light-tx dark:text-dark-tx;
+  }
+
+  .article-content :global(li) {
+    @apply mb-2;
+  }
+
+  .article-content :global(pre) {
+    @apply my-6 p-4 rounded-lg bg-light-ui dark:bg-dark-ui overflow-x-auto;
+  }
+
+  .article-content :global(code) {
+    @apply font-mono text-sm px-1 py-0.5 rounded bg-light-ui dark:bg-dark-ui;
+  }
+
+  .article-content :global(pre code) {
+    @apply p-0 bg-transparent;
+  }
+
+  .article-content :global(blockquote) {
+    @apply border-l-4 border-light-ui dark:border-dark-ui pl-4 my-6 italic text-light-tx-2 dark:text-dark-tx-2;
+  }
+
+  .article-content :global(img) {
+    @apply my-8 rounded-lg shadow-md;
+  }
+
+  .article-content :global(hr) {
+    @apply my-12 border-light-ui dark:border-dark-ui;
+  }
+
+  .article-content :global(a) {
+    @apply text-light-bl dark:text-dark-bl hover:text-light-bl-2 dark:hover:text-dark-bl-2;
+  }
+
+  /* Citation Styles */
+  .article-content :global(.citation) {
+    @apply text-light-tx-2 dark:text-dark-tx-2 no-underline;
+  }
+
+  .article-content :global(.references) {
+    @apply mt-12 pt-8 border-t border-light-ui dark:border-dark-ui;
+  }
+
+  .article-content :global(.references-title) {
+    @apply font-serif text-2xl font-bold mb-6 text-light-tx dark:text-dark-tx;
+  }
+
+  .article-content :global(.references-list) {
+    @apply space-y-4 text-sm text-light-tx-2 dark:text-dark-tx-2;
+  }
+
+  .article-content :global(.reference) {
+    @apply pl-8 -indent-8 leading-normal;
+  }
+
+  .article-content :global(.reference a) {
+    @apply no-underline hover:underline;
+  }
+</style> 

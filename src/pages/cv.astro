@@ -1,0 +1,450 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import { getCollection } from 'astro:content';
+import type { TocHeading } from '../types/toc';
+
+const title = "CV | Tanuj Ravi Rao";
+const description = "Curriculum Vitae of Tanuj Ravi Rao - Graduate Student and Researcher";
+
+// Get resume data
+const resumeEntries = await getCollection('resume');
+const resume = resumeEntries[0].data;
+
+// Format date function
+function formatDate(dateStr: string | undefined): string {
+  if (!dateStr || dateStr === 'present') return dateStr || '';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+}
+
+// Helper function to check if an array is non-empty
+function hasContent<T>(arr: T[] | undefined | null): arr is T[] {
+  return Array.isArray(arr) && arr.length > 0;
+}
+
+// Helper function to create TOC heading
+function createTocHeading(text: string, slug: string): TocHeading {
+  return {
+    depth: 1,
+    text,
+    slug,
+    subheadings: []
+  };
+}
+
+// Define TOC structure - only include sections that have content
+const tocItems = [
+  hasContent(resume.education) && createTocHeading("Education", "education"),
+  hasContent(resume.work) && createTocHeading("Work Experience", "work-experience"),
+  hasContent(resume.skills) && createTocHeading("Skills & Expertise", "skills"),
+  hasContent(resume.publications) && createTocHeading("Publications", "publications"),
+  hasContent(resume.projects) && createTocHeading("Projects", "projects"),
+  (hasContent(resume.awards) || hasContent(resume.certificates)) && createTocHeading("Awards & Certificates", "awards"),
+  (hasContent(resume.languages) || hasContent(resume.interests)) && createTocHeading("Languages & Interests", "languages"),
+  hasContent(resume.volunteer) && createTocHeading("Volunteer Experience", "volunteer")
+];
+
+const toc: TocHeading[] = tocItems.filter((item): item is TocHeading => Boolean(item));
+---
+
+<BaseLayout title={title} description={description}>
+  <PageHeader 
+    title="Curriculum Vitae" 
+    subtitle=""
+  />
+  
+  <div class="flex flex-col md:flex-row gap-8 mt-8">
+    {/* Left Sidebar - Table of Contents */}
+    <aside class="hidden md:block md:w-64 flex-shrink-0">
+      <div class="sticky top-8">
+        <h2 class="text-xl font-serif font-bold mb-4">Contents</h2>
+        <TableOfContents toc={toc} />
+      </div>
+    </aside>
+
+    {/* Main Content */}
+    <main class="flex-1">
+      <div class="space-y-8">
+        {/* Basic Info Section - Always show */}
+        <section class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+          <h2 class="text-3xl font-serif font-bold text-light-bl dark:text-dark-bl mb-6">Basics</h2>
+          <div class="space-y-3">
+            <p class="text-xl font-serif text-light-tx dark:text-dark-tx">{resume.basics.name}</p>
+            <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">{resume.basics.label}</p>
+            <a href={`mailto:${resume.basics.email}`} class="block text-light-bl dark:text-dark-bl hover:underline">
+              {resume.basics.email}
+            </a>
+            <a href={resume.basics.url} class="block text-light-bl dark:text-dark-bl hover:underline" target="_blank">
+              {resume.basics.url}
+            </a>
+            {resume.basics.location && (
+              <p class="text-light-tx dark:text-dark-tx">
+                {[
+                  resume.basics.location.city,
+                  resume.basics.location.region,
+                  resume.basics.location.countryCode
+                ].filter(Boolean).join(', ')}
+              </p>
+            )}
+            <p class="text-light-tx dark:text-dark-tx">{resume.basics.summary}</p>
+            {hasContent(resume.basics.profiles) && (
+              <div class="flex flex-wrap gap-4">
+                {resume.basics.profiles.map((profile) => (
+                  <a
+                    href={profile.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-light-bl dark:text-dark-bl hover:underline"
+                  >
+                    {profile.network}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Education Section */}
+        {hasContent(resume.education) && (
+          <section id="education" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Education</h2>
+            <div class="space-y-6">
+              {resume.education.map((edu) => (
+                <div>
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                    <h3 class="text-xl font-serif">
+                      {edu.url ? (
+                        <a href={edu.url} target="_blank" rel="noopener noreferrer" class="hover:text-light-bl dark:hover:text-dark-bl">
+                          {edu.institution}
+                        </a>
+                      ) : (
+                        edu.institution
+                      )}
+                    </h3>
+                    <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">
+                      {formatDate(edu.startDate)} - {formatDate(edu.endDate || 'present')}
+                    </span>
+                  </div>
+                  <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">{edu.studyType} — {edu.area}</p>
+                  {edu.location && <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">{edu.location}</p>}
+                  {edu.score && <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">GPA: {edu.score}</p>}
+                  {hasContent(edu.courses) && (
+                    <div class="mt-2">
+                      <p class="font-medium mb-1">Key Courses:</p>
+                      <ul class="list-disc list-inside text-light-tx-2 dark:text-dark-tx-2">
+                        {edu.courses.map((course) => (
+                          <li>{course}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Work Experience Section */}
+        {hasContent(resume.work) && (
+          <section id="work-experience" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Work Experience</h2>
+            <div class="space-y-8">
+              {resume.work.map((work) => (
+                <div>
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                    <h3 class="text-xl font-serif">
+                      {work.url ? (
+                        <a href={work.url} target="_blank" rel="noopener noreferrer" class="hover:text-light-bl dark:hover:text-dark-bl">
+                          {work.company}
+                        </a>
+                      ) : (
+                        work.company
+                      )}
+                    </h3>
+                    <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">
+                      {formatDate(work.startDate)} - {formatDate(work.endDate || 'present')}
+                    </span>
+                  </div>
+                  <p class="text-lg font-medium mb-2">{work.position}</p>
+                  {work.location && <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">{work.location}</p>}
+                  {work.summary && <p class="text-light-tx dark:text-dark-tx mb-3">{work.summary}</p>}
+                  {hasContent(work.highlights) && (
+                    <ul class="list-disc list-inside text-light-tx-2 dark:text-dark-tx-2 space-y-1">
+                      {work.highlights.map((highlight) => (
+                        <li>{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Skills Section */}
+        {hasContent(resume.skills) && (
+          <section id="skills" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Skills & Expertise</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {resume.skills.map((skill) => (
+                <div>
+                  <h3 class="text-xl font-serif mb-2">{skill.name}</h3>
+                  {skill.level && <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">Level: {skill.level}</p>}
+                  {hasContent(skill.keywords) && (
+                    <div class="flex flex-wrap gap-2">
+                      {skill.keywords.map((keyword) => (
+                        <span class="px-2 py-1 bg-light-bg dark:bg-dark-bg rounded text-sm">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Publications Section */}
+        {hasContent(resume.publications) && (
+          <section id="publications" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Publications</h2>
+            <div class="space-y-6">
+              {resume.publications.map((pub) => (
+                <div>
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                    <h3 class="text-xl font-serif">
+                      {pub.url ? (
+                        <a href={pub.url} target="_blank" rel="noopener noreferrer" class="hover:text-light-bl dark:hover:text-dark-bl">
+                          {pub.name}
+                        </a>
+                      ) : (
+                        pub.name
+                      )}
+                    </h3>
+                    <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">{formatDate(pub.date)}</span>
+                  </div>
+                  <p class="text-light-tx-2 dark:text-dark-tx-2 mb-2">{pub.publisher}</p>
+                  {pub.summary && <p class="text-light-tx dark:text-dark-tx">{pub.summary}</p>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Projects Section */}
+        {hasContent(resume.projects) && (
+          <section id="projects" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Projects</h2>
+            <div class="space-y-6">
+              {resume.projects.map((project) => (
+                <div>
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                    <h3 class="text-xl font-serif">
+                      {project.url ? (
+                        <a href={project.url} target="_blank" rel="noopener noreferrer" class="hover:text-light-bl dark:hover:text-dark-bl">
+                          {project.name}
+                        </a>
+                      ) : (
+                        project.name
+                      )}
+                    </h3>
+                    {(project.startDate || project.endDate) && (
+                      <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">
+                        {formatDate(project.startDate)} - {formatDate(project.endDate || 'present')}
+                      </span>
+                    )}
+                  </div>
+                  {project.description && <p class="text-light-tx dark:text-dark-tx mb-3">{project.description}</p>}
+                  {hasContent(project.highlights) && (
+                    <ul class="list-disc list-inside text-light-tx-2 dark:text-dark-tx-2 space-y-1">
+                      {project.highlights.map((highlight) => (
+                        <li>{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Awards & Certificates Section */}
+        {(hasContent(resume.awards) || hasContent(resume.certificates)) && (
+          <section id="awards" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Awards & Certificates</h2>
+            {hasContent(resume.awards) && (
+              <div class="mb-8">
+                <h3 class="text-xl font-serif mb-4">Awards</h3>
+                <div class="space-y-4">
+                  {resume.awards.map((award) => (
+                    <div>
+                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                        <h4 class="text-lg font-medium">{award.title}</h4>
+                        <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">{formatDate(award.date)}</span>
+                      </div>
+                      <p class="text-light-tx-2 dark:text-dark-tx-2 mb-1">{award.awarder}</p>
+                      {award.summary && <p class="text-light-tx dark:text-dark-tx">{award.summary}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {hasContent(resume.certificates) && (
+              <div>
+                <h3 class="text-xl font-serif mb-4">Certificates</h3>
+                <div class="space-y-4">
+                  {resume.certificates.map((cert) => (
+                    <div>
+                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                        <h4 class="text-lg font-medium">
+                          {cert.url ? (
+                            <a href={cert.url} target="_blank" rel="noopener noreferrer" class="hover:text-light-bl dark:hover:text-dark-bl">
+                              {cert.name}
+                            </a>
+                          ) : (
+                            cert.name
+                          )}
+                        </h4>
+                        <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">{formatDate(cert.date)}</span>
+                      </div>
+                      <p class="text-light-tx-2 dark:text-dark-tx-2">{cert.issuer}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Languages & Interests Section */}
+        {(hasContent(resume.languages) || hasContent(resume.interests)) && (
+          <section id="languages" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Languages & Interests</h2>
+            {hasContent(resume.languages) && (
+              <div class="mb-8">
+                <h3 class="text-xl font-serif mb-4">Languages</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {resume.languages.map((lang) => (
+                    <div>
+                      <h4 class="font-medium">{lang.language}</h4>
+                      {lang.fluency && <p class="text-light-tx-2 dark:text-dark-tx-2">{lang.fluency}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {hasContent(resume.interests) && (
+              <div>
+                <h3 class="text-xl font-serif mb-4">Interests</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {resume.interests.map((interest) => (
+                    <div>
+                      <h4 class="font-medium mb-2">{interest.name}</h4>
+                      {hasContent(interest.keywords) && (
+                        <div class="flex flex-wrap gap-2">
+                          {interest.keywords.map((keyword) => (
+                            <span class="px-2 py-1 bg-light-bg dark:bg-dark-bg rounded text-sm">
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Volunteer Section */}
+        {hasContent(resume.volunteer) && (
+          <section id="volunteer" class="bg-light-bg-2 dark:bg-dark-bg-2 rounded-lg p-6 shadow-sm">
+            <h2 class="text-2xl font-serif font-bold mb-6 text-light-bl dark:text-dark-bl">Volunteer Experience</h2>
+            <div class="space-y-6">
+              {resume.volunteer.map((vol) => (
+                <div>
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                    <h3 class="text-xl font-serif">
+                      {vol.url ? (
+                        <a href={vol.url} target="_blank" rel="noopener noreferrer" class="hover:text-light-bl dark:hover:text-dark-bl">
+                          {vol.organization}
+                        </a>
+                      ) : (
+                        vol.organization
+                      )}
+                    </h3>
+                    <span class="text-light-tx-2 dark:text-dark-tx-2 whitespace-nowrap">
+                      {formatDate(vol.startDate)} - {formatDate(vol.endDate || 'present')}
+                    </span>
+                  </div>
+                  <p class="text-lg font-medium mb-2">{vol.position}</p>
+                  {vol.summary && <p class="text-light-tx dark:text-dark-tx mb-3">{vol.summary}</p>}
+                  {hasContent(vol.highlights) && (
+                    <ul class="list-disc list-inside text-light-tx-2 dark:text-dark-tx-2 space-y-1">
+                      {vol.highlights.map((highlight) => (
+                        <li>{highlight}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </main>
+  </div>
+
+  {/* Mobile Floating TOC */}
+  <div class="fixed md:hidden bottom-6 right-6 z-50" id="mobile-toc-container">
+    <button
+      id="mobile-toc-button"
+      class="flex items-center justify-center w-12 h-12 rounded-full bg-light-bl dark:bg-dark-bl text-white shadow-lg hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 transition-colors"
+      aria-label="Table of Contents"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+      </svg>
+    </button>
+    <div
+      id="mobile-toc-content"
+      class="hidden fixed bottom-20 right-6 w-[calc(100vw-3rem)] max-w-sm max-h-[70vh] overflow-auto rounded-lg bg-light-bg-2 dark:bg-dark-bg-2 shadow-xl p-4"
+    >
+      <h2 class="text-base font-semibold text-light-tx dark:text-dark-tx mb-4">
+        Contents
+      </h2>
+      <TableOfContents toc={toc} />
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const mobileButton = document.getElementById('mobile-toc-button');
+  const mobileContent = document.getElementById('mobile-toc-content');
+  const mobileContainer = document.getElementById('mobile-toc-container');
+
+  if (mobileButton && mobileContent && mobileContainer) {
+    // Toggle TOC visibility
+    mobileButton.addEventListener('click', () => {
+      mobileContent.classList.toggle('hidden');
+    });
+
+    // Close TOC when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!mobileContainer.contains(event.target as Node)) {
+        mobileContent.classList.add('hidden');
+      }
+    });
+
+    // Close TOC when clicking a link
+    mobileContent.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mobileContent.classList.add('hidden');
+      });
+    });
+  }
+</script> 

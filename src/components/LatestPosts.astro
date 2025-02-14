@@ -1,0 +1,49 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BlogPostItem from './BlogPostItem.astro';
+
+interface Post {
+  title: string;
+  description: string;
+  publishedDate: string;
+  href: string;
+  tags: string[];
+  readingTime: string;
+}
+
+// Get latest blog posts
+const allPosts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? !data.draft : true;
+});
+
+const latestPosts: Post[] = allPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3)
+  .map(post => ({
+    title: post.data.title,
+    description: post.data.description,
+    publishedDate: post.data.pubDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    }),
+    href: `/blog/${post.slug}`,
+    tags: post.data.tags,
+    readingTime: post.data.readingTime
+  }));
+---
+
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-bold text-light-tx dark:text-dark-tx mb-8">Latest Posts</h2>
+    <div class="space-y-8">
+      {latestPosts.map(post => (
+        <BlogPostItem {...post} />
+      ))}
+    </div>
+    <div class="mt-8">
+      <a href="/blog" class="text-light-accent dark:text-dark-accent hover:underline">View all posts →</a>
+    </div>
+  </div>
+</section> 

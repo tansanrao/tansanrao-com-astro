@@ -27,6 +27,7 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 100%;
   }
 
   /* Improve media defaults */
@@ -274,5 +275,8 @@
     --color-dark-bl-2: var(--color-blue-600);
     --color-dark-pu-2: var(--color-purple-600);
     --color-dark-ma-2: var(--color-magenta-600);
+
+    /* Base font size */
+    font-size: 16px;
   }
 } 

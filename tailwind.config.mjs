@@ -205,6 +205,37 @@ export default {
           950: 'var(--color-magenta-950)',
         },
       },
+      fontFamily: {
+        serif: ['Cormorant Garamond', 'serif'],
+        sans: ['IBM Plex Sans', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+      },
+      fontSize: {
+        xs: '1rem',      // 16px
+        sm: '1rem',      // 16px
+        base: '1rem',    // 16px
+        lg: '1.125rem',  // 18px
+        xl: '1.25rem',   // 20px
+        '2xl': '1.5rem', // 24px
+        '3xl': '1.875rem', // 30px
+        '4xl': '2.25rem',  // 36px
+        '5xl': '3rem',     // 48px
+        '6xl': '3.75rem',  // 60px
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            'h1, h2, h3, h4, h5, h6': {
+              fontFamily: 'Cormorant Garamond, serif',
+            },
+            fontSize: '1rem',
+            p: {
+              fontSize: '1rem',
+              lineHeight: '1.75',
+            },
+          },
+        },
+      },
     },
   },
   darkMode: 'class',

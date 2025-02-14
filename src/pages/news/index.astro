@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getCollection } from 'astro:content';
+
+// Get all news updates and filter out drafts
+const allUpdates = await getCollection('news', ({ data }) => {
+  return import.meta.env.PROD ? !data.draft : true;
+});
+
+// Sort updates by date in descending order (newest first)
+const sortedUpdates = allUpdates.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Process updates and render their content
+const updates = await Promise.all(
+  sortedUpdates.map(async (update) => {
+    const { Content } = await update.render();
+    return {
+      date: update.data.date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }),
+      Content
+    };
+  })
+);
+---
+
+<BaseLayout
+  title="News | Tanuj Ravi Rao"
+  description="Latest updates and announcements."
+>
+  <PageHeader 
+    title="News"
+    subtitle="The latest updates and announcements."
+  />
+  
+  <div class="max-w-4xl mx-auto">
+    <div class="divide-y divide-light-line dark:divide-dark-line">
+      {updates.map(update => (
+        <div class="py-8 first:pt-0 last:pb-0">
+          <div class="flex flex-col sm:grid sm:grid-cols-[120px_1fr] gap-4 sm:gap-8 sm:items-baseline">
+            <time class="text-sm font-medium text-light-tx-2 dark:text-dark-tx-2 font-mono whitespace-nowrap align-middle">
+              {update.date}
+            </time>
+            <div class="prose dark:prose-invert max-w-none">
+              <update.Content />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout> 

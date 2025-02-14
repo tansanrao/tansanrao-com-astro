@@ -1,0 +1,19 @@
+/* Import KaTeX fonts and styles */
+@import 'katex/dist/katex.min.css';
+
+/* Custom KaTeX styles */
+.katex {
+  font-size: 1.1em;
+  text-rendering: optimizeLegibility;
+}
+
+.katex-display {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Dark mode support */
+:root[class~="dark"] .katex {
+  color: var(--dark-tx);
+} 

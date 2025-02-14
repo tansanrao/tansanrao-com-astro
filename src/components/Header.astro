@@ -6,6 +6,45 @@ interface Props {
   class?: string;
 }
 
+interface NavItem {
+  href: string;
+  label: string;
+  match: (path: string) => boolean;
+}
+
+const navigation: NavItem[] = [
+  {
+    href: '/',
+    label: 'Home',
+    match: (path) => path === '',
+  },
+  {
+    href: '/blog',
+    label: 'Blog',
+    match: (path) => path.startsWith('blog'),
+  },
+  {
+    href: '/news',
+    label: 'News',
+    match: (path) => path.startsWith('news'),
+  },
+  {
+    href: '/notes',
+    label: 'Notes',
+    match: (path) => path.startsWith('notes'),
+  },
+  {
+    href: '/rss',
+    label: 'RSS',
+    match: (path) => path.startsWith('rss'),
+  },
+  {
+    href: '/cv',
+    label: 'CV',
+    match: (path) => path.startsWith('cv'),
+  },
+];
+
 const { class: className } = Astro.props;
 const pathname = new URL(Astro.request.url).pathname;
 const currentPath = pathname.slice(1); // remove the leading slash
@@ -15,37 +54,21 @@ const currentPath = pathname.slice(1); // remove the leading slash
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16 items-center">
       <div class="flex-shrink-0">
-        <a href="/" class="text-xl font-bold text-light-tx dark:text-dark-tx hover:text-accent-blue dark:hover:text-accent-dark-blue transition-colors">Tanuj Ravi Rao</a>
+        <a href="/" class="font-serif text-2xl font-bold text-light-tx dark:text-dark-tx hover:text-accent-blue dark:hover:text-accent-dark-blue transition-colors">Tanuj Ravi Rao</a>
       </div>
       <div class="flex items-center space-x-8">
         <nav class="hidden sm:flex space-x-8">
-          <a 
-            href="/" 
-            class:list={[
-              "text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
-              currentPath === "" && "font-semibold text-light-tx dark:text-dark-tx"
-            ]}
-          >
-            Home
-          </a>
-          <a 
-            href="/blog" 
-            class:list={[
-              "text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
-              currentPath.startsWith("blog") && "font-semibold text-light-tx dark:text-dark-tx"
-            ]}
-          >
-            Blog
-          </a>
-          <a 
-            href="/about" 
-            class:list={[
-              "text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
-              currentPath.startsWith("about") && "font-semibold text-light-tx dark:text-dark-tx"
-            ]}
-          >
-            About
-          </a>
+          {navigation.map(({ href, label, match }) => (
+            <a 
+              href={href}
+              class:list={[
+                "text-base text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
+                match(currentPath) && "font-semibold text-light-tx dark:text-dark-tx"
+              ]}
+            >
+              {label}
+            </a>
+          ))}
         </nav>
         <div class="hidden sm:block">
           <ThemeToggle />
@@ -73,33 +96,17 @@ const currentPath = pathname.slice(1); // remove the leading slash
     <!-- Mobile menu -->
     <div id="mobile-menu" class="hidden sm:hidden">
       <div class="space-y-4 py-4">
-        <a 
-          href="/" 
-          class:list={[
-            "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
-            currentPath === "" && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
-          ]}
-        >
-          Home
-        </a>
-        <a 
-          href="/blog" 
-          class:list={[
-            "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
-            currentPath.startsWith("blog") && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
-          ]}
-        >
-          Blog
-        </a>
-        <a 
-          href="/about" 
-          class:list={[
-            "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
-            currentPath.startsWith("about") && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
-          ]}
-        >
-          About
-        </a>
+        {navigation.map(({ href, label, match }) => (
+          <a 
+            href={href}
+            class:list={[
+              "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
+              match(currentPath) && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
+            ]}
+          >
+            {label}
+          </a>
+        ))}
         <div class="px-4 py-2">
           <MobileThemeToggle />
         </div>

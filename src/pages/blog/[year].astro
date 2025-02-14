@@ -1,32 +1,46 @@
 ---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import BlogCard from '../../components/BlogCard.astro';
 import BlogFilters from '../../components/BlogFilters.astro';
 import BlogPostItem from '../../components/BlogPostItem.astro';
-import { getCollection } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
 
-// Get the year from URL params or default to 'all'
-const { year } = Astro.params;
+export const getStaticPaths = (async () => {
+  const allPosts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+  });
+
+  // Get unique years from posts
+  const years = [...new Set(allPosts.map(post => 
+    post.data.pubDate.getFullYear().toString()
+  ))];
+
+  // Create a path for each year
+  return years.map(year => ({
+    params: { year },
+    props: { year }
+  }));
+}) satisfies GetStaticPaths;
+
+const { year } = Astro.props;
 
 // Get all blog posts and filter out drafts
 const allPosts = await getCollection('blog', ({ data }) => {
   return import.meta.env.PROD ? !data.draft : true;
 });
 
-// Get unique years from posts
+// Get unique years for the filter
 const years = [...new Set(allPosts.map(post => 
   post.data.pubDate.getFullYear().toString()
 ))].sort((a, b) => parseInt(b) - parseInt(a));
 
-// Filter posts by year if specified
-const filteredPosts = year 
-  ? allPosts.filter(post => post.data.pubDate.getFullYear().toString() === year)
-  : allPosts;
-
-// Sort posts by publication date in descending order
-const sortedPosts = filteredPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+// Filter posts by year
+const filteredPosts = allPosts.filter(post => 
+  post.data.pubDate.getFullYear().toString() === year
+);
 
 function getPostUrl(post: CollectionEntry<'blog'>): string {
   const date = post.data.pubDate;
@@ -34,6 +48,9 @@ function getPostUrl(post: CollectionEntry<'blog'>): string {
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   return `/blog/${year}/${month}/${post.slug}`;
 }
+
+// Sort posts by publication date in descending order
+const sortedPosts = filteredPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 // Get the first 3 posts as featured posts
 const featuredPosts = sortedPosts.slice(0, 3).map(post => ({
@@ -65,8 +82,8 @@ const posts = sortedPosts.map(post => ({
 ---
 
 <BaseLayout
-  title="Blog | Tanuj Ravi Rao"
-  description="Expository musings on science, technology, and life."
+  title={`Blog Posts from ${year} | Tanuj Ravi Rao`}
+  description={`Archive of blog posts from ${year}`}
 >
   <PageHeader 
     title="Perspectives in Progress"
@@ -85,7 +102,7 @@ const posts = sortedPosts.map(post => ({
     <BlogFilters years={years} currentYear={year} />
     <div class="flex-1">
       <h2 class="text-2xl font-bold text-light-tx dark:text-dark-tx mb-8">
-        {year ? `Posts from ${year}` : 'All Posts'}
+        Posts from {year}
       </h2>
       <div class="space-y-8">
         {posts.map(post => (

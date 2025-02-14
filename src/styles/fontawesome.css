@@ -1,0 +1,18 @@
+/* Import Font Awesome core styles */
+@import '@fortawesome/fontawesome-free/css/fontawesome.css';
+
+/* Import only the styles for regular and brands icons that we use */
+@import '@fortawesome/fontawesome-free/css/regular.css';
+@import '@fortawesome/fontawesome-free/css/brands.css';
+@import '@fortawesome/fontawesome-free/css/solid.css';
+
+/* Define font-display to swap for better performance */
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-display: swap;
+} 

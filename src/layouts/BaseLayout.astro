@@ -3,6 +3,17 @@ import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
+import '../styles/fontawesome.css';
+import '../styles/katex.css';
+
+// Font imports
+import '@fontsource/cormorant-garamond/400.css';
+import '@fontsource/cormorant-garamond/700.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/700.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
 
 interface Props {
   title?: string;
@@ -15,7 +26,7 @@ const { title, description, image, canonicalURL } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full scroll-smooth">
   <head>
     <SEO
       title={title}
@@ -24,6 +35,9 @@ const { title, description, image, canonicalURL } = Astro.props;
       canonicalURL={canonicalURL}
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="alternate" type="application/rss+xml" title="Tanuj Ravi Rao - All Content" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Tanuj Ravi Rao - Blog" href="/blog.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Tanuj Ravi Rao - Notes" href="/notes.xml" />
     <script is:inline>
       // On page load or when changing themes, best to add inline in `head` to avoid FOUC
       function getThemePreference() {
@@ -39,10 +53,15 @@ const { title, description, image, canonicalURL } = Astro.props;
       }
     </script>
   </head>
-  <body class="flex flex-col min-h-full bg-light-bg dark:bg-dark-bg text-light-tx dark:text-dark-tx transition-colors duration-200">
+  <body class="font-sans flex flex-col min-h-full bg-light-bg dark:bg-dark-bg text-light-tx dark:text-dark-tx transition-colors duration-200">
+    {/* Grid background with mask effect */}
+    <div class="fixed inset-0 -z-10">
+      <div class="absolute inset-0 h-full w-full bg-[radial-gradient(rgba(206,205,195,0.7)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(111,110,105,0.3)_1px,transparent_1px)] [background-size:16px_16px]"></div>
+    </div>
+
     <Header />
     <main class="flex-1 w-full">
-      <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <slot />
       </div>
     </main>

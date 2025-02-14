@@ -1,0 +1,54 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+
+interface NewsUpdate {
+  date: string;
+  Content: any;
+}
+
+// Get latest news
+const allUpdates = await getCollection('news', ({ data }) => {
+  return import.meta.env.PROD ? !data.draft : true;
+});
+
+const latestNews: NewsUpdate[] = await Promise.all(
+  allUpdates
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .slice(0, 3)
+    .map(async (update: CollectionEntry<'news'>) => {
+      const { Content } = await update.render();
+      return {
+        date: update.data.date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
+        Content
+      };
+    })
+);
+---
+
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-bold text-light-tx dark:text-dark-tx mb-8">Latest News</h2>
+    <div class="divide-y divide-light-line dark:divide-dark-line">
+      {latestNews.map(update => (
+        <div class="py-8 first:pt-0 last:pb-0">
+          <div class="flex flex-col sm:grid sm:grid-cols-[120px_1fr] gap-4 sm:gap-8 sm:items-baseline">
+            <time class="text-sm font-medium text-light-tx-2 dark:text-dark-tx-2 font-mono whitespace-nowrap align-middle">
+              {update.date}
+            </time>
+            <div class="prose dark:prose-invert max-w-none">
+              <update.Content />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="mt-8">
+      <a href="/news" class="text-light-accent dark:text-dark-accent hover:underline">View all news →</a>
+    </div>
+  </div>
+</section> 
