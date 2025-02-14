@@ -1,0 +1,137 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import MobileThemeToggle from './MobileThemeToggle.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const pathname = new URL(Astro.request.url).pathname;
+const currentPath = pathname.slice(1); // remove the leading slash
+---
+
+<header class:list={["w-full bg-light-bg dark:bg-dark-bg border-b border-light-ui dark:border-dark-ui", className]}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16 items-center">
+      <div class="flex-shrink-0">
+        <a href="/" class="text-xl font-bold text-light-tx dark:text-dark-tx hover:text-accent-blue dark:hover:text-accent-dark-blue transition-colors">Tanuj Ravi Rao</a>
+      </div>
+      <div class="flex items-center space-x-8">
+        <nav class="hidden sm:flex space-x-8">
+          <a 
+            href="/" 
+            class:list={[
+              "text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
+              currentPath === "" && "font-semibold text-light-tx dark:text-dark-tx"
+            ]}
+          >
+            Home
+          </a>
+          <a 
+            href="/blog" 
+            class:list={[
+              "text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
+              currentPath.startsWith("blog") && "font-semibold text-light-tx dark:text-dark-tx"
+            ]}
+          >
+            Blog
+          </a>
+          <a 
+            href="/about" 
+            class:list={[
+              "text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors",
+              currentPath.startsWith("about") && "font-semibold text-light-tx dark:text-dark-tx"
+            ]}
+          >
+            About
+          </a>
+        </nav>
+        <div class="hidden sm:block">
+          <ThemeToggle />
+        </div>
+        <div class="sm:hidden">
+          <button 
+            id="mobile-menu-button"
+            type="button" 
+            class="text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx transition-colors"
+            aria-label="Toggle menu"
+            aria-expanded="false"
+          >
+            <span class="sr-only">Open menu</span>
+            <svg id="menu-open-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="menu-close-icon" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden sm:hidden">
+      <div class="space-y-4 py-4">
+        <a 
+          href="/" 
+          class:list={[
+            "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
+            currentPath === "" && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
+          ]}
+        >
+          Home
+        </a>
+        <a 
+          href="/blog" 
+          class:list={[
+            "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
+            currentPath.startsWith("blog") && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
+          ]}
+        >
+          Blog
+        </a>
+        <a 
+          href="/about" 
+          class:list={[
+            "block px-4 py-2 text-base font-medium text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx hover:bg-light-ui dark:hover:bg-dark-ui transition-colors",
+            currentPath.startsWith("about") && "text-light-tx dark:text-dark-tx bg-light-ui dark:bg-dark-ui"
+          ]}
+        >
+          About
+        </a>
+        <div class="px-4 py-2">
+          <MobileThemeToggle />
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuOpenIcon = document.getElementById('menu-open-icon');
+  const menuCloseIcon = document.getElementById('menu-close-icon');
+
+  function toggleMenu() {
+    const isExpanded = mobileMenuButton?.getAttribute('aria-expanded') === 'true';
+    mobileMenuButton?.setAttribute('aria-expanded', (!isExpanded).toString());
+    mobileMenu?.classList.toggle('hidden');
+    menuOpenIcon?.classList.toggle('hidden');
+    menuCloseIcon?.classList.toggle('hidden');
+  }
+
+  mobileMenuButton?.addEventListener('click', toggleMenu);
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    if (!target.closest('#mobile-menu') && !target.closest('#mobile-menu-button')) {
+      mobileMenu?.classList.add('hidden');
+      menuOpenIcon?.classList.remove('hidden');
+      menuCloseIcon?.classList.add('hidden');
+      mobileMenuButton?.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script> 

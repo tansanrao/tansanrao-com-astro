@@ -1,0 +1,47 @@
+---
+import { Image } from 'astro:assets';
+interface Props {
+  image: ImageMetadata;
+  name: string;
+  address: string;
+}
+
+const { image, name, address } = Astro.props;
+---
+
+<section class="py-16 sm:py-20">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-8 items-start">
+      <div class="space-y-6 lg:justify-self-start max-w-full order-2 lg:order-1">
+        <h1 class="text-4xl font-bold tracking-tight text-light-tx dark:text-dark-tx sm:text-5xl">
+          {name}
+        </h1>
+        <div class="prose prose-lg text-light-tx-2 dark:text-dark-tx-2 max-w-full">
+          <p>
+            I'm a third-year Ph.D. student in the Distributed Systems & Storage Laboratory (DSSL) and Rethinking OS Abstractions Laboratory (ROSALab) groups at the Department of Computer Science, Virginia Tech.
+          </p>
+          <p class="mt-4">
+            I'm an engineer turned researcher with a passion for the practical, real-world side of systems research. My interests include all things operating systems, distributed systems, and networking. Right now, I'm focused on improving dataplane performance through kernel extensions.
+          </p>
+        </div>
+      </div>
+      
+      <div class="flex flex-col items-center space-y-4 lg:justify-self-end order-1 lg:order-2">
+        <div class="w-72 h-72 relative">
+          <Image
+            src={image}
+            alt="Profile picture"
+            class="rounded-lg object-cover shadow-lg dark:shadow-dark-ui"
+          />
+        </div>
+        <div class="w-72">
+          <div class="rounded-lg border border-light-ui dark:border-dark-ui bg-light-bg-2 dark:bg-dark-bg-2 p-4">
+            <pre class="font-mono text-sm text-light-tx-2 dark:text-dark-tx-2 whitespace-pre-line text-left">
+              {address}
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> 

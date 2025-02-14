@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import profileImage from '../assets/profile.jpg';
+
+// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
+// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
+
+<BaseLayout
+	title="Tanuj Ravi Rao"
+	description="Personal website and blog"
+>
+	<Hero 
+		name="Tanuj Ravi Rao"
+		image={profileImage}
+		address="220 Gilbert Street\nBlacksburg, VA 24060"
+	/>
+</BaseLayout>

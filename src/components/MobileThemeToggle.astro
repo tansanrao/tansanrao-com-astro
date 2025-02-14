@@ -1,0 +1,115 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={["relative", className]}>
+  <div class="flex items-center bg-light-ui dark:bg-dark-ui rounded-lg p-1 relative">
+    <div id="theme-slider" class="absolute h-8 bg-accent-blue dark:bg-accent-dark-blue rounded transition-all duration-200 ease-in-out" style="width: 33.33%;"></div>
+    <button
+      data-theme="light"
+      class="flex-1 px-3 py-1.5 text-sm font-medium z-10 text-light-tx dark:text-dark-tx transition-colors relative"
+      aria-label="Light theme"
+    >
+      Light
+    </button>
+    <button
+      data-theme="dark"
+      class="flex-1 px-3 py-1.5 text-sm font-medium z-10 text-light-tx-2 dark:text-dark-tx-2 transition-colors relative"
+      aria-label="Dark theme"
+    >
+      Dark
+    </button>
+    <button
+      data-theme="system"
+      class="flex-1 px-3 py-1.5 text-sm font-medium z-10 text-light-tx-2 dark:text-dark-tx-2 transition-colors relative"
+      aria-label="System theme"
+    >
+      System
+    </button>
+  </div>
+</div>
+
+<script>
+  function getInitialPosition() {
+    const theme = localStorage.theme;
+    if (theme === 'light') return 0;
+    if (theme === 'dark') return 33.33;
+    return 66.66;
+  }
+
+  function updateSliderPosition(position: number) {
+    const slider = document.getElementById('theme-slider');
+    if (slider) {
+      slider.style.transform = `translateX(${position}%)`;
+    }
+  }
+
+  function updateButtonStyles(selectedTheme: string) {
+    const buttons = document.querySelectorAll('[data-theme]');
+    buttons.forEach((button) => {
+      const buttonTheme = button.getAttribute('data-theme');
+      if (buttonTheme === selectedTheme) {
+        button.classList.remove('text-light-tx-2', 'dark:text-dark-tx-2');
+        button.classList.add('text-light-tx', 'dark:text-dark-tx');
+      } else {
+        button.classList.remove('text-light-tx', 'dark:text-dark-tx');
+        button.classList.add('text-light-tx-2', 'dark:text-dark-tx-2');
+      }
+    });
+  }
+
+  function updateTheme(theme: 'light' | 'dark' | 'system') {
+    // Remove existing theme from localStorage for system preference
+    if (theme === 'system') {
+      localStorage.removeItem('theme');
+    } else {
+      localStorage.theme = theme;
+    }
+
+    // If theme is system, check system preference
+    if (theme === 'system') {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } else {
+      // Otherwise set theme directly
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }
+
+  // Initialize slider position
+  updateSliderPosition(getInitialPosition());
+  updateButtonStyles(localStorage.theme || 'system');
+
+  // Add click handlers to theme buttons
+  const buttons = document.querySelectorAll('[data-theme]');
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => {
+      const theme = button.getAttribute('data-theme') as 'light' | 'dark' | 'system';
+      updateTheme(theme);
+      updateSliderPosition(index * 33.33);
+      updateButtonStyles(theme);
+    });
+  });
+
+  // Watch for system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.theme) {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script> 
