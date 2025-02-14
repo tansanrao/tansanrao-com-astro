@@ -1,0 +1,47 @@
+---
+import Grid from './Grid.astro';
+import GridBox from './GridBox.astro';
+import { getBuildDate, getCurrentYear } from '@utils/datetime';
+
+const buildDate = getBuildDate('short');
+---
+
+<footer
+    class="bg-light-bg dark:bg-dark-bg border-light-ui dark:border-dark-ui sticky top-[100vh] w-full border-b pt-5 pb-28 brightness-95 transition duration-300 md:py-5"
+>
+    <Grid>
+        <GridBox
+            classes="flex flex-col gap-4 text-xs md:flex-row md:justify-between md:items-center"
+        >
+            <p class="text-center md:text-left">
+                © <span id="copyright-year">{getCurrentYear()}</span>, <span
+                    class="block sm:inline">Tanuj Ravi Rao</span
+                >
+            </p>
+
+            <div class="text-center">
+                <p>
+                    Except when otherwise noted, content licensed under <a
+                        href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                        class="hover:text-light-tx dark:hover:text-dark-tx underline"
+                        >CC BY-NC-SA 4.0</a
+                    >.
+                </p>
+                <p>
+                    Powered by <a
+                        href="https://astro.build"
+                        class="hover:text-light-tx dark:hover:text-dark-tx underline">Astro</a
+                    > and hosted on <a
+                        href="https://pages.cloudflare.com"
+                        class="hover:text-light-tx dark:hover:text-dark-tx underline"
+                        >Cloudflare Pages</a
+                    >. Last updated: {buildDate}
+                </p>
+            </div>
+
+            <ul class="flex justify-center gap-4 md:justify-end">
+                <li><a href="https://github.com/tansanrao/tansanrao-com-astro">Source code</a></li>
+            </ul>
+        </GridBox>
+    </Grid>
+</footer>

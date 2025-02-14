@@ -1,0 +1,48 @@
+---
+import '@styles/global.css';
+
+interface Props {
+    tags: string[];
+    currentTag?: string;
+    title?: string;
+}
+
+const { tags, currentTag, title = 'Filter by Tag' } = Astro.props;
+
+// Add "All" option at the beginning
+const filterOptions = ['All', ...tags];
+---
+
+<div class="sticky top-8">
+    <h2 class="text-light-tx dark:text-dark-tx mb-4 text-lg font-medium">{title}</h2>
+    <nav class="space-y-1">
+        {
+            filterOptions.map((option) => {
+                const isActive = currentTag === option || (option === 'All' && !currentTag);
+                return (
+                    <a
+                        href={option === 'All' ? '/blog' : `/blog/tag/${option}`}
+                        class:list={[
+                            'block rounded-md px-3 py-2 text-sm transition-all duration-200',
+                            'relative overflow-hidden',
+                            isActive
+                                ? [
+                                      'bg-light-bl dark:bg-dark-bl',
+                                      'text-paper dark:text-paper',
+                                      'font-medium',
+                                      'border-light-bl dark:border-dark-bl border-l-2'
+                                  ]
+                                : [
+                                      'text-light-tx-2 dark:text-dark-tx-2',
+                                      'hover:bg-light-ui dark:hover:bg-dark-ui',
+                                      'hover:text-light-tx dark:hover:text-dark-tx'
+                                  ]
+                        ]}
+                    >
+                        {option === 'All' ? 'All Posts' : `#${option}`}
+                    </a>
+                );
+            })
+        }
+    </nav>
+</div>

@@ -1,0 +1,28 @@
+---
+import Hero from '@components/Hero.astro';
+import LatestNews from '@components/home/LatestNews.astro';
+import LatestPosts from '@components/home/LatestPosts.astro';
+import Layout from '@layouts/Layout.astro';
+import '@styles/global.css';
+// import LatestBookmarks from '@components/bookmarks/LatestBookmarks.astro';
+// import Hero from '@components/hero.astro';
+// import Divider from '@components/Divider.astro';
+// import SideProjectSection from '@components/SideProjectSection.astro';
+// import PhotographySection from '@components/PhotographySection.astro';
+// import GardenSection from '@components/GardenSection.astro';
+---
+
+<Layout>
+    <Hero />
+    <div class="flex flex-col gap-8 lg:gap-16">
+        <LatestNews />
+        <LatestPosts />
+        <!-- <PhotographySection />
+        <Divider />
+        <GardenSection />
+        <Divider />
+        <SideProjectSection />
+        <Divider />
+        <LatestBookmarks /> -->
+    </div>
+</Layout>

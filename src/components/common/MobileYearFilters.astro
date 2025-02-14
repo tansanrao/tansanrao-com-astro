@@ -1,0 +1,93 @@
+---
+import '@styles/global.css';
+
+interface Props {
+    years: string[];
+    currentYear?: string;
+    baseUrl: string;
+    title?: string;
+}
+
+const { years, currentYear, baseUrl, title = 'Filter Posts' } = Astro.props;
+
+const filterOptions = ['All', ...years];
+---
+
+<div class="fixed right-6 bottom-6 z-50 lg:hidden">
+    <button
+        id="mobile-year-filter-toggle"
+        class="bg-light-bl dark:bg-dark-bl hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 text-paper flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-200"
+        aria-label="Filter options"
+    >
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            ></path>
+        </svg>
+    </button>
+
+    <div
+        id="mobile-year-filter-content"
+        class="bg-light-bg dark:bg-dark-bg border-light-ui-2 dark:border-dark-ui-2 fixed right-6 bottom-20 hidden max-h-[70vh] w-[calc(100vw-3rem)] max-w-sm overflow-auto rounded-lg border p-4 shadow-xl"
+    >
+        <h3 class="text-light-tx dark:text-dark-tx mb-4 text-lg font-medium">{title}</h3>
+        <nav class="space-y-2">
+            {
+                filterOptions.map((option) => {
+                    const isActive = currentYear === option || (option === 'All' && !currentYear);
+                    return (
+                        <a
+                            href={option === 'All' ? baseUrl : `${baseUrl}/${option}`}
+                            class:list={[
+                                'block rounded-md px-3 py-2 text-sm transition-all duration-200',
+                                isActive
+                                    ? [
+                                          'bg-light-bl dark:bg-dark-bl',
+                                          'text-paper dark:text-paper',
+                                          'font-medium'
+                                      ]
+                                    : [
+                                          'text-light-tx-2 dark:text-dark-tx-2',
+                                          'hover:bg-light-ui dark:hover:bg-dark-ui',
+                                          'hover:text-light-tx dark:hover:text-dark-tx'
+                                      ]
+                            ]}
+                        >
+                            {option === 'All' ? 'All' : option}
+                        </a>
+                    );
+                })
+            }
+        </nav>
+    </div>
+</div>
+
+<script>
+    const mobileButton = document.getElementById('mobile-year-filter-toggle');
+    const mobileContent = document.getElementById('mobile-year-filter-content');
+    const mobileContainer = mobileButton?.parentElement;
+
+    if (mobileButton && mobileContent && mobileContainer) {
+        // Toggle filter visibility
+        mobileButton.addEventListener('click', () => {
+            mobileContent.classList.toggle('hidden');
+        });
+
+        // Close filter when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileContainer.contains(event.target as Node)) {
+                mobileContent.classList.add('hidden');
+            }
+        });
+
+        // Close filter when clicking a link
+        mobileContent.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                mobileContent.classList.add('hidden');
+            });
+        });
+    }
+</script>

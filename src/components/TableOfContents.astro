@@ -1,0 +1,269 @@
+---
+import type { TocHeading } from '../types/toc';
+
+interface Props {
+    toc: TocHeading[];
+}
+
+const { toc } = Astro.props;
+
+// Client-side script to handle active section highlighting
+const script = `
+  document.addEventListener('DOMContentLoaded', () => {
+    // Get all TOC links from both desktop and mobile views
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const tocLinksMap = new Map(); // Map to store links by href
+    const tocContainer = document.querySelector('.overflow-y-auto');
+
+    // Group links by their href for synced highlighting
+    tocLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (!tocLinksMap.has(href)) {
+        tocLinksMap.set(href, []);
+      }
+      tocLinksMap.get(href).push(link);
+    });
+
+    // Get all potential section elements (both explicit sections and headings)
+    const sections = [
+      ...document.querySelectorAll('section[id]'),
+      ...document.querySelectorAll('.prose h2[id], .prose h3[id]')
+    ];
+
+    // Function to scroll TOC to show active item
+    function scrollTocToActiveItem(activeLinks) {
+      if (!tocContainer || !activeLinks || activeLinks.length === 0) return;
+      
+      // Find the first active link that's in the desktop TOC (not mobile)
+      const desktopActiveLink = activeLinks.find(link => {
+        const container = link.closest('.overflow-y-auto');
+        return container === tocContainer;
+      });
+      
+      if (desktopActiveLink) {
+        const containerRect = tocContainer.getBoundingClientRect();
+        const linkRect = desktopActiveLink.getBoundingClientRect();
+        
+        // Check if the link is outside the visible area
+        const isAboveView = linkRect.top < containerRect.top;
+        const isBelowView = linkRect.bottom > containerRect.bottom;
+        
+        if (isAboveView || isBelowView) {
+          // Calculate the position to scroll to (center the active item)
+          const linkOffsetTop = desktopActiveLink.offsetTop;
+          const containerHeight = tocContainer.clientHeight;
+          const linkHeight = desktopActiveLink.offsetHeight;
+          const scrollTop = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+          
+          tocContainer.scrollTo({
+            top: Math.max(0, scrollTop),
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    // Function to update active state for all instances of a link
+    function updateActiveState(links, isActive) {
+      if (!Array.isArray(links)) return;
+      
+      links.forEach(link => {
+        if (isActive) {
+          link.classList.remove(
+            'text-light-tx-2', 'dark:text-dark-tx-2',
+            'hover:bg-light-ui/80', 'dark:hover:bg-dark-ui/80',
+            'hover:text-light-tx', 'dark:hover:text-dark-tx'
+          );
+          link.classList.add(
+            'bg-light-bl/10', 'dark:bg-dark-bl/10',
+            'text-light-bl', 'dark:text-dark-bl',
+            'font-medium',
+            'border-l-2', 'border-light-bl', 'dark:border-dark-bl'
+          );
+        } else {
+          link.classList.remove(
+            'bg-light-bl/10', 'dark:bg-dark-bl/10',
+            'text-light-bl', 'dark:text-dark-bl',
+            'font-medium',
+            'border-l-2', 'border-light-bl', 'dark:border-dark-bl'
+          );
+          link.classList.add(
+            'text-light-tx-2', 'dark:text-dark-tx-2',
+            'hover:bg-light-ui/80', 'dark:hover:bg-dark-ui/80',
+            'hover:text-light-tx', 'dark:hover:text-dark-tx'
+          );
+        }
+      });
+    }
+
+    // Function to clear all active states
+    function clearAllActiveStates() {
+      tocLinksMap.forEach(links => {
+        updateActiveState(links, false);
+      });
+    }
+
+    // Smooth scroll to section when clicking on TOC links
+    tocLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').slice(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          const headerHeight = window.innerWidth >= 1024 ? 80 : 64;
+          const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Create intersection observer
+    const observerOptions = {
+      rootMargin: '-80px 0px -80% 0px',
+      threshold: [0, 0.2, 0.4, 0.6, 0.8, 1]
+    };
+
+    let lastActiveHref = null;
+
+    const observer = new IntersectionObserver((entries) => {
+      // Store all visible sections and their intersection ratios
+      const visibleSections = entries.reduce((acc, entry) => {
+        if (entry.intersectionRatio > 0) {
+          acc.push({
+            id: entry.target.getAttribute('id'),
+            ratio: entry.intersectionRatio,
+            element: entry.target
+          });
+        }
+        return acc;
+      }, []);
+
+      // Find the section that is most visible
+      if (visibleSections.length > 0) {
+        const mostVisible = visibleSections.reduce((max, section) => {
+          return section.ratio > max.ratio ? section : max;
+        });
+
+        const newActiveHref = \`#\${mostVisible.id}\`;
+        
+        // Only update if the active section has changed
+        if (newActiveHref !== lastActiveHref) {
+          // Clear all active states first
+          clearAllActiveStates();
+          
+          // Add active state to new links and scroll TOC to show them
+          if (tocLinksMap.has(newActiveHref)) {
+            const activeLinks = tocLinksMap.get(newActiveHref);
+            updateActiveState(activeLinks, true);
+            scrollTocToActiveItem(activeLinks);
+          }
+          
+          lastActiveHref = newActiveHref;
+        }
+      } else {
+        // If no sections are visible, clear all active states
+        clearAllActiveStates();
+        lastActiveHref = null;
+      }
+    }, observerOptions);
+
+    // Observe all sections
+    sections.forEach(section => {
+      if (section.id) {
+        observer.observe(section);
+      }
+    });
+
+    // Handle initial active state on page load
+    function setInitialActiveSection() {
+      let maxVisibleSection = null;
+      let maxVisibleArea = 0;
+
+      sections.forEach(section => {
+        if (!section.id) return;
+        
+        const rect = section.getBoundingClientRect();
+        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+        
+        if (visibleHeight > maxVisibleArea) {
+          maxVisibleArea = visibleHeight;
+          maxVisibleSection = section;
+        }
+      });
+
+      if (maxVisibleSection) {
+        const newActiveHref = \`#\${maxVisibleSection.id}\`;
+        clearAllActiveStates();
+        if (tocLinksMap.has(newActiveHref)) {
+          const activeLinks = tocLinksMap.get(newActiveHref);
+          updateActiveState(activeLinks, true);
+          scrollTocToActiveItem(activeLinks);
+          lastActiveHref = newActiveHref;
+        }
+      }
+    }
+
+    // Set initial active section
+    setInitialActiveSection();
+
+    // Update active section on scroll using requestAnimationFrame for performance
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+      if (scrollTimeout) {
+        window.cancelAnimationFrame(scrollTimeout);
+      }
+      scrollTimeout = window.requestAnimationFrame(() => {
+        setInitialActiveSection();
+      });
+    }, { passive: true });
+  });
+`;
+---
+
+<nav class="text-sm">
+    <ul class="space-y-1 pr-2">
+        {
+            toc.map((heading) => (
+                <li>
+                    <a
+                        href={`#${heading.slug}`}
+                        class:list={[
+                            'toc-link relative block overflow-hidden rounded-md px-3 py-2 text-sm transition-all duration-200',
+                            'bg-light-ui/50 dark:bg-dark-ui/50',
+                            'text-light-tx-2 dark:text-dark-tx-2',
+                            'hover:bg-light-ui/80 dark:hover:bg-dark-ui/80',
+                            'hover:text-light-tx dark:hover:text-dark-tx'
+                        ]}
+                    >
+                        {heading.text}
+                    </a>
+                    {heading.subheadings.length > 0 && (
+                        <ul class="mt-1 space-y-1">
+                            {heading.subheadings.map((subheading) => (
+                                <li>
+                                    <a
+                                        href={`#${subheading.slug}`}
+                                        class:list={[
+                                            'toc-link relative block overflow-hidden rounded-md py-2 pr-3 pl-6 text-sm transition-all duration-200',
+                                            'bg-light-ui/50 dark:bg-dark-ui/50',
+                                            'text-light-tx-2 dark:text-dark-tx-2',
+                                            'hover:bg-light-ui/80 dark:hover:bg-dark-ui/80',
+                                            'hover:text-light-tx dark:hover:text-dark-tx'
+                                        ]}
+                                    >
+                                        {subheading.text}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </li>
+            ))
+        }
+    </ul>
+</nav>
+
+<script is:inline set:html={script} />

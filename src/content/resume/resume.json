@@ -1,0 +1,156 @@
+{
+    "basics": {
+        "name": "Tanuj Ravi Rao",
+        "label": "PhD student researching dataplane acceleration through kernel extensions",
+        "image": "",
+        "email": "tansanrao@vt.edu",
+        "phone": "",
+        "url": "https://tansanrao.com/",
+        "summary": "Passionate about operating systems, distributed systems, and networking.",
+        "location": {
+            "address": "220 Gilbert Street",
+            "postalCode": "VA 24060",
+            "city": "Blacksburg",
+            "countryCode": "US",
+            "region": "Virginia"
+        }
+    },
+    "work": [
+        {
+            "company": "Ecobillz Private Limited",
+            "position": "Software Engineering Consultant",
+            "location": "Belagavi, India",
+            "startDate": "2022-08-01",
+            "endDate": "2022-11-01",
+            "summary": "",
+            "highlights": []
+        },
+        {
+            "company": "nTuring Technologies Private Limited",
+            "position": "Co-Founder, Director–Platform & Infrastructure",
+            "location": "Belagavi, India",
+            "startDate": "2019-06-01",
+            "endDate": "2022-03-01",
+            "summary": "",
+            "highlights": []
+        },
+        {
+            "company": "Prithvi Metals Private Limited",
+            "position": "Software Engineer, IT Administrator",
+            "location": "Belagavi, India",
+            "startDate": "2016-05-01",
+            "endDate": "2022-11-01",
+            "summary": "",
+            "highlights": []
+        }
+    ],
+    "education": [
+        {
+            "institution": "Virginia Tech",
+            "location": "Blacksburg, VA",
+            "url": "https://vt.edu/",
+            "area": "Computer Science and Applications",
+            "studyType": "Doctor of Philosophy (Ph.D.)",
+            "startDate": "2023-01-01",
+            "endDate": "present",
+            "score": "4.0/4.0",
+            "courses": [
+                "Advanced Operating Systems",
+                "Multiprocessor Programming",
+                "Advanced Linux Kernel Programming"
+            ]
+        },
+        {
+            "institution": "KLS Gogte Institute of Technology",
+            "location": "Belagavi, India",
+            "url": "https://git.edu/",
+            "area": "Computer Science and Engineering",
+            "studyType": "Bachelor of Engineering (B.E.)",
+            "startDate": "2017-08-01",
+            "endDate": "2021-05-01",
+            "score": "8.23/10.00",
+            "courses": ["Embedded Systems & IoT", "Computer Architecture", "Distrbuted Computing"]
+        }
+    ],
+    "publications": [
+        {
+            "name": "A high-throughput ResNet CNN approach for automated grapevine leaf hair quantification",
+            "publisher": "Scientific Reports",
+            "date": "2025-01-10",
+            "url": "https://doi.org/10.1038/s41598-025-85336-0"
+        },
+        {
+            "name": "Eliminating eBPF Tracing Overhead on Untraced Processes",
+            "publisher": "ACM SIGCOMM 2024 Workshop on eBPF and Kernel Extensions",
+            "date": "2024-08-04",
+            "url": "https://doi.org/10.1145/3672197.3673431"
+        },
+        {
+            "name": "A ResNet-CNN for accurate quantification of grapevine leaf hair",
+            "publisher": "XIII. International Symposium on Grapevine Breeding and Genetics, Pioneering Wines (PIWIs)",
+            "date": "2022-07-15",
+            "url": "https://doi.org/10.5073/20220612-152952"
+        }
+    ],
+    "volunteer": [],
+    "awards": [
+        {
+            "title": "First Place (Special Mention)",
+            "date": "2018-05-27",
+            "awarder": "GIZ Techathon National Hackathon",
+            "summary": "Developed an innovative solution for sustainable energy management."
+        },
+        {
+            "title": "Second Place",
+            "date": "2018-05-20",
+            "awarder": "GIZ Techathon Regional Hackathon",
+            "summary": "Created a prototype for renewable energy monitoring system."
+        },
+        {
+            "title": "First Place",
+            "date": "2020-03-03",
+            "awarder": "TCS TechBytes Quiz (Regional)",
+            "summary": "Won the regional round of TCS's flagship technical quiz competition."
+        },
+        {
+            "title": "Third Place",
+            "date": "2019-03-13",
+            "awarder": "TCS TechBytes Quiz (Regional)",
+            "summary": "Secured third position in the technical quiz competition."
+        }
+    ],
+    "certificates": [
+        {
+            "name": "Protecting Business Innovations via Patent",
+            "date": "2020-12-01",
+            "issuer": "The Hong Kong University of Science and Technology"
+        },
+        {
+            "name": "Google Cloud Platform Fundamentals: Core Infrastructure",
+            "date": "2020-12-01",
+            "issuer": "Google Cloud"
+        }
+    ],
+    "skills": [],
+    "languages": [
+        {
+            "language": "English",
+            "fluency": "Primary fluency / bilingual proficiency"
+        },
+        {
+            "language": "Hindi",
+            "fluency": "Primary fluency / bilingual proficiency"
+        },
+        {
+            "language": "Kannada",
+            "fluency": "Professional working proficiency"
+        },
+        {
+            "language": "Marathi",
+            "fluency": "Professional working proficiency"
+        }
+    ],
+    "interests": [],
+    "references": [],
+    "projects": []
+}

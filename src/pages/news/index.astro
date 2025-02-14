@@ -1,0 +1,57 @@
+---
+import Grid from '@components/Grid.astro';
+import GridBox from '@components/GridBox.astro';
+import PageTitle from '@components/PageTitle.astro';
+import Layout from '@layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, sortDatesByNewest } from '@utils/datetime';
+
+interface NewsUpdate {
+    date: string;
+    Content: any;
+}
+
+// Get all news updates and filter out drafts
+const allUpdates = await getCollection('news', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+// Sort by date (newest first) and render content
+const newsUpdates: NewsUpdate[] = await Promise.all(
+    sortDatesByNewest(allUpdates).map(async (update: CollectionEntry<'news'>) => {
+        const { Content } = await update.render();
+        return {
+            date: formatDate(update.data.pubDate, 'short'),
+            Content
+        };
+    })
+);
+---
+
+<Layout title="News | Tanuj Ravi Rao" description="The latest updates and announcements.">
+    <Grid>
+        <GridBox desktopFull>
+            <PageTitle title="News" subtitle="The latest updates and announcements." />
+        </GridBox>
+
+        <GridBox mobileFull tabletFull desktopStart={1} desktopEnd={5}>
+            <div class="divide-light-line dark:divide-dark-line divide-y">
+                {
+                    newsUpdates.map((update) => (
+                        <div class="py-8 first:pt-0 last:pb-0">
+                            <div class="flex flex-col gap-4 sm:grid sm:grid-cols-[120px_1fr] sm:items-baseline sm:gap-8">
+                                <time class="text-light-tx-2 dark:text-dark-tx-2 align-middle font-mono text-sm whitespace-nowrap">
+                                    {update.date}
+                                </time>
+                                <div class="prose dark:prose-invert max-w-none">
+                                    <update.Content />
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
+        </GridBox>
+    </Grid>
+</Layout>

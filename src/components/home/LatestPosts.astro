@@ -1,0 +1,45 @@
+---
+import Headline from '@components/Headline.astro';
+import BlogPostItem from '@components/blog/BlogPostItem.astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import { formatDate, sortDatesByNewest } from '@utils/datetime';
+
+// Get latest blog posts
+const allPosts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+function getPostUrl(post: CollectionEntry<'blog'>): string {
+    const date = post.data.pubDate;
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `/blog/${year}/${month}/${post.slug}`;
+}
+
+// Get the latest 3 posts
+const latestPosts = sortDatesByNewest(allPosts)
+    .slice(0, 3)
+    .map((post) => ({
+        title: post.data.title,
+        description: post.data.description,
+        publishedDate: formatDate(post.data.pubDate, 'short'),
+        href: getPostUrl(post),
+        tags: post.data.tags,
+        readingTime: post.data.readingTime
+    }));
+---
+
+<section class="py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Headline classes="mb-8 sm:mt-2" level={3}>Latest Posts</Headline>
+        <div class="space-y-8">
+            {latestPosts.map((post) => <BlogPostItem {...post} />)}
+        </div>
+        <div class="mt-8">
+            <a href="/blog" class="text-light-bl dark:text-dark-bl hover:underline">
+                View all posts →
+            </a>
+        </div>
+    </div>
+</section>

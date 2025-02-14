@@ -1,0 +1,71 @@
+---
+import ContactLinkItem from './ContactLinkItem.astro';
+import Grid from './Grid.astro';
+import GridBox from './GridBox.astro';
+import Headline from './Headline.astro';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+    classes?: string;
+}
+
+const { classes } = Astro.props as Props;
+---
+
+<div
+    class:list={[classes, 'bg-light-bg-2 dark:bg-dark-bg-2 py-16 transition-all duration-300']}
+    id="contact-container"
+>
+    <Grid>
+        <GridBox
+            mobileFull
+            tabletStart={1}
+            tabletEnd={2}
+            desktopStart={1}
+            desktopEnd={3}
+            classes="relative"
+        >
+            <Headline classes="mb-4 sm:mt-2" level={3}>Contact</Headline>
+            <Icon
+                id="icon-for-default"
+                class="icon-for-service absolute -top-10 right-10 text-6xl transition-transform sm:top-32 sm:right-auto"
+                name="sticker-wave-50"
+            />
+        </GridBox>
+        <GridBox mobileFull tabletStart={3} tabletEnd={8} desktopStart={4} desktopEnd={12}>
+            <ul>
+                <ContactLinkItem
+                    id="email-contact-item"
+                    service="Email"
+                    handle="email@tansanrao.com"
+                    url="mailto:email@tansanrao.com"
+                />
+                <ContactLinkItem
+                    id="mastodon-contact-item"
+                    service="Mastodon"
+                    handle="@tansanrao@mastodon.social"
+                    url="https://mastodon.social/@tansanrao"
+                />
+                <ContactLinkItem
+                    id="github-contact-item"
+                    service="GitHub"
+                    handle="tansanrao"
+                    url="https://github.com/tansanrao"
+                />
+                <ContactLinkItem
+                    id="linkedin-contact-item"
+                    service="LinkedIn"
+                    handle="tansanrao"
+                    url="https://www.linkedin.com/in/tansanrao/"
+                />
+                <ContactLinkItem
+                    id="orcid-contact-item"
+                    service="ORCID"
+                    handle="0009-0008-1249-784X"
+                    url="https://orcid.org/0009-0008-1249-784X"
+                    noBorder
+                />
+            </ul>
+        </GridBox>
+    </Grid>
+</div>

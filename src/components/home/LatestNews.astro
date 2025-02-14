@@ -1,0 +1,55 @@
+---
+import Headline from '@components/Headline.astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import { formatDate, sortDatesByNewest } from '@utils/datetime';
+
+interface NewsUpdate {
+    date: string;
+    Content: any;
+}
+
+// Get latest news
+const allUpdates = await getCollection('news', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+const latestNews: NewsUpdate[] = await Promise.all(
+    sortDatesByNewest(allUpdates)
+        .slice(0, 3)
+        .map(async (update: CollectionEntry<'news'>) => {
+            const { Content } = await update.render();
+            return {
+                date: formatDate(update.data.pubDate, 'short'),
+                Content
+            };
+        })
+);
+---
+
+<section class="py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Headline classes="mb-4 sm:mt-2" level={3}>Latest News</Headline>
+        <div class="divide-light-line dark:divide-dark-line divide-y">
+            {
+                latestNews.map((update) => (
+                    <div class="py-8 first:pt-0 last:pb-0">
+                        <div class="flex flex-col gap-4 sm:grid sm:grid-cols-[120px_1fr] sm:items-baseline sm:gap-8">
+                            <time class="text-light-tx-2 dark:text-dark-tx-2 align-middle font-mono whitespace-nowrap">
+                                {update.date}
+                            </time>
+                            <div class="prose dark:prose-invert max-w-none">
+                                <update.Content />
+                            </div>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+        <div class="mt-8">
+            <a href="/news" class="text-light-bl dark:text-dark-bl hover:underline"
+                >View all news →</a
+            >
+        </div>
+    </div>
+</section>

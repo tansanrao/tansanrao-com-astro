@@ -1,0 +1,31 @@
+{
+    "name": "tansanrao-com-astro",
+    "type": "module",
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "astro dev --host",
+        "build": "astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "@astrojs/rss": "^4.0.12",
+        "@fontsource/cormorant-garamond": "^5.2.9",
+        "@fontsource/ibm-plex-mono": "^5.2.6",
+        "@fontsource/ibm-plex-sans": "^5.2.6",
+        "@tailwindcss/vite": "^4.1.4",
+        "astro": "^5.10.1",
+        "astro-icon": "^1.1.5",
+        "astro-seo": "^0.8.4",
+        "markdown-it": "^14.1.0",
+        "sanitize-html": "^2.17.0",
+        "tailwindcss": "^4.1.4"
+    },
+    "devDependencies": {
+        "@iconify-json/ph": "^1.2.2",
+        "@tailwindcss/typography": "^0.5.16",
+        "prettier": "^3.5.3",
+        "prettier-plugin-astro": "^0.14.1",
+        "prettier-plugin-tailwindcss": "^0.6.11"
+    }
+}

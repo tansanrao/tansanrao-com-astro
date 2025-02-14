@@ -1,0 +1,71 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import PageTitle from '@components/PageTitle.astro';
+import YearFilters from '@components/common/YearFilters.astro';
+import MobileYearFilters from '@components/common/MobileYearFilters.astro';
+import NoteCard from '@components/notes/NoteCard.astro';
+import { sortDatesByNewest, extractYears, isDateInYear } from '@utils/datetime';
+import '@styles/global.css';
+
+export const getStaticPaths = (async () => {
+    const allNotes = await getCollection('notes', ({ data }) => {
+        return import.meta.env.PROD ? !data.draft : true;
+    });
+
+    // Get unique years from notes using the utility
+    const years = extractYears(allNotes);
+
+    // Create a path for each year
+    return years.map((year) => ({
+        params: { year },
+        props: { year }
+    }));
+}) satisfies GetStaticPaths;
+
+const { year } = Astro.props;
+
+// Get all notes and filter out drafts
+const allNotes = await getCollection('notes', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+// Get unique years for the filter using the utility
+const years = extractYears(allNotes);
+
+// Filter notes by year using the utility
+const filteredNotes = allNotes.filter((note) => isDateInYear(note.data.pubDate, year));
+
+function getNoteUrl(note: any) {
+    const date = note.data.pubDate;
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `/notes/${year}/${month}/${note.slug}`;
+}
+
+// Sort notes by publication date using the utility
+const sortedNotes = sortDatesByNewest(filteredNotes);
+const notes = sortedNotes;
+---
+
+<Layout
+    title={`Notes from ${year} | Tanuj Ravi Rao`}
+    description={`Short-form thoughts, updates, and observations from ${year}.`}
+>
+    <PageTitle
+        title={`Notes from ${year}`}
+        subtitle="Short-form thoughts, updates, and observations."
+    />
+    <div class="mx-auto flex max-w-4xl gap-12">
+        <aside class="hidden md:block md:w-48">
+            <YearFilters years={years} currentYear={year} baseUrl="/notes" title="Filter Notes" />
+        </aside>
+        <div class="flex-1">
+            <div class="grid grid-cols-1 gap-8">
+                {notes.map((note) => <NoteCard note={note} href={getNoteUrl(note)} />)}
+            </div>
+        </div>
+    </div>
+    <MobileYearFilters years={years} currentYear={year} baseUrl="/notes" title="Filter Notes" />
+</Layout>

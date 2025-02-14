@@ -1,0 +1,71 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BlogPost from '@layouts/BlogPost.astro';
+import '@styles/global.css';
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.DEV || !data.draft;
+  });
+
+  return posts.map((post) => {
+    const pubDate = post.data.pubDate;
+    const year = pubDate.getFullYear().toString();
+    const month = (pubDate.getMonth() + 1).toString().padStart(2, '0');
+
+    return {
+      params: {
+        year,
+        month,
+        slug: post.slug
+      },
+      props: { post },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+interface TocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+  subheadings: TocHeading[];
+}
+
+const { post } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await post.render();
+
+// Build nested TOC structure
+function buildToc(headings: Array<{ depth: number; slug: string; text: string }>): TocHeading[] {
+  const toc: TocHeading[] = [];
+  const parentHeadings = new Map<number, TocHeading>();
+  
+  headings.forEach((h) => {
+    const heading: TocHeading = { ...h, subheadings: [] };
+    parentHeadings.set(heading.depth, heading);
+    if (heading.depth === 2) {
+      toc.push(heading);
+    } else {
+      parentHeadings.get(heading.depth - 1)?.subheadings.push(heading);
+    }
+  });
+  
+  return toc;
+}
+
+// Merge the post data with TOC and reading time
+const postData = {
+  ...post.data,
+  toc: buildToc(headings),
+  readingTime: remarkPluginFrontmatter.readingTime,
+};
+---
+
+<BlogPost post={{ ...post, data: postData }}>
+  <Content />
+</BlogPost> 

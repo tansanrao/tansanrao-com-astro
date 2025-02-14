@@ -1,0 +1,231 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import TableOfContents from '@components/TableOfContents.astro';
+import BlogPostFootnotes from '@components/blog/BlogPostFootnotes.astro';
+import Layout from './Layout.astro';
+import BlogPostHeader from '@components/blog/BlogPostHeader.astro';
+import '@styles/global.css';
+
+interface TocHeading {
+    depth: number;
+    slug: string;
+    text: string;
+    subheadings: TocHeading[];
+}
+
+interface Props {
+    post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const {
+    title,
+    description,
+    pubDate,
+    updatedDate,
+    authors,
+    readingTime,
+    heroImage,
+    tags,
+    footnotes = [],
+    draft = false
+} = post.data;
+const { headings } = await post.render();
+const toc = buildToc(headings);
+
+// Check if post is older than 2 years
+const twoYearsAgo = new Date();
+twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+const isOld = (updatedDate || pubDate) < twoYearsAgo;
+
+// Build nested TOC structure
+function buildToc(headings: Array<{ depth: number; slug: string; text: string }>): TocHeading[] {
+    const toc: TocHeading[] = [];
+    const parentHeadings = new Map<number, TocHeading>();
+
+    headings.forEach((h) => {
+        const heading: TocHeading = { ...h, subheadings: [] };
+        parentHeadings.set(heading.depth, heading);
+        if (heading.depth === 2) {
+            toc.push(heading);
+        } else {
+            parentHeadings.get(heading.depth - 1)?.subheadings.push(heading);
+        }
+    });
+
+    return toc;
+}
+---
+
+<Layout title={title} description={description}>
+    <BlogPostHeader
+        title={title}
+        description={description}
+        pubDate={pubDate}
+        updatedDate={updatedDate}
+        authors={authors}
+        readingTime={readingTime}
+        tags={tags}
+    />
+
+    <div class="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row lg:gap-8">
+            {/* Left Sidebar */}
+            <aside class="hidden lg:block lg:w-64">
+                <div class="space-y-8 lg:sticky lg:top-8">
+                    {
+                        draft && (
+                            <div class="border-light-ye dark:border-dark-ye rounded-lg border-l-4 bg-yellow-50 p-4 dark:bg-yellow-900/20">
+                                <h2 class="text-light-ye-2 dark:text-dark-ye-2 mb-1 text-base font-semibold">
+                                    Draft Post
+                                </h2>
+                                <p class="text-light-ye dark:text-dark-ye text-sm">
+                                    This post is a draft and will not be visible in production.
+                                </p>
+                            </div>
+                        )
+                    }
+                    {
+                        isOld && (
+                            <div class="border-light-bl dark:border-dark-bl rounded-lg border-l-4 bg-blue-50 p-4 dark:bg-blue-900/20">
+                                <h2 class="text-light-bl-2 dark:text-dark-bl-2 mb-1 text-base font-semibold">
+                                    Older Content
+                                </h2>
+                                <p class="text-light-bl dark:text-dark-bl text-sm">
+                                    This post is over 2 years old. While the core concepts may still
+                                    be valid, some technical details may be outdated.
+                                </p>
+                            </div>
+                        )
+                    }
+                    {
+                        toc.length > 0 && (
+                            <div class="bg-light-bg-2 dark:bg-dark-bg-2 max-h-[calc(100vh-2rem)] overflow-hidden rounded-lg p-4 shadow-sm">
+                                <h2 class="text-light-tx dark:text-dark-tx mb-4 text-base font-semibold">
+                                    On this page
+                                </h2>
+                                <div class="relative max-h-[calc(100vh-8rem)] overflow-y-auto">
+                                    <TableOfContents toc={toc} />
+                                </div>
+                            </div>
+                        )
+                    }
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main class="min-w-0 flex-1 lg:max-w-2xl xl:max-w-3xl">
+                {/* Hero Image */}
+                {
+                    heroImage && (
+                        <div class="mb-8">
+                            <img
+                                src={heroImage.src}
+                                alt={title}
+                                class="h-auto w-full rounded-lg shadow-md"
+                            />
+                        </div>
+                    )
+                }
+
+                {/* Article Content */}
+                <article class="prose dark:prose-invert article-content max-w-none">
+                    <slot />
+                    <BlogPostFootnotes footnotes={footnotes} />
+                </article>
+            </main>
+        </div>
+    </div>
+
+    {/* Mobile Floating TOC */}
+    {
+        toc.length > 0 && (
+            <div class="fixed right-6 bottom-6 z-50 lg:hidden" id="mobile-toc-container">
+                <button
+                    id="mobile-toc-button"
+                    class="bg-light-bl dark:bg-dark-bl hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 text-paper flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-colors"
+                    aria-label="Table of Contents"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h7"
+                        />
+                    </svg>
+                </button>
+                <div
+                    id="mobile-toc-content"
+                    class="bg-light-bg-2 dark:bg-dark-bg-2 fixed right-6 bottom-20 hidden max-h-[70vh] w-[calc(100vw-3rem)] max-w-sm overflow-auto rounded-lg p-4 shadow-xl"
+                >
+                    <h2 class="text-light-tx dark:text-dark-tx mb-4 text-base font-semibold">
+                        On this page
+                    </h2>
+                    <TableOfContents toc={toc} />
+                </div>
+            </div>
+        )
+    }
+</Layout>
+
+<script>
+    const mobileButton = document.getElementById('mobile-toc-button');
+    const mobileContent = document.getElementById('mobile-toc-content');
+    const mobileContainer = document.getElementById('mobile-toc-container');
+
+    if (mobileButton && mobileContent && mobileContainer) {
+        // Toggle TOC visibility
+        mobileButton.addEventListener('click', () => {
+            mobileContent.classList.toggle('hidden');
+        });
+
+        // Close TOC when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileContainer.contains(event.target as Node)) {
+                mobileContent.classList.add('hidden');
+            }
+        });
+
+        // Close TOC when clicking a link
+        mobileContent.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                mobileContent.classList.add('hidden');
+            });
+        });
+    }
+</script>
+
+<style>
+    @reference '../styles/global.css';
+    /* Citation Styles */
+    .article-content :global(.citation) {
+        @apply text-light-tx-2 dark:text-dark-tx-2 no-underline;
+    }
+
+    .article-content :global(.references) {
+        @apply border-light-ui dark:border-dark-ui mt-12 border-t pt-8;
+    }
+
+    .article-content :global(.references-title) {
+        @apply text-light-tx dark:text-dark-tx mb-6 font-serif text-2xl font-bold;
+    }
+
+    .article-content :global(.references-list) {
+        @apply text-light-tx-2 dark:text-dark-tx-2 space-y-4 text-sm;
+    }
+
+    .article-content :global(.reference) {
+        @apply pl-8 -indent-8 leading-normal;
+    }
+
+    .article-content :global(.reference a) {
+        @apply no-underline hover:underline;
+    }
+</style>

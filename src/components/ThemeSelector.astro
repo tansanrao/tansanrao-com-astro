@@ -1,0 +1,177 @@
+<div class="relative">
+    <button
+        id="theme-toggle"
+        type="button"
+        class="text-light-tx-2 dark:text-dark-tx-2 hover:bg-light-ui dark:hover:bg-dark-ui inline-flex items-center rounded-lg p-2 transition-colors"
+        aria-label="Theme settings"
+    >
+        <!-- Current theme icon (dynamically changed by script) -->
+        <svg
+            id="theme-toggle-light-icon"
+            class="hidden h-5 w-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+        >
+            <path
+                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+            ></path>
+        </svg>
+        <svg
+            id="theme-toggle-dark-icon"
+            class="hidden h-5 w-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+        >
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg
+            id="theme-toggle-system-icon"
+            class="hidden h-5 w-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+        >
+            <path
+                fill-rule="evenodd"
+                d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z"
+                clip-rule="evenodd"></path>
+        </svg>
+    </button>
+    <!-- Dropdown menu -->
+    <div
+        id="theme-dropdown"
+        class="bg-light-bg dark:bg-dark-bg ring-light-ui dark:ring-dark-ui absolute right-0 mt-2 hidden w-48 rounded-md shadow-lg ring-1"
+    >
+        <div class="py-1" role="menu" aria-orientation="vertical">
+            <button
+                class="group text-light-tx-2 dark:text-dark-tx-2 hover:bg-light-ui dark:hover:bg-dark-ui flex w-full items-center px-4 py-2 text-sm"
+                role="menuitem"
+                data-theme="light"
+            >
+                <svg class="mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                    ></path>
+                </svg>
+                Light
+            </button>
+            <button
+                class="group text-light-tx-2 dark:text-dark-tx-2 hover:bg-light-ui dark:hover:bg-dark-ui flex w-full items-center px-4 py-2 text-sm"
+                role="menuitem"
+                data-theme="dark"
+            >
+                <svg class="mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+                    ></path>
+                </svg>
+                Dark
+            </button>
+            <button
+                class="group text-light-tx-2 dark:text-dark-tx-2 hover:bg-light-ui dark:hover:bg-dark-ui flex w-full items-center px-4 py-2 text-sm"
+                role="menuitem"
+                data-theme="system"
+            >
+                <svg class="mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        fill-rule="evenodd"
+                        d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                System
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateTheme(theme: 'light' | 'dark' | 'system') {
+        // Remove existing theme from localStorage for system preference
+        if (theme === 'system') {
+            localStorage.removeItem('theme');
+        } else {
+            localStorage.theme = theme;
+        }
+
+        // If theme is system, check system preference
+        if (theme === 'system') {
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        } else {
+            // Otherwise set theme directly
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    }
+
+    function updateIcon() {
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const systemIcon = document.getElementById('theme-toggle-system-icon');
+
+        // Hide all icons first
+        [lightIcon, darkIcon, systemIcon].forEach((icon) => icon?.classList.add('hidden'));
+
+        // Show the appropriate icon based on current theme
+        const theme = localStorage.theme;
+        if (!theme) {
+            systemIcon?.classList.remove('hidden');
+        } else if (theme === 'dark') {
+            darkIcon?.classList.remove('hidden');
+        } else {
+            lightIcon?.classList.remove('hidden');
+        }
+    }
+
+    // Toggle dropdown visibility
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeDropdown = document.getElementById('theme-dropdown');
+
+    themeToggle?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        themeDropdown?.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        themeDropdown?.classList.add('hidden');
+    });
+
+    // Handle theme selection
+    const themeButtons = document.querySelectorAll('[data-theme]');
+    themeButtons.forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const theme = (e.currentTarget as HTMLElement).dataset.theme as
+                | 'light'
+                | 'dark'
+                | 'system';
+            updateTheme(theme);
+            updateIcon();
+            themeDropdown?.classList.add('hidden');
+        });
+    });
+
+    // Watch for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.theme) {
+            if (e.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    });
+
+    // Initialize theme on page load
+    const currentTheme = localStorage.theme;
+    if (currentTheme === 'light' || currentTheme === 'dark') {
+        updateTheme(currentTheme);
+    } else {
+        updateTheme('system');
+    }
+    updateIcon();
+</script>

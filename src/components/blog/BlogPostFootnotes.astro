@@ -1,0 +1,30 @@
+---
+interface Props {
+  footnotes: Array<{
+    id: string;
+    content: string;
+  }>;
+}
+
+const { footnotes } = Astro.props;
+---
+
+{footnotes.length > 0 && (
+  <footer class="mt-16 pt-8 border-t border-light-ui-2 dark:border-dark-ui-2">
+    <h2 class="text-base font-semibold text-light-tx dark:text-dark-tx mb-4">Footnotes</h2>
+    <ol class="text-sm space-y-2">
+      {footnotes.map(({ id, content }) => (
+        <li id={`fn-${id}`} class="flex gap-2 text-light-tx-2 dark:text-dark-tx-2">
+          <a 
+            href={`#fnref-${id}`}
+            class="text-light-bl dark:text-dark-bl hover:text-light-bl-2 dark:hover:text-dark-bl-2 transition-colors"
+            aria-label={`Back to reference ${id}`}
+          >
+            {id}
+          </a>
+          <div set:html={content} />
+        </li>
+      ))}
+    </ol>
+  </footer>
+)} 

@@ -1,0 +1,20 @@
+---
+import '@styles/global.css';
+
+interface Props {
+    tag: string;
+}
+
+const { tag } = Astro.props;
+---
+
+<span
+    class="bg-light-ui dark:bg-dark-ui-2 text-light-tx-2 dark:text-dark-tx-2 rounded px-2 py-1 text-xs"
+>
+    #{tag}
+</span>
+
+<style>
+    @reference "@styles/global.css";
+</style>
+

@@ -1,0 +1,57 @@
+---
+import '@styles/global.css';
+
+interface Props {
+    title: string;
+    description: string;
+    publishedDate: string;
+    href: string;
+    tags?: string[];
+    readingTime?: string;
+}
+
+const { title, description, publishedDate, href, tags, readingTime } = Astro.props;
+---
+
+<article
+    class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui hover:border-light-bl dark:hover:border-dark-bl rounded-lg border p-6 transition-all duration-200 hover:shadow-lg"
+>
+    <a href={href} class="group block">
+        <time class="text-light-tx-2 dark:text-dark-tx-2 text-sm">
+            {publishedDate}
+        </time>
+
+        <h3
+            class="text-light-tx dark:text-dark-tx group-hover:text-light-bl dark:group-hover:text-dark-bl mt-2 text-2xl font-bold transition-colors duration-200"
+        >
+            {title}
+        </h3>
+
+        <p class="text-light-tx-2 dark:text-dark-tx-2 mt-3 line-clamp-2">
+            {description}
+        </p>
+
+        <!-- Tags and Reading Time -->
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+            {
+                tags &&
+                    tags.length > 0 &&
+                    tags.map((tag) => (
+                        <span class="bg-light-ui dark:bg-dark-ui text-light-tx-2 dark:text-dark-tx-2 rounded px-2 py-1 text-xs">
+                            #{tag}
+                        </span>
+                    ))
+            }
+            {
+                tags && readingTime && (
+                    <span class="text-light-tx-3 dark:text-dark-tx-3 text-xs">•</span>
+                )
+            }
+            {
+                readingTime && (
+                    <span class="text-light-tx-3 dark:text-dark-tx-3 text-xs">{readingTime}</span>
+                )
+            }
+        </div>
+    </a>
+</article>

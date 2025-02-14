@@ -1,0 +1,111 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import PageTitle from '@components/PageTitle.astro';
+import BlogCard from '@components/blog/BlogCard.astro';
+import BlogPostItem from '@components/blog/BlogPostItem.astro';
+import YearFilters from '@components/common/YearFilters.astro';
+import MobileYearFilters from '@components/common/MobileYearFilters.astro';
+import { formatDate, extractYears, sortDatesByNewest, isDateInYear } from '@utils/datetime';
+import '@styles/global.css';
+
+export const getStaticPaths = (async () => {
+    const allPosts = await getCollection('blog', ({ data }) => {
+        return import.meta.env.PROD ? !data.draft : true;
+    });
+
+    // Get unique years from posts using the new utility
+    const years = extractYears(allPosts);
+
+    // Create a path for each year
+    return years.map((year) => ({
+        params: { year },
+        props: { year }
+    }));
+}) satisfies GetStaticPaths;
+
+const { year } = Astro.props;
+
+// Get all blog posts and filter out drafts
+const allPosts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+// Get unique years for the filter using the new utility
+const years = extractYears(allPosts);
+
+// Filter posts by year using the new utility
+const filteredPosts = allPosts.filter((post) => isDateInYear(post.data.pubDate, year));
+
+function getPostUrl(post: CollectionEntry<'blog'>): string {
+    const date = post.data.pubDate;
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `/blog/${year}/${month}/${post.slug}`;
+}
+
+// Sort posts by publication date using the new utility
+const sortedPosts = sortDatesByNewest(filteredPosts);
+
+// Get the most recent 3 featured posts (not affected by year filter)
+const allFeaturedPosts = allPosts.filter((post) => post.data.featured);
+const sortedFeaturedPosts = sortDatesByNewest(allFeaturedPosts);
+const featuredPosts = sortedFeaturedPosts.slice(0, 3).map((post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    publishedDate: formatDate(post.data.pubDate, 'short'),
+    href: getPostUrl(post),
+    tags: post.data.tags,
+    readingTime: post.data.readingTime
+}));
+
+// Format all posts for the list view
+const posts = sortedPosts.map((post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    publishedDate: formatDate(post.data.pubDate, 'short'),
+    href: getPostUrl(post),
+    tags: post.data.tags,
+    readingTime: post.data.readingTime
+}));
+---
+
+<Layout
+    title={`Blog Posts from ${year} | Tanuj Ravi Rao`}
+    description={`Archive of blog posts from ${year}`}
+>
+    <PageTitle
+        title="Perspectives in Progress"
+        subtitle="Expository musings on science, technology, and life."
+    />
+
+    <!-- Featured Posts Grid -->
+    <div class="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {
+            featuredPosts.map((post, index) => (
+                <div class={index === 2 ? 'hidden lg:block' : ''}>
+                    <BlogCard {...post} />
+                </div>
+            ))
+        }
+    </div>
+
+    <!-- Content Section with Filters -->
+    <div class="flex gap-12">
+        <aside class="hidden md:block md:w-48">
+            <YearFilters years={years} currentYear={year} baseUrl="/blog" title="Filter Posts" />
+        </aside>
+        <div class="flex-1">
+            <h2 class="text-light-tx dark:text-dark-tx mb-8 text-2xl font-bold">
+                Posts from {year}
+            </h2>
+            <div class="space-y-8">
+                {posts.map((post) => <BlogPostItem {...post} />)}
+            </div>
+        </div>
+    </div>
+
+    <MobileYearFilters years={years} currentYear={year} baseUrl="/blog" title="Filter Posts" />
+</Layout>

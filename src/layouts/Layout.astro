@@ -1,0 +1,96 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '@styles/global.css';
+import { SEO } from 'astro-seo';
+import ContactLinksSection from '@components/ContactLinksSection.astro';
+
+// Font imports
+import '@fontsource/cormorant-garamond/400.css';
+import '@fontsource/cormorant-garamond/700.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/700.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+
+interface Props {
+    title?: string;
+    description?: string;
+    ogimageName?: string;
+}
+
+const { title, description, ogimageName } = Astro.props;
+const adjustedTitle = title ? title : 'Tanuj Ravi Rao';
+const adjustedDescription = description
+    ? description
+    : "Tanuj's personal website, blog, and digital garden";
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+const imageFileName = ogimageName ? `/opengraph/${ogimageName}` : '/opengraph/opengraph.jpg';
+const resolvedImageWithDomain = new URL(imageFileName, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="en" class="overscroll-none">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <meta name="generator" content={Astro.generator} />
+        <!-- Theme preference loader script -->
+        <script is:inline>
+            // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+            function getThemePreference() {
+                if (localStorage.theme === 'dark') return 'dark';
+                if (localStorage.theme === 'light') return 'light';
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            if (getThemePreference() === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+        <SEO
+            title={adjustedTitle}
+            description={adjustedDescription}
+            canonical={canonicalURL}
+            openGraph={{
+                basic: {
+                    url: canonicalURL,
+                    type: 'website',
+                    title: adjustedTitle,
+                    image: resolvedImageWithDomain
+                },
+                image: {
+                    alt: 'personal website screenshot'
+                }
+            }}
+        />
+    </head>
+
+    <body
+        class="bg-light-bg dark:bg-dark-bg text-light-tx dark:text-dark-tx relative flex min-h-screen flex-col overflow-x-hidden font-sans transition-colors duration-200"
+    >
+        <div
+            class="absolute inset-0 -z-10 bg-[radial-gradient(rgb(206_205_195/0.7)_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(rgb(111_110_105/0.3)_1px,transparent_1px)]"
+        >
+        </div>
+
+        <Header />
+
+        <main class="w-full flex-1">
+            <div class="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+                <slot />
+            </div>
+        </main>
+
+        <ContactLinksSection />
+        <Footer />
+    </body>
+</html>

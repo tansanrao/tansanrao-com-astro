@@ -1,0 +1,136 @@
+---
+// Mobile Theme Selector Component
+---
+
+<div
+    class="bg-light-ui/50 dark:bg-dark-ui/50 flex items-center justify-center space-x-1 rounded-lg p-1"
+>
+    <button
+        class="mobile-theme-btn flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
+        data-theme="light"
+        aria-label="Light theme"
+    >
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+            ></path>
+        </svg>
+    </button>
+    <button
+        class="mobile-theme-btn flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
+        data-theme="dark"
+        aria-label="Dark theme"
+    >
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+    </button>
+    <button
+        class="mobile-theme-btn flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
+        data-theme="system"
+        aria-label="System theme"
+    >
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+                fill-rule="evenodd"
+                d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z"
+                clip-rule="evenodd"></path>
+        </svg>
+    </button>
+</div>
+
+<script>
+    function updateMobileTheme(theme: 'light' | 'dark' | 'system') {
+        // Remove existing theme from localStorage for system preference
+        if (theme === 'system') {
+            localStorage.removeItem('theme');
+        } else {
+            localStorage.theme = theme;
+        }
+
+        // If theme is system, check system preference
+        if (theme === 'system') {
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        } else {
+            // Otherwise set theme directly
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    }
+
+    function updateMobileThemeButtons() {
+        const themeButtons = document.querySelectorAll('.mobile-theme-btn');
+        const currentTheme = localStorage.theme || 'system';
+
+        themeButtons.forEach((button) => {
+            const buttonTheme = (button as HTMLElement).dataset.theme;
+            if (buttonTheme === currentTheme) {
+                // Active state - use semantic colors consistently
+                button.classList.add(
+                    'bg-light-bl',
+                    'dark:bg-dark-bl',
+                    'text-light-bg',
+                    'dark:text-dark-bg',
+                    'shadow-sm'
+                );
+                button.classList.remove(
+                    'text-light-tx-2',
+                    'dark:text-dark-tx-2',
+                    'hover:bg-light-ui',
+                    'dark:hover:bg-dark-ui'
+                );
+            } else {
+                // Inactive state - use semantic colors consistently
+                button.classList.remove(
+                    'bg-light-bl',
+                    'dark:bg-dark-bl',
+                    'text-light-bg',
+                    'dark:text-dark-bg',
+                    'shadow-sm'
+                );
+                button.classList.add(
+                    'text-light-tx-2',
+                    'dark:text-dark-tx-2',
+                    'hover:bg-light-ui',
+                    'dark:hover:bg-dark-ui'
+                );
+            }
+        });
+    }
+
+    // Handle theme selection
+    const mobileThemeButtons = document.querySelectorAll('.mobile-theme-btn');
+    mobileThemeButtons.forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const theme = (e.currentTarget as HTMLElement).dataset.theme as
+                | 'light'
+                | 'dark'
+                | 'system';
+            updateMobileTheme(theme);
+            updateMobileThemeButtons();
+        });
+    });
+
+    // Watch for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.theme) {
+            if (e.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    });
+
+    // Initialize mobile theme buttons
+    document.addEventListener('DOMContentLoaded', () => {
+        updateMobileThemeButtons();
+    });
+</script>
