@@ -10,7 +10,6 @@ const { years, currentYear } = Astro.props;
 const filterOptions = ['All Posts', ...years];
 ---
 
-<aside class="w-48">
   <h2 class="font-medium text-light-tx dark:text-dark-tx mb-4">Filter Posts</h2>
   <nav class="space-y-1">
     {filterOptions.map((option) => {
@@ -38,4 +37,3 @@ const filterOptions = ['All Posts', ...years];
       );
     })}
   </nav>
-</aside> 

@@ -99,7 +99,9 @@ const posts = sortedPosts.map(post => ({
 
   <!-- Content Section with Filters -->
   <div class="flex gap-12">
-    <BlogFilters years={years} currentYear={year} />
+    <aside class="hidden md:block md:w-48">
+      <BlogFilters years={years} currentYear={year} />
+    </aside>
     <div class="flex-1">
       <h2 class="text-2xl font-bold text-light-tx dark:text-dark-tx mb-8">
         Posts from {year}
@@ -111,4 +113,49 @@ const posts = sortedPosts.map(post => ({
       </div>
     </div>
   </div>
+  {/* Mobile Floating TOC */}
+  <div class="fixed md:hidden bottom-6 right-6 z-50" id="mobile-filter-container">
+    <button
+      id="mobile-filter-button"
+      class="flex items-center justify-center w-12 h-12 rounded-full bg-light-bl dark:bg-dark-bl text-white shadow-lg hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 transition-colors"
+      aria-label="Table of Contents"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+      </svg>
+    </button>
+    <div
+      id="mobile-filter-content"
+      class="hidden fixed bottom-20 right-6 w-[calc(100vw-3rem)] max-w-sm max-h-[70vh] overflow-auto rounded-lg bg-light-bg-2 dark:bg-dark-bg-2 shadow-xl p-4"
+      >
+      <BlogFilters years={years} currentYear={year} />
+    </div>
+  </div>
 </BaseLayout> 
+
+<script>
+  const mobileButton = document.getElementById('mobile-filter-button');
+  const mobileContent = document.getElementById('mobile-filter-content');
+  const mobileContainer = document.getElementById('mobile-filter-container');
+
+  if (mobileButton && mobileContent && mobileContainer) {
+    // Toggle TOC visibility
+    mobileButton.addEventListener('click', () => {
+      mobileContent.classList.toggle('hidden');
+    });
+
+    // Close TOC when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!mobileContainer.contains(event.target as Node)) {
+        mobileContent.classList.add('hidden');
+      }
+    });
+
+    // Close TOC when clicking a link
+    mobileContent.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mobileContent.classList.add('hidden');
+      });
+    });
+  }
+</script> 
