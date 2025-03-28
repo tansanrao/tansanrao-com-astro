@@ -14,169 +14,112 @@ authors:
   - name: Tanuj Ravi Rao
     url: 'https://tansanrao.com'
 ---
-Hello everybody, Tanuj here! This post is going to guide you into setting up a Multi-Master HA (High-Availability) Kubernetes Cluster on bare-metal or virtual machines.
+This post is going to guide you into setting up a Multi-Master HA
+(High-Availability) Kubernetes Cluster on bare-metal or virtual machines. Let's
+get started!
 
-All our VM images will be based on Ubuntu 20.04.1 Server and for the purpose of this guide, will be Virtual Machines on a VMware ESXi host.
+**Environment:** Ubuntu 20.04.1 Server  
+**Platform:** VMware ESXi (can be adapted to bare-metal)  
+**Cluster Size:** 7 nodes (1 Load Balancer, 3 Masters, 3 Workers)  
+**Minimum Requirements per VM:** 2 Cores, 4GB RAM
 
-We will require 7 Virtual Machines with a minimum spec of 2 Cores and 4GB RAM per Node for decent performance. Also make sure that you have Static IPs assigned on your DHCP Server.
+---
 
-We are using the following Hostnames & IP Assignments:
+## Hostname & IP Assignments
 
-* 1 HAProxy Load Balancer Node  
-  — k8s-haproxy : `10.0.0.10`
-* 3 Etcd/Kubernetes Master Nodes  
-  — k8s-master-a : `10.0.0.11`  
-  — k8s-master-b : `10.0.0.12`  
-  — k8s-master-c : `10.0.0.13`
-* 3 Kubernetes Worker Nodes  
-  — k8s-node-a : `10.0.0.21`  
-  — k8s-node-b : `10.0.0.22`  
-  — k8s-node-c : `10.0.0.23`
+| Role          | Hostname       | IP Address      |
+| ------------- | -------------- | --------------- |
+| Load Balancer | `k8s-haproxy`  | `192.168.1.112` |
+| Master Node 1 | `k8s-master-a` | `192.168.1.113` |
+| Master Node 2 | `k8s-master-b` | `192.168.1.114` |
+| Master Node 3 | `k8s-master-c` | `192.168.1.115` |
+| Worker Node 1 | `k8s-node-a`   | `192.168.1.116` |
+| Worker Node 2 | `k8s-node-b`   | `192.168.1.117` |
+| Worker Node 3 | `k8s-node-c`   | `192.168.1.118` |
 
-We will also require 1 linux client machine, if unavailable, the client tools may be installed on the HAProxy node.
+---
 
-The minimum for production use is 2 physical hosts with at least 1 Master on each with the recommended being 3 hosts with 1 Master and 1 Worker Node Each with an external load balancer. For the sake of this guide, I am running all 7 nodes on the same ESXi host. A single host should be safe enough to use for lab and test environments but do not run anything mission critical on it.
+## 1. Prepare the Virtual Machines
 
-Let's get started!
+Ensure all VMs are updated:
 
-## Prepare Virtual Machines / Servers
-
-Start by preparing 7 machines with Ubuntu 20.04.1 Server using the correct hostnames and IP addresses. Once done, power on all of them and apply the latest updates using:
-
-```shell
+```bash
 sudo apt update && sudo apt upgrade
 ```
 
-## Setting up Client Tools
+---
 
-### Installing `cfssl`
+## 2. Setup Client Tools
 
-CFSSL is an SSL tool by Cloudflare which lets us create our Certs and CAs.
+### Install `cfssl`
 
-#### Step 1 - Download the binaries
-
-```shell
+```bash
 wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
 wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-```
-
-#### Step 2 - Add the execution permission to the binaries
-
-```shell
 chmod +x cfssl*
-```
-
-#### Step 3 - Move the binaries to `/usr/local/bin`
-
-```shell
 sudo mv cfssl_linux-amd64 /usr/local/bin/cfssl
 sudo mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
-```
-
-#### Step 4 - Verify the installation
-
-```shell
 cfssl version
 ```
 
-### Installing kubectl
+### Install `kubectl`
 
-#### Step 1 - Get the binary
-
-make sure it's the same version as the cluster, in our case we are using v1.19
-
-```shell
+```bash
 curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl
-```
-
-#### Step 2 - Add the execution permission to the binary
-
-```shell
 chmod +x kubectl
-```
-
-#### Step 3 - Move the binary to `/usr/local/bin`
-
-```shell
 sudo mv kubectl /usr/local/bin
-```
-
-#### Step 4 - Verify the installation
-
-```shell
 kubectl version
 ```
 
-## Installing HAProxy Load Balancer
+---
 
-As we will be deploying three Kubernetes master nodes, we need to deploy an HAProxy Load Balancer in front of them to distribute the traffic.
+## 3. Install HAProxy Load Balancer
 
-### Step 1 - SSH to the HAProxy VM
-
-```shell
-ssh username@10.0.0.10
-```
-
-### Step 2 - Install HAProxy
-
-```shell
+```bash
+ssh ubuntu@192.168.1.112
 sudo apt-get install haproxy
 ```
 
-### Step 3 - Configure HAProxy
+Edit HAProxy config:
 
-```shell
+```bash
 sudo nano /etc/haproxy/haproxy.cfg
 ```
 
-Enter the following config:
-
-```haproxy
-global
-...
-default
-...
+```
 frontend kubernetes
-bind 10.0.0.10:6443
-option tcplog
-mode tcp
-default_backend kubernetes-master-nodes
+  bind 192.168.1.112:6443
+  option tcplog
+  mode tcp
+  default_backend kubernetes-master-nodes
 
 backend kubernetes-master-nodes
-mode tcp
-balance roundrobin
-option tcp-check
-server k8s-master-a 10.0.0.11:6443 check fall 3 rise 2
-server k8s-master-b 10.0.0.12:6443 check fall 3 rise 2
-server k8s-master-c 10.0.0.13:6443 check fall 3 rise 2
+  mode tcp
+  balance roundrobin
+  option tcp-check
+  server k8s-master-a 192.168.1.113:6443 check fall 3 rise 2
+  server k8s-master-b 192.168.1.114:6443 check fall 3 rise 2
+  server k8s-master-c 192.168.1.115:6443 check fall 3 rise 2
 ```
 
-### Step 4 - Restart HAProxy
-
-```shell
+```bash
 sudo systemctl restart haproxy
 ```
 
-## Generating the TLS certificates
+---
 
-These steps can be done on your Linux client if you have one or on the HAProxy machine depending on where you installed the cfssl tool.
+## 4. Generate TLS Certificates
 
-### Creating a Certificate Authority
+> Can be done on client or HAProxy machine.
 
-#### Step 1 - Create the certificate authority configuration file
+### Create CA Config
 
-```shell
-nano ca-config.json
-```
-
-Enter the following config:
+`ca-config.json`:
 
 ```json
 {
   "signing": {
-    "default": {
-      "expiry": "8760h"
-    },
+    "default": { "expiry": "8760h" },
     "profiles": {
       "kubernetes": {
         "usages": ["signing", "key encipherment", "server auth", "client auth"],
@@ -187,41 +130,271 @@ Enter the following config:
 }
 ```
 
-#### Step 2 - Create the certificate authority signing request configuration file
-
-```shell
-nano ca-csr.json
-```
-
-Enter the following config, Change the names as necessary:
+`ca-csr.json`:
 
 ```json
 {
   "CN": "Kubernetes",
-  "key": {
-    "algo": "rsa",
-    "size": 2048
-  },
-  "names": [
-  {
-    "C": "US",
+  "key": { "algo": "rsa", "size": 2048 },
+  "names": [{
+    "C": "IN",
     "L": "City",
-    "O": "Organization",
+    "O": "OrgName",
     "OU": "CA",
     "ST": "State"
-  }
- ]
+  }]
 }
 ```
 
-#### Step 3 - Generate the certificate authority certificate and private key
-
-```shell
+```bash
 cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 ```
 
-## Conclusion
+### Generate Kubernetes Cert
 
-Congratulations! Your Bare-metal HA Cluster is ready for use. I recommend setting up Rancher Server for managing it and to setup Traefik as Ingress Controller, Longhorn as a Persistent Volume Provider, Prometheus & Grafana for Metrics and EFK Stack for Logging and Distributed Tracing. Guides for the same are in the works and will be posted in the coming weeks.
+`kubernetes-csr.json`:
 
-For any doubts, suggestions or issues, leave a comment below and I will get back to you asap! Follow me on Twitter & Instagram for behind the scenes and updates.
+```json
+{
+  "CN": "Kubernetes",
+  "key": { "algo": "rsa", "size": 2048 },
+  "names": [{
+    "C": "IN",
+    "L": "City",
+    "O": "OrgName",
+    "OU": "CA",
+    "ST": "State"
+  }]
+}
+```
+
+```bash
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname=192.168.1.112,192.168.1.113,192.168.1.114,192.168.1.115,127.0.0.1,kubernetes.default \
+  -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes
+```
+
+### Copy Certs to All Nodes
+
+```bash
+for ip in 113 114 115 116 117 118; do
+  scp ca.pem kubernetes.pem kubernetes-key.pem ubuntu@192.168.1.$ip:~
+done
+```
+
+---
+
+## 5. Prepare All Nodes for `kubeadm`
+
+Create a script `setup.sh` and run:
+
+```bash
+chmod +x setup.sh
+. setup.sh
+```
+
+Contents:
+
+```bash
+sudo apt-get remove docker docker-engine docker.io containerd runc -y
+
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo usermod -aG docker $USER
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
+sudo swapoff -a
+```
+
+Edit `/etc/fstab` and comment out swap line:
+
+```bash
+sudo nano /etc/fstab
+# Comment out the line for swap.img or /swap
+```
+
+---
+
+## 6. Install and Configure `etcd` on Master Nodes
+
+On each master (113, 114, 115):
+
+```bash
+sudo mkdir /etc/etcd /var/lib/etcd
+sudo mv ~/ca.pem ~/kubernetes.pem ~/kubernetes-key.pem /etc/etcd
+
+wget https://github.com/etcd-io/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-amd64.tar.gz
+tar xvzf etcd-v3.4.13-linux-amd64.tar.gz
+sudo mv etcd-v3.4.13-linux-amd64/etcd* /usr/local/bin/
+```
+
+Create `/etc/systemd/system/etcd.service`, updating IP for each host:
+
+```ini
+[Unit]
+Description=etcd
+Documentation=https://github.com/coreos
+
+[Service]
+ExecStart=/usr/local/bin/etcd \
+  --name <NODE_IP> \
+  --cert-file=/etc/etcd/kubernetes.pem \
+  --key-file=/etc/etcd/kubernetes-key.pem \
+  --peer-cert-file=/etc/etcd/kubernetes.pem \
+  --peer-key-file=/etc/etcd/kubernetes-key.pem \
+  --trusted-ca-file=/etc/etcd/ca.pem \
+  --peer-trusted-ca-file=/etc/etcd/ca.pem \
+  --peer-client-cert-auth \
+  --client-cert-auth \
+  --initial-advertise-peer-urls https://<NODE_IP>:2380 \
+  --listen-peer-urls https://<NODE_IP>:2380 \
+  --listen-client-urls https://<NODE_IP>:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls https://<NODE_IP>:2379 \
+  --initial-cluster-token etcd-cluster-0 \
+  --initial-cluster 192.168.1.113=https://192.168.1.113:2380,192.168.1.114=https://192.168.1.114:2380,192.168.1.115=https://192.168.1.115:2380 \
+  --initial-cluster-state new \
+  --data-dir=/var/lib/etcd
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable etcd
+sudo systemctl start etcd
+```
+
+Check status:
+
+```bash
+ETCDCTL_API=3 etcdctl member list
+```
+
+---
+
+## 7. Initialize Kubernetes Master Nodes
+
+### First Master (113)
+
+Create `config.yaml`:
+
+```yaml
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: v1.19.0
+controlPlaneEndpoint: "192.168.1.112:6443"
+etcd:
+  external:
+    endpoints:
+      - https://192.168.1.113:2379
+      - https://192.168.1.114:2379
+      - https://192.168.1.115:2379
+    caFile: /etc/etcd/ca.pem
+    certFile: /etc/etcd/kubernetes.pem
+    keyFile: /etc/etcd/kubernetes-key.pem
+networking:
+  podSubnet: 10.30.0.0/24
+apiServer:
+  certSANs:
+    - "192.168.1.112"
+  extraArgs:
+    apiserver-count: "3"
+```
+
+```bash
+sudo kubeadm init --config=config.yaml
+```
+
+Copy certs to other masters:
+
+```bash
+scp -r /etc/kubernetes/pki ubuntu@192.168.1.114:~
+scp -r /etc/kubernetes/pki ubuntu@192.168.1.115:~
+```
+
+### Second & Third Masters
+
+- Remove `apiserver.*`
+    
+- Move `pki` to `/etc/kubernetes`
+    
+- Create same `config.yaml`
+    
+- Run `sudo kubeadm init --config=config.yaml`
+    
+
+---
+
+## 8. Configure `kubectl` on Client Machine
+
+From Master Node:
+
+```bash
+sudo chmod +r /etc/kubernetes/admin.conf
+scp ubuntu@192.168.1.113:/etc/kubernetes/admin.conf .
+```
+
+On client:
+
+```bash
+mkdir ~/.kube
+mv admin.conf ~/.kube/config
+chmod 600 ~/.kube/config
+```
+
+---
+
+## 9. Join Worker Nodes
+
+Run the `kubeadm join` command from earlier on each worker node.
+
+Example:
+
+```bash
+sudo kubeadm join 192.168.1.112:6443 --token <token> \
+    --discovery-token-ca-cert-hash sha256:<hash>
+```
+
+Verify:
+
+```bash
+kubectl get nodes
+```
+
+---
+
+## 10. Deploy Overlay Network (Calico)
+
+```bash
+curl https://docs.projectcalico.org/manifests/calico.yaml -O
+kubectl apply -f calico.yaml
+kubectl get pods -n kube-system
+```
+
+---
+
+## ✅ Cluster is Ready
+
+Consider adding:
+- [Rancher](https://rancher.com/) for management
+- [Traefik](https://traefik.io/) for Ingress
+- [Longhorn](https://longhorn.io/) for volumes
+- [Prometheus + Grafana](https://prometheus.io/) for metrics
+- [EFK Stack](https://www.elastic.co/what-is/elk-stack) for logging
+
