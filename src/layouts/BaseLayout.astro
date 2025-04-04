@@ -20,9 +20,10 @@ interface Props {
   description?: string;
   image?: string;
   canonicalURL?: URL | string;
+  isPost?: boolean;
 }
 
-const { title, description, image, canonicalURL } = Astro.props;
+const { title, description, image, canonicalURL, isPost } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -33,6 +34,7 @@ const { title, description, image, canonicalURL } = Astro.props;
       description={description}
       image={image}
       canonicalURL={canonicalURL}
+      isPost={isPost}
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="alternate" type="application/rss+xml" title="Tanuj Ravi Rao - All Content" href="/rss.xml" />

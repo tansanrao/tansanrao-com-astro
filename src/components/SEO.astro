@@ -4,6 +4,7 @@ interface Props {
   description?: string;
   image?: string;
   canonicalURL?: URL | string;
+  isPost?: boolean;
 }
 
 const {
@@ -11,6 +12,7 @@ const {
   description = "Welcome to my Astro blog",
   image = "/social-image.png",
   canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astro.url.pathname,
+  isPost = false,
 } = Astro.props;
 ---
 
@@ -41,3 +43,9 @@ const {
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} /> 
+
+<!-- Mastodon Verification -->
+<link rel="me" href="https://mastodon.social/@tansanrao" />
+{isPost && (
+  <meta name="fediverse:creator" content="@tansanrao@mastodon.social" />
+)}
