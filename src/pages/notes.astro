@@ -25,6 +25,9 @@ const notes = await getCollection('notes', ({ data }) => {
         return (
           <article class="relative flex flex-col p-6 bg-light-ui/50 dark:bg-dark-ui/50 rounded-xl shadow-sm border border-light-ui dark:border-dark-ui">
             <div class="prose prose-zinc dark:prose-invert max-w-none">
+              <h2 class="text-xl font-bold text-light-tx-1 dark:text-dark-tx-1">
+                {note.data.title}
+              </h2>
               <Content />
             </div>
             <div class="mt-4 flex items-center justify-between text-sm">
