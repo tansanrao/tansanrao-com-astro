@@ -34,11 +34,20 @@ export async function GET(context) {
       link: item.type === 'blog' 
         ? `/blog/${item.slug}/`
         : `/notes/${item.slug}/`,
-      title: item.type === 'blog' ? item.data.title : item.slug,
+      title: item.type === 'blog' 
+        ? item.data.title 
+        : "📝 " + item.data.pubDate.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZoneName: 'short'
+        }) + " — " + item.data.title,
       pubDate: item.pubDate,
       description: item.type === 'blog' 
         ? item.data.description 
-        : sanitizeHtml(parser.render(item.body)),
+        : "",
       content: sanitizeHtml(parser.render(item.body))
     })),
     customData: `

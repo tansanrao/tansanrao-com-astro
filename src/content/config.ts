@@ -167,6 +167,7 @@ const newsCollection = defineCollection({
 const notesCollection = defineCollection({
   type: 'content',
   schema: () => z.object({
+    title: z.string(),
     pubDate: z.date(),
     draft: z.boolean().default(false),
     tags: z.array(z.string()).default([]),

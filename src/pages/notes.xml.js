@@ -17,9 +17,16 @@ export async function GET(context) {
     stylesheet: '/rss/styles.xsl',
     items: notes.map(note => ({
       link: `/notes/${note.slug}/`,
-      title: note.slug,
+      title: "📝 " + note.data.pubDate.toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZoneName: 'short'
+                }) + " — " + note.data.title,
       pubDate: note.data.pubDate,
-      description: sanitizeHtml(parser.render(note.body)),
+      description: "",
       content: sanitizeHtml(parser.render(note.body))
     })),
     customData: `

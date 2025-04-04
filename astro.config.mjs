@@ -17,7 +17,7 @@ export default defineConfig({
     rehypePlugins: [rehypeKatex],
     shikiConfig: {
       theme: 'github-dark',
-      wrap: true
+      wrap: false
     }
   },
   vite: {
