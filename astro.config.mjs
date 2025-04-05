@@ -24,5 +24,11 @@ export default defineConfig({
     build: {
       cssMinify: true,
     }
+  },
+  redirects: {
+    "/blog/xnu-kernel-and-darwin-evolution-and-architecture/": "/blog/2025/04/xnu-kernel-and-darwin-evolution-and-architecture/",
+    "/blog/my-thoughts-on-internet-search/": "/blog/2025/03/my-thoughts-on-internet-search/",
+    "/blog/new-beginnings/": "/blog/2025/01/new-beginnings/",
+    "/blog/kubernetes-ha-cluster-with-kubeadm/": "/blog/2020/09/kubernetes-ha-cluster-with-kubeadm/"
   }
 });
