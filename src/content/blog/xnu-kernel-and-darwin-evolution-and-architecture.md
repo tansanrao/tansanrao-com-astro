@@ -7,6 +7,7 @@ description: >-
     new hardware and security paradigms, and why XNU remains a uniquely
     resilient and scalable foundation for Apple’s platforms.
 pubDate: 2025-04-04T00:00:00.000Z
+updatedDate: 2025-08-28T14:26:00.000Z
 tags:
   - research
   - operating-systems
@@ -19,7 +20,7 @@ authors:
     url: 'https://tansanrao.com'
 ---
 
-
+Update 2025-08-28: An error in the Quality of Service portion of Scheduler and Thread Management has been corrected. Thank you Dietmar Eggemann for identifying it and reaching out!
 
 This post is the result of me going down a several week long XNU rabbit-hole
 after reading [this post by Thomas Claburn on
@@ -582,12 +583,13 @@ points of XNU scheduling:
   background, etc.) for threads. The kernel scheduler integrates QoS by mapping
   them to priority bands and scheduling deadlines. Threads created by Grand
   Central Dispatch or NSThreads inherit a QoS that influences their scheduling
-  priority and which core they run on. This was further refined on Apple
-  Silicon where the scheduler might steer “background QoS” threads to
-  efficiency cores. Internally, XNU’s `sched_prim.c` and `sched_perf.c` (for
-  performance controller) handle these decisions. There is also an interface
+  priority and which core they run on. This was further refined on Apple Silicon
+  where the scheduler might steer “background QoS” threads to efficiency cores.
+  Internally, XNU’s `sched_prim.c` and `priority.c` contains the implementation
+  for these feature. The Apple CLPC (Closed Loop Performance Controller)
+  coordinates power management and is a private kext. There is also an interface
   for the kernel to ask the power management firmware about energy vs
-  performance (used in macOS’s power management QoS).
+  performance through IOKit powercontrol.
 - **Realtime and Multimedia:** macOS supports realtime threads for audio or
   critical tasks. The scheduler has a realtime queue and will preempt other
   work to run RT threads to meet latency requirements. Also, since Mac OS X
@@ -712,7 +714,7 @@ hypervisor to let developers run Linux or even macOS VMs in user space. One
 design decision on Apple Silicon was to not allow arbitrary third-party
 hypervisors in kernel; instead, the hypervisor is part of XNU but only
 accessible via Apple’s frameworks with proper entitlements (to maintain
-security). 
+security).
 
 From a kernel perspective, the XNU hypervisor functionality includes: managing
 **guest physical memory**, handling **trap and emulate** for sensitive
@@ -743,7 +745,7 @@ XNU hypervisor is capable on mobile as well, though subject to entitlement.
 In summary, virtualization in XNU spans from the conceptual Mach
 multi-personality support (not widely used in products outside early Classic
 environment on OS X which ran Mac OS 9 in a para-virtualized setup), to robust
-hardware-assisted virtualization on modern Macs. 
+hardware-assisted virtualization on modern Macs.
 
 ### Secure Computing
 MacOS uses two complementary but distinct isolation mechanisms—**Secure
@@ -838,4 +840,3 @@ rooted in decades of operating systems research.
 
 [^2]: [Hardware-accelerated virtual machines on jailbroken iPhone 12 / iOS 14.1
     | Worth Doing Badly](https://worthdoingbadly.com/hv/)
-
