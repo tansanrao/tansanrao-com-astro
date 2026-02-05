@@ -1,0 +1,21 @@
+{
+  "name": "tansanrao-com-astro",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    }
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "npm install",
+  "forwardPorts": [4321],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "astro-build.astro-vscode",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
