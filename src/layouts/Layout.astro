@@ -92,5 +92,36 @@ const resolvedImageWithDomain = new URL(imageFileName, Astro.site).toString();
 
         <ContactLinksSection />
         <Footer />
+        <script is:inline>
+            const registerCopyButtons = () => {
+                const buttons = document.querySelectorAll(
+                    'button[data-name="rehype-pretty-copy-button"]'
+                );
+                buttons.forEach((button) => {
+                    if (button.dataset.copyBound === 'true') return;
+                    button.dataset.copyBound = 'true';
+                    button.addEventListener('click', async (event) => {
+                        event.preventDefault();
+                        const source = button.getAttribute('data');
+                        if (!source || !navigator.clipboard) return;
+                        await navigator.clipboard.writeText(source);
+                        const feedbackDuration = Number(
+                            button.getAttribute('data-feedback-duration') || 2500
+                        );
+                        button.classList.add('rehype-pretty-copied');
+                        window.setTimeout(
+                            () => button.classList.remove('rehype-pretty-copied'),
+                            feedbackDuration
+                        );
+                    });
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', registerCopyButtons);
+            } else {
+                registerCopyButtons();
+            }
+        </script>
     </body>
 </html>

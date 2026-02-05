@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'katex/dist/katex.min.css';
 
 /* https://docs.astro.build/en/recipes/tailwind-rendered-markdown/ */
 @plugin '@tailwindcss/typography';
@@ -233,4 +234,34 @@
     .prose p {
         font-size: 1rem;
         line-height: 1.75;
+}
+
+/* Code block styling and line numbers */
+.astro-code {
+    position: relative;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.prose pre {
+    background: transparent;
+}
+
+.astro-code button.rehype-pretty-copy {
+    top: 0.5rem;
+    right: 0.5rem;
+    margin: 0;
+}
+
+.dark .astro-code,
+.dark .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
 }

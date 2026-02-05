@@ -44,7 +44,7 @@ Feature importance can be visualized as follows:
 SHAP (SHapley Additive exPlanations) values provide a more nuanced view of feature contributions, building on earlier work in interpretable ML @molnar2020interpretable. The mathematical foundation for SHAP values is given by:
 
 $$
-\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(n-|S|-1)!}{n!}[v(S \cup \{i\}) - v(S)]
+\phi_i(v) = \sum_\{S \subseteq N \setminus \{i\}\} \frac\{|S|!(n-|S|-1)!\}\{n!\}[v(S \cup \{i\}) - v(S)]
 $$
 
 Where:

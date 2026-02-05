@@ -1,10 +1,8 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import sanitizeHtml from 'sanitize-html';
-import MarkdownIt from 'markdown-it';
 import { sortDatesByNewest, ensureTimezone } from '@utils/datetime';
 import { getGardenNoteUrl, slugifyTopic } from '@utils/garden';
-const parser = new MarkdownIt();
 
 export async function GET(context) {
     const blog = await getCollection('blog', ({ data }) => !data.draft);
@@ -25,28 +23,12 @@ export async function GET(context) {
     // Sort using the standardized datetime utility
     const sortedItems = sortDatesByNewest(allItems);
 
-    return rss({
-        title: 'Tanuj Ravi Rao',
-        description: 'Personal website and blog',
-        site: context.site,
-        xmlns: {
-            atom: 'http://www.w3.org/2005/Atom'
-        },
-        stylesheet: '/rss/styles.xsl',
-        items: sortedItems.map((item) => {
+    const items = await Promise.all(
+        sortedItems.map(async (item) => {
             const pubDate = ensureTimezone(item.data.pubDate);
             const year = pubDate.getFullYear();
             const month = (pubDate.getMonth() + 1).toString().padStart(2, '0');
-
-            const markdownBody = typeof item.body === 'string' ? item.body : '';
-            const renderedContent = sanitizeHtml(parser.render(markdownBody));
-
-            let description;
-            if (item.type === 'blog') {
-                description = item.data.description;
-            } else {
-                description = item.data.description;
-            }
+            const renderedContent = item.rendered?.html ?? '';
 
             return {
                 link:
@@ -55,10 +37,21 @@ export async function GET(context) {
                         : `${getGardenNoteUrl(slugifyTopic(item.data.topics[0]), item.slug)}/`,
                 title: item.type === 'blog' ? item.data.title : '🌿 ' + item.data.title,
                 pubDate: item.data.pubDate,
-                description: description,
-                content: renderedContent
+                description: item.data.description,
+                content: sanitizeHtml(renderedContent)
             };
-        }),
+        })
+    );
+
+    return rss({
+        title: 'Tanuj Ravi Rao',
+        description: 'Personal website and blog',
+        site: context.site,
+        xmlns: {
+            atom: 'http://www.w3.org/2005/Atom'
+        },
+        stylesheet: '/rss/styles.xsl',
+        items,
         customData: `
       <atom:link href="${context.site}rss.xml" rel="self" type="application/rss+xml" />
       <atom:link href="${context.site}blog.xml" rel="alternate" type="application/rss+xml" title="Blog RSS Feed" />
