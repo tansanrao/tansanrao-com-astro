@@ -6,8 +6,8 @@ description: >-
     Silicon. This post explores the hybrid kernel’s design, its adaptation to
     new hardware and security paradigms, and why XNU remains a uniquely
     resilient and scalable foundation for Apple’s platforms.
-pubDate: 2025-04-04T00:00:00.000Z
-updatedDate: 2025-08-28T14:26:00.000Z
+pubDate: 2025-04-04
+updatedDate: 2025-08-28 14:26
 tags:
   - research
   - operating-systems

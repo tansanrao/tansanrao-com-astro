@@ -1,8 +1,8 @@
 ---
 title: Linux GCC Clangd Config
 description: ".clangd snippet to configure LSPs in IDEs when the Linux kernel is built using GCC."
-pubDate: 2026-02-05T00:00:00.000Z
-updatedDate: 2026-02-05T00:00:00.000Z 
+pubDate: 2026-02-05
+updatedDate: 2026-02-05
 topics:
   - Useful Snippets
 draft: false

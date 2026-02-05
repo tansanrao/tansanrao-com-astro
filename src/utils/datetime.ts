@@ -58,36 +58,142 @@ export const DATE_CONFIG = {
     }
 } as const;
 
+const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const DATE_TIME_PATTERN =
+    /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/;
+const HAS_TIMEZONE_PATTERN = /(?:[+-]\d{2}:?\d{2}|Z|GMT|UTC)$/i;
+
+const TZ_FORMATTER = new Intl.DateTimeFormat('en-CA', {
+    timeZone: DATE_CONFIG.timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+});
+
+function parseIntOrZero(value?: string): number {
+    return value ? Number.parseInt(value, 10) : 0;
+}
+
+function getTimezoneParts(date: Date): {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+} {
+    const parts = TZ_FORMATTER.formatToParts(date);
+
+    const pick = (type: Intl.DateTimeFormatPartTypes): number => {
+        const value = parts.find((part) => part.type === type)?.value;
+        return value ? Number.parseInt(value, 10) : 0;
+    };
+
+    return {
+        year: pick('year'),
+        month: pick('month'),
+        day: pick('day'),
+        hour: pick('hour'),
+        minute: pick('minute'),
+        second: pick('second')
+    };
+}
+
+function convertWallTimeToDate(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+    millisecond: number
+): Date {
+    const target = Date.UTC(year, month - 1, day, hour, minute, second, millisecond);
+    let guess = new Date(target);
+
+    for (let i = 0; i < 4; i += 1) {
+        const current = getTimezoneParts(guess);
+        const currentAsUtc = Date.UTC(
+            current.year,
+            current.month - 1,
+            current.day,
+            current.hour,
+            current.minute,
+            current.second,
+            millisecond
+        );
+
+        const diffMs = target - currentAsUtc;
+
+        if (diffMs === 0) {
+            break;
+        }
+
+        guess = new Date(guess.getTime() + diffMs);
+    }
+
+    return guess;
+}
+
+/**
+ * Parse frontmatter date inputs.
+ * Supports:
+ * - YYYY-MM-DD
+ * - YYYY-MM-DD HH:mm (or with T separator)
+ * - full ISO strings (with timezone)
+ */
+export function parseDateInput(value: Date | string): Date {
+    if (value instanceof Date) {
+        return value;
+    }
+
+    const dateStr = value.trim();
+
+    const dateOnlyMatch = dateStr.match(DATE_ONLY_PATTERN);
+    if (dateOnlyMatch) {
+        const [, year, month, day] = dateOnlyMatch;
+        return convertWallTimeToDate(
+            Number.parseInt(year, 10),
+            Number.parseInt(month, 10),
+            Number.parseInt(day, 10),
+            0,
+            0,
+            0,
+            0
+        );
+    }
+
+    const dateTimeMatch = dateStr.match(DATE_TIME_PATTERN);
+    if (dateTimeMatch && !HAS_TIMEZONE_PATTERN.test(dateStr)) {
+        const [, year, month, day, hour, minute, second, millisecond] = dateTimeMatch;
+        return convertWallTimeToDate(
+            Number.parseInt(year, 10),
+            Number.parseInt(month, 10),
+            Number.parseInt(day, 10),
+            Number.parseInt(hour, 10),
+            Number.parseInt(minute, 10),
+            parseIntOrZero(second),
+            parseIntOrZero(millisecond)
+        );
+    }
+
+    const parsed = new Date(dateStr);
+    if (Number.isNaN(parsed.getTime())) {
+        throw new Error(`Invalid date value: \"${value}\"`);
+    }
+
+    return parsed;
+}
+
 /**
  * Ensures a date is interpreted in the configured timezone if no timezone is specified
  */
 export function ensureTimezone(date: Date | string): Date {
-    if (typeof date === 'string') {
-        // If the string doesn't contain timezone info, assume it's in the configured timezone
-        const dateStr = date.trim();
-
-        // Check if the date string already has timezone information
-        const hasTimezone = /[+-]\d{2}:?\d{2}$|Z$|GMT|UTC/i.test(dateStr);
-
-        if (!hasTimezone) {
-            // For dates without time (YYYY-MM-DD), treat as local date in configured timezone
-            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-                // Create date as if it were in the configured timezone
-                const [year, month, day] = dateStr.split('-').map(Number);
-                return new Date(year, month - 1, day);
-            }
-
-            // For dates with time but no timezone, parse and convert to configured timezone
-            const parsedDate = new Date(dateStr);
-            if (!isNaN(parsedDate.getTime())) {
-                return parsedDate;
-            }
-        }
-
-        return new Date(dateStr);
-    }
-
-    return date;
+    return parseDateInput(date);
 }
 
 /**
@@ -142,12 +248,13 @@ export function formatDateTime(
  * Get the current year in the configured timezone
  */
 export function getCurrentYear(): number {
-    return new Date()
-        .toLocaleDateString(DATE_CONFIG.locale, {
+    return Number.parseInt(
+        new Date().toLocaleDateString(DATE_CONFIG.locale, {
             year: 'numeric',
             timeZone: DATE_CONFIG.timezone
-        })
-        .match(/\d{4}/)![0] as unknown as number;
+        }),
+        10
+    );
 }
 
 /**
@@ -249,4 +356,13 @@ export function getRelativeTime(date: Date | string): string {
         const diffYears = Math.floor(diffDays / 365);
         return `${diffYears} year${diffYears === 1 ? '' : 's'} ago`;
     }
+}
+
+/**
+ * Get a Date object for a specified number of years ago
+ */
+export function getDateYearsAgo(years: number): Date {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - years);
+    return date;
 }

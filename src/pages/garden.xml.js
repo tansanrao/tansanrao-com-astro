@@ -17,7 +17,8 @@ export async function GET(context) {
         },
         stylesheet: '/rss/styles.xsl',
         items: sortGardenEntries(notes, 'newest').map((note) => {
-            const renderedContent = sanitizeHtml(parser.render(note.body));
+            const markdownBody = typeof note.body === 'string' ? note.body : '';
+            const renderedContent = sanitizeHtml(parser.render(markdownBody));
             const topicSlug = slugifyTopic(note.data.topics[0]);
 
             return {

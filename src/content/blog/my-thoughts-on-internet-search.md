@@ -1,7 +1,7 @@
 ---
 title: My Thoughts on Internet Search
 description: A reflection on the state of search engines today and why I switched to Kagi.
-pubDate: 2025-03-11T00:00:00.000Z
+pubDate: 2025-03-11
 tags:
   - writing
   - opinion

@@ -4,7 +4,7 @@ description: >-
   A comprehensive guide on setting up a highly available Kubernetes cluster on
   bare-metal or virtual machines using kubeadm, covering load balancer setup,
   etcd configuration, and worker node joining.
-pubDate: 2020-09-22T00:00:00.000Z
+pubDate: 2020-09-22
 tags:
   - kubernetes
   - infrastructure

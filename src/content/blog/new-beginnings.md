@@ -4,7 +4,7 @@ description: >-
   After years away, I'm starting fresh with this blog, shifting my focus from
   perfection and productivity to personal growth, exploration, and enjoying the
   process of writing.
-pubDate: 2025-01-09T00:00:00.000Z
+pubDate: 2025-01-09
 tags:
   - writing
   - personal-growth

@@ -1,4 +1,18 @@
 import { defineCollection, z } from 'astro:content';
+import { parseDateInput } from '@utils/datetime';
+
+const dateInputSchema = z.union([z.date(), z.string()]).transform((value, ctx) => {
+    try {
+        return parseDateInput(value);
+    } catch {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+                'Invalid date format. Use YYYY-MM-DD, YYYY-MM-DD HH:mm, or an ISO datetime with timezone.'
+        });
+        return z.NEVER;
+    }
+});
 
 
 const authorSchema = z.object({
@@ -17,8 +31,8 @@ const blogCollection = defineCollection({
         z.object({
             title: z.string(),
             description: z.string(),
-            pubDate: z.date(),
-            updatedDate: z.date().optional(),
+            pubDate: dateInputSchema,
+            updatedDate: dateInputSchema.optional(),
             heroImage: image().optional(),
             tags: z.array(z.string()).default([]),
             draft: z.boolean().default(false),
@@ -35,7 +49,7 @@ const newsCollection = defineCollection({
     type: 'content',
     schema: () =>
         z.object({
-            pubDate: z.date(),
+            pubDate: dateInputSchema,
             draft: z.boolean().default(false)
         })
 });
@@ -46,8 +60,8 @@ const gardenCollection = defineCollection({
         z.object({
             title: z.string(),
             description: z.string(),
-            pubDate: z.date(),
-            updatedDate: z.date().optional(),
+            pubDate: dateInputSchema,
+            updatedDate: dateInputSchema.optional(),
             draft: z.boolean().default(false),
             topics: z.array(z.string()).min(1),
             heroImage: image().optional(),

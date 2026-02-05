@@ -38,7 +38,8 @@ export async function GET(context) {
             const year = pubDate.getFullYear();
             const month = (pubDate.getMonth() + 1).toString().padStart(2, '0');
 
-            const renderedContent = sanitizeHtml(parser.render(item.body));
+            const markdownBody = typeof item.body === 'string' ? item.body : '';
+            const renderedContent = sanitizeHtml(parser.render(markdownBody));
 
             let description;
             if (item.type === 'blog') {
