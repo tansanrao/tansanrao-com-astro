@@ -1,0 +1,109 @@
+---
+import { formatDate } from '@utils/datetime';
+import '@styles/global.css';
+import type { GardenEntry } from '@utils/garden';
+
+interface Props {
+    note: GardenEntry;
+    href: string;
+}
+
+const { note, href } = Astro.props;
+const { title, description, pubDate, updatedDate, topics } = note.data;
+const primaryTopic = topics[0] ?? 'General';
+
+function hashValue(value: string): number {
+    let hash = 0;
+    for (let i = 0; i < value.length; i += 1) {
+        hash = (hash * 31 + value.charCodeAt(i)) % 1_000_000_007;
+    }
+    return Math.abs(hash);
+}
+
+const cardHash = hashValue(`${note.slug}-${primaryTopic}`);
+const rotationVariant = cardHash % 3;
+const createdDate = formatDate(pubDate, 'short');
+const editedDate = updatedDate ? formatDate(updatedDate, 'short') : null;
+---
+
+<a
+    href={href}
+    class:list={[
+        'group block h-full transition-transform duration-200 hover:-translate-y-1',
+        {
+            'md:-rotate-1': rotationVariant === 0,
+            'md:rotate-0': rotationVariant === 1,
+            'md:rotate-1': rotationVariant === 2
+        }
+    ]}
+>
+    <article
+        class:list={[
+            'bg-light-bg dark:bg-dark-bg border-light-ui-2 dark:border-dark-ui-2 h-full rounded-md border p-2 shadow-sm transition-shadow duration-200 group-hover:shadow-lg'
+        ]}
+    >
+        <div class="border-light-tx/30 dark:border-dark-tx/30 h-full border p-3">
+            <div class="flex h-full min-h-[272px] flex-col">
+                <div>
+                    <span
+                        class="bg-light-bg-2 dark:bg-dark-ui text-light-tx dark:text-dark-tx border-light-ui-2 dark:border-dark-ui-2 inline-block rounded-full border px-3 py-1 font-mono text-xs"
+                    >
+                        {primaryTopic}
+                    </span>
+                    <h2
+                        class="garden-card-title text-light-tx dark:text-dark-tx mt-4 text-2xl font-bold tracking-tight"
+                    >
+                        {title}
+                    </h2>
+                </div>
+
+                <div class="border-light-tx/45 dark:border-dark-tx/45 my-3 border-t border-dashed"></div>
+
+                <p class="garden-card-description text-light-tx dark:text-dark-tx flex-1 text-base">
+                    {description}
+                </p>
+
+                <div class="border-light-tx/45 dark:border-dark-tx/45 my-3 border-t border-dashed"></div>
+
+                <div class="text-light-tx dark:text-dark-tx space-y-1 font-mono text-xs">
+                    <p>
+                        <span class="inline-block min-w-[72px]">created:</span>
+                        {createdDate}
+                    </p>
+                    {
+                        editedDate && editedDate !== createdDate && (
+                            <p>
+                                <span class="inline-block min-w-[72px]">edited:</span>
+                                {editedDate}
+                            </p>
+                        )
+                    }
+                </div>
+            </div>
+        </div>
+    </article>
+</a>
+
+<style>
+    .garden-card-title {
+        line-height: 1.25;
+        height: calc(2 * 1.25em);
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .garden-card-description {
+        line-height: 1.4;
+        height: calc(4 * 1.4em);
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

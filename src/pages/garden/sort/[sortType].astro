@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import PageTitle from '@components/PageTitle.astro';
+import GardenExplorer from '@components/garden/GardenExplorer.astro';
+import {
+    SORT_LABELS,
+    SORT_TYPES,
+    getTopicsWithCounts,
+    normalizeSortType,
+    sortGardenEntries
+} from '@utils/garden';
+import '@styles/global.css';
+
+export const getStaticPaths = (() => {
+    return SORT_TYPES.map((sortType) => ({
+        params: { sortType }
+    }));
+}) satisfies GetStaticPaths;
+
+const sortParam = Astro.params.sortType;
+const currentSort = normalizeSortType(sortParam);
+
+const allNotes = await getCollection('garden', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+const topics = getTopicsWithCounts(allNotes);
+const notes = sortGardenEntries(allNotes, currentSort);
+const sortLabel = SORT_LABELS[currentSort];
+---
+
+<Layout
+    title={`Garden (${sortLabel}) | Tanuj Ravi Rao`}
+    description="A living collection of notes, ideas, and references."
+>
+    <PageTitle
+        title="Digital Garden"
+        subtitle="A collection of notes, ideas, and thoughts that I cultivate over time. Unlike blog posts, these notes are living documents that grow and evolve as I learn and explore new topics."
+    />
+    <GardenExplorer notes={notes} topics={topics} currentSort={currentSort} />
+</Layout>

@@ -40,15 +40,16 @@ const newsCollection = defineCollection({
         })
 });
 
-const notesCollection = defineCollection({
+const gardenCollection = defineCollection({
     type: 'content',
     schema: ({ image }) =>
         z.object({
             title: z.string(),
+            description: z.string(),
             pubDate: z.date(),
             updatedDate: z.date().optional(),
             draft: z.boolean().default(false),
-            tags: z.array(z.string()).default([]),
+            topics: z.array(z.string()).min(1),
             heroImage: image().optional(),
             authors: z
                 .array(authorSchema)
@@ -190,6 +191,6 @@ const resumeCollection = defineCollection({
 export const collections = {
     blog: blogCollection,
     news: newsCollection,
-    notes: notesCollection,
+    garden: gardenCollection,
     resume: resumeCollection
 }; 

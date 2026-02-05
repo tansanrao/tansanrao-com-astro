@@ -1,0 +1,153 @@
+---
+import '@styles/global.css';
+import {
+    SORT_LABELS,
+    SORT_TYPES,
+    getGardenSortUrl,
+    getGardenTopicSortUrl,
+    type SortType,
+    type TopicOption
+} from '@utils/garden';
+
+interface Props {
+    topics: TopicOption[];
+    currentTopic?: string;
+    currentSort: SortType;
+}
+
+const { topics, currentTopic, currentSort } = Astro.props;
+const totalCount = topics.reduce((sum, topic) => sum + topic.count, 0);
+---
+
+<div class="fixed right-6 bottom-6 z-50 lg:hidden">
+    <button
+        id="mobile-garden-filter-toggle"
+        class="bg-light-bl dark:bg-dark-bl hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 text-paper flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-200"
+        aria-label="Filter garden"
+    >
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            ></path>
+        </svg>
+    </button>
+
+    <div
+        id="mobile-garden-filter-content"
+        class="bg-light-bg dark:bg-dark-bg border-light-ui-2 dark:border-dark-ui-2 fixed right-6 bottom-20 hidden max-h-[70vh] w-[calc(100vw-3rem)] max-w-sm overflow-auto rounded-lg border p-4 shadow-xl"
+    >
+        <div class="mb-6">
+            <h3 class="text-light-tx dark:text-dark-tx mb-4 text-lg font-medium">Topics</h3>
+            <nav class="space-y-2">
+                <a
+                    href={getGardenSortUrl(currentSort)}
+                    class:list={[
+                        'block rounded-md px-3 py-2 text-sm transition-all duration-200',
+                        !currentTopic
+                            ? [
+                                  'bg-light-bl dark:bg-dark-bl',
+                                  'text-paper dark:text-paper',
+                                  'font-medium'
+                              ]
+                            : [
+                                  'text-light-tx-2 dark:text-dark-tx-2',
+                                  'hover:bg-light-ui dark:hover:bg-dark-ui',
+                                  'hover:text-light-tx dark:hover:text-dark-tx'
+                              ]
+                    ]}
+                >
+                    All <span class="opacity-70">({totalCount})</span>
+                </a>
+                {
+                    topics.map((topic) => (
+                        <a
+                            href={getGardenTopicSortUrl(topic.slug, currentSort)}
+                            class:list={[
+                                'block rounded-md px-3 py-2 text-sm transition-all duration-200',
+                                currentTopic === topic.slug
+                                    ? [
+                                          'bg-light-bl dark:bg-dark-bl',
+                                          'text-paper dark:text-paper',
+                                          'font-medium'
+                                      ]
+                                    : [
+                                          'text-light-tx-2 dark:text-dark-tx-2',
+                                          'hover:bg-light-ui dark:hover:bg-dark-ui',
+                                          'hover:text-light-tx dark:hover:text-dark-tx'
+                                      ]
+                            ]}
+                        >
+                            {topic.label} <span class="opacity-70">({topic.count})</span>
+                        </a>
+                    ))
+                }
+            </nav>
+        </div>
+
+        <div>
+            <h3 class="text-light-tx dark:text-dark-tx mb-4 text-lg font-medium">Sort by</h3>
+            <nav class="space-y-2">
+                {
+                    SORT_TYPES.map((sortType) => {
+                        const href = currentTopic
+                            ? getGardenTopicSortUrl(currentTopic, sortType)
+                            : getGardenSortUrl(sortType);
+                        const isActive = currentSort === sortType;
+
+                        return (
+                            <a
+                                href={href}
+                                class:list={[
+                                    'block rounded-md px-3 py-2 text-sm transition-all duration-200',
+                                    isActive
+                                        ? [
+                                              'bg-light-bl dark:bg-dark-bl',
+                                              'text-paper dark:text-paper',
+                                              'font-medium'
+                                          ]
+                                        : [
+                                              'text-light-tx-2 dark:text-dark-tx-2',
+                                              'hover:bg-light-ui dark:hover:bg-dark-ui',
+                                              'hover:text-light-tx dark:hover:text-dark-tx'
+                                          ]
+                                ]}
+                            >
+                                {SORT_LABELS[sortType]}
+                            </a>
+                        );
+                    })
+                }
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    const mobileButton = document.getElementById('mobile-garden-filter-toggle');
+    const mobileContent = document.getElementById('mobile-garden-filter-content');
+    const mobileContainer = mobileButton?.parentElement;
+
+    if (mobileButton && mobileContent && mobileContainer) {
+        // Toggle filter visibility
+        mobileButton.addEventListener('click', () => {
+            mobileContent.classList.toggle('hidden');
+        });
+
+        // Close filter when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!mobileContainer.contains(event.target as Node)) {
+                mobileContent.classList.add('hidden');
+            }
+        });
+
+        // Close filter when clicking a link
+        mobileContent.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                mobileContent.classList.add('hidden');
+            });
+        });
+    }
+</script>

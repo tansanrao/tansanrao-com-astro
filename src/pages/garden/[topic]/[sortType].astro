@@ -1,0 +1,66 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import PageTitle from '@components/PageTitle.astro';
+import GardenExplorer from '@components/garden/GardenExplorer.astro';
+import {
+    SORT_TYPES,
+    getTopicBySlug,
+    getTopicsWithCounts,
+    normalizeSortType,
+    slugifyTopic,
+    sortGardenEntries
+} from '@utils/garden';
+import '@styles/global.css';
+
+export const getStaticPaths = (async () => {
+    const allNotes = await getCollection('garden', ({ data }) => {
+        return import.meta.env.PROD ? !data.draft : true;
+    });
+    const topics = getTopicsWithCounts(allNotes);
+
+    return topics.flatMap((topic) =>
+        SORT_TYPES.map((sortType) => ({
+            params: { topic: topic.slug, sortType }
+        }))
+    );
+}) satisfies GetStaticPaths;
+
+const topicSlug = Astro.params.topic;
+const sortParam = Astro.params.sortType;
+const currentSort = normalizeSortType(sortParam);
+
+const allNotes = await getCollection('garden', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+});
+
+const topics = getTopicsWithCounts(allNotes);
+const currentTopic = getTopicBySlug(topics, topicSlug);
+const notes = sortGardenEntries(
+    currentTopic
+        ? allNotes.filter((note) =>
+              note.data.topics.some((topic) => slugifyTopic(topic) === currentTopic.slug)
+          )
+        : [],
+    currentSort
+);
+
+const topicLabel = currentTopic?.label || 'Garden';
+---
+
+<Layout
+    title={`${topicLabel} | Garden | Tanuj Ravi Rao`}
+    description="A living collection of notes, ideas, and references."
+>
+    <PageTitle
+        title="Digital Garden"
+        subtitle="A collection of notes, ideas, and thoughts that I cultivate over time. Unlike blog posts, these notes are living documents that grow and evolve as I learn and explore new topics."
+    />
+    <GardenExplorer
+        notes={notes}
+        topics={topics}
+        currentTopic={currentTopic?.slug}
+        currentSort={currentSort}
+    />
+</Layout>
