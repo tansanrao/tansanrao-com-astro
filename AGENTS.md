@@ -12,7 +12,7 @@ Guidance for automated agents working in this repository.
 Personal website built with Astro v5.
 
 ### Content
-- Collections defined in `src/content/config.ts`: `blog/`, `news/`, `notes/`, `resume/`
+- Collections defined in `src/content/config.ts`: `blog/`, `news/`, `garden/`, `resume/`
 - Markdown content lives under `src/content/[collection]/`
 
 ### Dates
@@ -21,12 +21,12 @@ Personal website built with Astro v5.
 
 ### Routing
 - Dynamic routes: `src/pages/[year].astro` and `src/pages/[year]/[month]/[slug].astro`
-- RSS endpoints: `src/pages/blog.xml.js`, `notes.xml.js`, `rss.xml.js`
+- RSS endpoints: `src/pages/blog.xml.js`, `garden.xml.js`, `rss.xml.js`
 - Static pages: `src/pages/index.astro`, `cv.astro`
 
 ### UI and Styling
 - Tailwind CSS v4 with `@tailwindcss/vite`
-- Components grouped by feature: `src/components/blog/`, `home/`, `notes/`, `common/`
+- Components grouped by feature: `src/components/blog/`, `home/`, `garden/`, `common/`
 - Theme system: `ThemeSelector.astro`, `MobileThemeSelector.astro`
 
 ### Key Integrations

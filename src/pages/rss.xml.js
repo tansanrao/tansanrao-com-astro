@@ -3,11 +3,12 @@ import { getCollection } from 'astro:content';
 import sanitizeHtml from 'sanitize-html';
 import MarkdownIt from 'markdown-it';
 import { sortDatesByNewest, ensureTimezone } from '@utils/datetime';
+import { getGardenNoteUrl, slugifyTopic } from '@utils/garden';
 const parser = new MarkdownIt();
 
 export async function GET(context) {
     const blog = await getCollection('blog', ({ data }) => !data.draft);
-    const notes = await getCollection('notes', ({ data }) => !data.draft);
+    const garden = await getCollection('garden', ({ data }) => !data.draft);
 
     // Combine all items with normalized structure for sorting
     const allItems = [
@@ -15,9 +16,9 @@ export async function GET(context) {
             ...post,
             type: 'blog'
         })),
-        ...notes.map((note) => ({
+        ...garden.map((note) => ({
             ...note,
-            type: 'note'
+            type: 'garden'
         }))
     ];
 
@@ -43,20 +44,15 @@ export async function GET(context) {
             if (item.type === 'blog') {
                 description = item.data.description;
             } else {
-                // For notes, create a brief description from the content
-                description =
-                    renderedContent
-                        .replace(/<[^>]*>/g, '') // Strip HTML tags
-                        .substring(0, 150)
-                        .trim() + (renderedContent.length > 150 ? '...' : '');
+                description = item.data.description;
             }
 
             return {
                 link:
                     item.type === 'blog'
                         ? `/blog/${year}/${month}/${item.slug}/`
-                        : `/notes/${year}/${month}/${item.slug}/`,
-                title: item.type === 'blog' ? item.data.title : '📝 ' + item.data.title,
+                        : `${getGardenNoteUrl(slugifyTopic(item.data.topics[0]), item.slug)}/`,
+                title: item.type === 'blog' ? item.data.title : '🌿 ' + item.data.title,
                 pubDate: item.data.pubDate,
                 description: description,
                 content: renderedContent
@@ -65,7 +61,7 @@ export async function GET(context) {
         customData: `
       <atom:link href="${context.site}rss.xml" rel="self" type="application/rss+xml" />
       <atom:link href="${context.site}blog.xml" rel="alternate" type="application/rss+xml" title="Blog RSS Feed" />
-      <atom:link href="${context.site}notes.xml" rel="alternate" type="application/rss+xml" title="Notes RSS Feed" />
+      <atom:link href="${context.site}garden.xml" rel="alternate" type="application/rss+xml" title="Garden RSS Feed" />
     `
     });
 }

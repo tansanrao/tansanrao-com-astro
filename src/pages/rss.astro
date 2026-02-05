@@ -6,7 +6,7 @@ import '@styles/global.css';
 const feeds = [
     {
         title: 'All Content',
-        description: 'Everything from the blog and digital garden, including blog posts and notes',
+        description: 'Everything from the blog and garden, including long-form posts and garden notes',
         url: '/rss.xml',
         icon: '🔄'
     },
@@ -17,10 +17,10 @@ const feeds = [
         icon: '📰'
     },
     {
-        title: 'Notes',
+        title: 'Garden',
         description: 'Digital garden notes and shorter content pieces',
-        url: '/notes.xml',
-        icon: '📝'
+        url: '/garden.xml',
+        icon: '🌿'
     }
 ];
 
@@ -76,7 +76,7 @@ const readers = {
                 {
                     feeds.map((feed) => (
                         <article class="group bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui hover:border-light-bl dark:hover:border-dark-bl relative rounded-lg border p-6 transition-all duration-200 hover:shadow-lg">
-                            <a href={feed.url} class="block flex h-full flex-col no-underline">
+                            <a href={feed.url} class="flex h-full flex-col no-underline">
                                 <div class="mb-3 flex items-center gap-3">
                                     <span class="text-2xl" role="img" aria-hidden="true">
                                         {feed.icon}
@@ -132,7 +132,7 @@ const readers = {
                                 href={reader.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="block flex h-full flex-col no-underline"
+                                class="flex h-full flex-col no-underline"
                             >
                                 <div class="mb-3 flex items-center gap-3">
                                     <span class="text-xl" role="img" aria-hidden="true">
@@ -177,7 +177,7 @@ const readers = {
                                 href={reader.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="block flex h-full flex-col no-underline"
+                                class="flex h-full flex-col no-underline"
                             >
                                 <div class="mb-3 flex items-center gap-3">
                                     <span class="text-xl" role="img" aria-hidden="true">
