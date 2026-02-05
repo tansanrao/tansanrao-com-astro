@@ -18,9 +18,19 @@ interface Props {
     title?: string;
     description?: string;
     ogimageName?: string;
+    showHeader?: boolean;
+    showFooter?: boolean;
+    showContact?: boolean;
 }
 
-const { title, description, ogimageName } = Astro.props;
+const {
+    title,
+    description,
+    ogimageName,
+    showHeader = true,
+    showFooter = true,
+    showContact = true
+} = Astro.props;
 const adjustedTitle = title ? title : 'Tanuj Ravi Rao';
 const adjustedDescription = description
     ? description
@@ -82,7 +92,7 @@ const resolvedImageWithDomain = new URL(imageFileName, Astro.site).toString();
         >
         </div>
 
-        <Header />
+        {showHeader && <Header />}
 
         <main class="w-full flex-1">
             <div class="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -90,8 +100,8 @@ const resolvedImageWithDomain = new URL(imageFileName, Astro.site).toString();
             </div>
         </main>
 
-        <ContactLinksSection />
-        <Footer />
+        {showContact && <ContactLinksSection />}
+        {showFooter && <Footer />}
         <script is:inline>
             const registerCopyButtons = () => {
                 const buttons = document.querySelectorAll(

@@ -3,10 +3,8 @@ import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 import { getCollection } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
-import Tag from '@components/Tag.astro';
-import { formatDate, getDateYearsAgo } from '@utils/datetime';
+import { formatDate } from '@utils/datetime';
 import '@styles/global.css';
-import PageTitle from '@components/PageTitle.astro';
 import { slugifyTopic } from '@utils/garden';
 
 export const getStaticPaths = (async () => {
@@ -32,143 +30,98 @@ interface Props {
 
 const { note, topic } = Astro.props;
 const topicSlug = Astro.params.topic;
-const {
-    title,
-    description,
-    pubDate,
-    updatedDate,
-    topics,
-    heroImage,
-    footnotes = [],
-    draft = false
-} = note.data;
+const { title, description, pubDate, updatedDate, topics, footnotes = [] } = note.data;
 const { Content } = await note.render();
-
-// Check if note is older than 2 years
-const twoYearsAgo = getDateYearsAgo(2);
-const isOld = (updatedDate || pubDate) < twoYearsAgo;
+const primaryTopic = topics?.[0] ?? topic;
+const createdDate = formatDate(pubDate, 'short');
+const editedDate = updatedDate ? formatDate(updatedDate, 'short') : null;
 ---
 
-<Layout title={`${title} | Garden | Tanuj Ravi Rao`} description={description}>
-    <PageTitle title="Garden" subtitle={`Topic: ${topic}`} />
-    <div class="mx-auto max-w-3xl">
-        <!-- Note Header -->
-        <header class="mb-8">
-            {
-                heroImage && (
-                    <div class="mb-8">
-                        <img
-                            src={heroImage.src}
-                            alt={title}
-                            class="h-auto w-full rounded-lg shadow-md"
-                        />
-                    </div>
-                )
-            }
-
-            <h1 class="text-light-tx dark:text-dark-tx mb-4 text-3xl font-bold sm:text-4xl">
-                {title}
-            </h1>
-
-            <p class="text-light-tx-2 dark:text-dark-tx-2 mb-6 text-lg">{description}</p>
-
-            <div
-                class="text-light-tx-2 dark:text-dark-tx-2 mb-6 flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-4"
-            >
-                <time datetime={pubDate.toISOString()}>
-                    Created {formatDate(pubDate, 'full')}
-                </time>
-                {
-                    updatedDate && (
-                        <>
-                            <span class="hidden sm:inline">•</span>
-                            <span>Updated {formatDate(updatedDate, 'full')}</span>
-                        </>
-                    )
-                }
-            </div>
-
-            {/* Topics */}
-            {
-                topics && topics.length > 0 && (
-                    <div class="mb-6 flex flex-wrap gap-2">
-                        {topics.map((topicItem) => (
-                            <Tag tag={topicItem} />
-                        ))}
-                    </div>
-                )
-            }
-
-            {/* Draft Notice */}
-            {
-                draft && (
-                    <div class="border-light-ye dark:border-dark-ye mb-6 rounded-lg border-l-4 bg-yellow-50 p-4 dark:bg-yellow-900/20">
-                        <h2 class="text-light-ye-2 dark:text-dark-ye-2 mb-1 text-base font-semibold">
-                            Draft Note
-                        </h2>
-                        <p class="text-light-ye dark:text-dark-ye text-sm">
-                            This note is a draft and will not be visible in production.
-                        </p>
-                    </div>
-                )
-            }
-
-            {/* Old Content Notice */}
-            {
-                isOld && (
-                    <div class="border-light-bl dark:border-dark-bl mb-6 rounded-lg border-l-4 bg-blue-50 p-4 dark:bg-blue-900/20">
-                        <h2 class="text-light-bl-2 dark:text-dark-bl-2 mb-1 text-base font-semibold">
-                            Older Content
-                        </h2>
-                        <p class="text-light-bl dark:text-dark-bl text-sm">
-                            This note is over 2 years old. The thoughts and ideas may have evolved
-                            since then.
-                        </p>
-                    </div>
-                )
-            }
-        </header>
-
-        <!-- Note Content -->
-        <article class="prose dark:prose-invert max-w-none">
-            <Content />
-
-            {
-                footnotes.length > 0 && (
-                    <footer class="border-light-ui-2 dark:border-dark-ui-2 mt-16 border-t pt-8">
-                        <h2 class="text-light-tx dark:text-dark-tx mb-4 text-base font-semibold">
-                            Footnotes
-                        </h2>
-                        <ol class="space-y-2 text-sm">
-                            {footnotes.map(({ id, content }) => (
-                                <li
-                                    id={`fn-${id}`}
-                                    class="text-light-tx-2 dark:text-dark-tx-2 flex gap-2"
-                                >
-                                    <a
-                                        href={`#fnref-${id}`}
-                                        class="text-light-bl dark:text-dark-bl hover:text-light-bl-2 dark:hover:text-dark-bl-2 transition-colors"
-                                        aria-label={`Back to reference ${id}`}
-                                    >
-                                        {id}
-                                    </a>
-                                    <div set:html={content} />
-                                </li>
-                            ))}
-                        </ol>
-                    </footer>
-                )
-            }
-        </article>
-
-        <!-- Back to Garden Link -->
-        <nav class="border-light-ui-2 dark:border-dark-ui-2 mt-12 border-t pt-8">
+<Layout
+    title={`${title} | Garden | Tanuj Ravi Rao`}
+    description={description}
+    showHeader={false}
+    showFooter={true}
+    showContact={true}
+>
+    <div class="mx-auto flex min-h-[70vh] max-w-4xl items-start justify-center py-6 sm:py-12">
+        <article class="border-light-ui-2 dark:border-dark-ui-2 bg-light-bg dark:bg-dark-bg relative w-full rounded-md border p-3 shadow-lg">
             <a
                 href={`/garden/${topicSlug}/newest`}
-                class="text-light-bl dark:text-dark-bl hover:text-light-bl-2 dark:hover:text-dark-bl-2 inline-flex items-center transition-colors"
+                class="text-light-tx dark:text-dark-tx border-light-ui-2 dark:border-dark-ui-2 hover:bg-light-bg-2 dark:hover:bg-dark-ui absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border text-lg transition-colors"
+                aria-label="Close garden note"
             >
-                ← Back to garden
+                ×
             </a>
-        </nav>
+
+            <div class="border-light-tx/30 dark:border-dark-tx/30 p-4 sm:p-6">
+                <span class="bg-light-bg-2 dark:bg-dark-ui text-light-tx dark:text-dark-tx border-light-ui-2 dark:border-dark-ui-2 inline-block rounded-full border px-3 py-1 font-mono text-xs">
+                    {primaryTopic}
+                </span>
+
+                <h1 class="text-light-tx dark:text-dark-tx mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+                    {title}
+                </h1>
+
+                <p class="text-light-tx dark:text-dark-tx mt-3 text-base sm:text-lg">
+                    {description}
+                </p>
+
+                <div class="border-light-tx/45 dark:border-dark-tx/45 my-4 border-t border-dashed"></div>
+
+                <div class="prose dark:prose-invert max-w-none">
+                    <Content />
+
+                    {
+                        footnotes.length > 0 && (
+                            <footer class="border-light-ui-2 dark:border-dark-ui-2 mt-10 border-t pt-6">
+                                <h2 class="text-light-tx dark:text-dark-tx mb-4 text-base font-semibold">
+                                    Footnotes
+                                </h2>
+                                <ol class="space-y-2 text-sm">
+                                    {footnotes.map(({ id, content }) => (
+                                        <li
+                                            id={`fn-${id}`}
+                                            class="text-light-tx-2 dark:text-dark-tx-2 flex gap-2"
+                                        >
+                                            <a
+                                                href={`#fnref-${id}`}
+                                                class="text-light-bl dark:text-dark-bl hover:text-light-bl-2 dark:hover:text-dark-bl-2 transition-colors"
+                                                aria-label={`Back to reference ${id}`}
+                                            >
+                                                {id}
+                                            </a>
+                                            <div set:html={content} />
+                                        </li>
+                                    ))}
+                                </ol>
+                            </footer>
+                        )
+                    }
+                </div>
+
+                <div class="border-light-tx/45 dark:border-dark-tx/45 my-4 border-t border-dashed"></div>
+
+                <div class="text-light-tx dark:text-dark-tx flex flex-col gap-2 font-mono text-xs sm:flex-row sm:items-center sm:justify-between">
+                    <div class="space-y-1">
+                        <p>
+                            <span class="inline-block min-w-[72px]">created:</span>
+                            {createdDate}
+                        </p>
+                        {
+                            editedDate && editedDate !== createdDate && (
+                                <p>
+                                    <span class="inline-block min-w-[72px]">edited:</span>
+                                    {editedDate}
+                                </p>
+                            )
+                        }
+                    </div>
+                    <p class="text-light-tx-2 dark:text-dark-tx-2">
+                        Topic: <span class="text-light-tx dark:text-dark-tx">{topic}</span>
+                    </p>
+                </div>
+            </div>
+        </article>
     </div>
 </Layout>
