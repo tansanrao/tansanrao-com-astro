@@ -9,7 +9,7 @@ tags:
   - kubernetes
   - infrastructure
   - devops
-draft: false
+draft: true
 featured: false
 authors:
   - name: Tanuj Ravi Rao
