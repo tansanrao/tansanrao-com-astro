@@ -6,221 +6,115 @@ import '@styles/global.css';
 const feeds = [
     {
         title: 'All Content',
-        description: 'Everything from the blog and garden, including long-form posts and garden notes',
+        description: 'Blog posts and garden notes in one stream.',
         url: '/rss.xml',
         icon: '🔄'
     },
     {
-        title: 'Blog Posts',
-        description: 'Long-form articles and blog posts only',
+        title: 'Blog',
+        description: 'Long-form writing only.',
         url: '/blog.xml',
         icon: '📰'
     },
     {
         title: 'Garden',
-        description: 'Digital garden notes and shorter content pieces',
+        description: 'Short notes and experiments.',
         url: '/garden.xml',
         icon: '🌿'
     }
 ];
 
-const readers = {
-    hosted: [
-        {
-            name: 'Feedly',
-            description: 'Popular web-based reader with excellent organization and mobile apps',
-            icon: '🌐',
-            url: 'https://feedly.com'
-        },
-        {
-            name: 'NewsBlur',
-            description: 'Feature-rich reader with powerful filtering and social features',
-            icon: '📰',
-            url: 'https://newsblur.com'
-        }
-    ],
-    selfHosted: [
-        {
-            name: 'Miniflux',
-            description: 'Minimalist, lightweight reader focused on simplicity and speed',
-            icon: '🔧',
-            url: 'https://miniflux.app'
-        },
-        {
-            name: 'FreshRSS',
-            description: 'Full-featured, extensible RSS aggregator with multi-user support',
-            icon: '💻',
-            url: 'https://freshrss.org'
-        }
-    ]
-};
+const recommendations = [
+    {
+        name: 'Miniflux',
+        type: 'Self-hosted (my setup)',
+        note: 'My recommended reader and what I use personally.',
+        url: 'https://miniflux.app'
+    },
+    {
+        name: 'FreshRSS',
+        type: 'Self-hosted alternative',
+        note: 'A strong alternative if you want more built-in features.',
+        url: 'https://freshrss.org'
+    },
+    {
+        name: 'NetNewsWire',
+        type: 'App recommendation',
+        note: 'A clean native app experience.',
+        url: 'https://netnewswire.com'
+    }
+];
 ---
 
-<Layout
-    title="RSS | Tanuj Ravi Rao"
-    description="Subscribe to various RSS feeds from Tanuj Ravi Rao's website"
->
-    <PageTitle
-        title="RSS Feeds"
-        subtitle="Subscribe to updates from this website using your favorite RSS reader"
-    />
+<Layout title="RSS | Tanuj Ravi Rao" description="Subscribe to updates from Tanuj Ravi Rao's website">
+    <PageTitle title="RSS Feeds" subtitle="Choose a feed, copy its URL, and subscribe in your reader." />
 
-    <div class="mx-auto max-w-4xl">
-        <div class="prose dark:prose-invert max-w-none">
-            <p class="text-light-tx dark:text-dark-tx text-lg">
-                This website provides multiple RSS feeds to help you stay updated with new content.
-                Choose the feed that best matches your interests:
+    <section class="mx-auto max-w-3xl space-y-8">
+        <div class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui rounded-xl border p-5 sm:p-6">
+            <p class="text-light-tx dark:text-dark-tx text-sm leading-relaxed sm:text-base">
+                RSS lets you follow this site without checking manually. All feed dates are displayed
+                in the site timezone.
             </p>
-
-            <div class="mt-8 grid gap-6 md:grid-cols-3">
-                {
-                    feeds.map((feed) => (
-                        <article class="group bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui hover:border-light-bl dark:hover:border-dark-bl relative rounded-lg border p-6 transition-all duration-200 hover:shadow-lg">
-                            <a href={feed.url} class="flex h-full flex-col no-underline">
-                                <div class="mb-3 flex items-center gap-3">
-                                    <span class="text-2xl" role="img" aria-hidden="true">
-                                        {feed.icon}
-                                    </span>
-                                    <h2 class="text-light-tx dark:text-dark-tx group-hover:text-light-bl dark:group-hover:text-dark-bl text-xl font-bold transition-colors duration-200">
-                                        {feed.title}
-                                    </h2>
-                                </div>
-                                <p class="text-light-tx-2 dark:text-dark-tx-2 flex-1">
-                                    {feed.description}
-                                </p>
-                                <div class="text-light-bl dark:text-dark-bl mt-4 flex items-center font-medium">
-                                    <span class="text-sm">Subscribe</span>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                </div>
-                            </a>
-                        </article>
-                    ))
-                }
-            </div>
-
-            <h2 class="text-light-tx dark:text-dark-tx mt-12 mb-6 text-2xl font-bold">
-                What is RSS?
-            </h2>
-            <p class="text-light-tx dark:text-dark-tx">
-                RSS (Really Simple Syndication) is a web feed technology that lets you subscribe to
-                websites and get notified when they publish new content. Instead of visiting
-                multiple websites manually, RSS lets you receive updates automatically in an RSS
-                reader of your choice.
-            </p>
-
-            <h2 class="text-light-tx dark:text-dark-tx mt-8 mb-6 text-2xl font-bold">
-                Popular RSS Readers
-            </h2>
-
-            <h3 class="text-light-tx dark:text-dark-tx mb-4 text-xl font-bold">Hosted Services</h3>
-            <div class="mb-8 grid gap-4 md:grid-cols-2">
-                {
-                    readers.hosted.map((reader) => (
-                        <article class="group bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui hover:border-light-bl dark:hover:border-dark-bl rounded-lg border p-6 transition-all duration-200 hover:shadow-lg">
-                            <a
-                                href={reader.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="flex h-full flex-col no-underline"
-                            >
-                                <div class="mb-3 flex items-center gap-3">
-                                    <span class="text-xl" role="img" aria-hidden="true">
-                                        {reader.icon}
-                                    </span>
-                                    <h4 class="text-light-tx dark:text-dark-tx group-hover:text-light-bl dark:group-hover:text-dark-bl text-lg font-bold transition-colors duration-200">
-                                        {reader.name}
-                                    </h4>
-                                </div>
-                                <p class="text-light-tx-2 dark:text-dark-tx-2 flex-1">
-                                    {reader.description}
-                                </p>
-                                <div class="text-light-bl dark:text-dark-bl mt-4 flex items-center font-medium">
-                                    <span class="text-sm">Visit website</span>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                </div>
-                            </a>
-                        </article>
-                    ))
-                }
-            </div>
-
-            <h3 class="text-light-tx dark:text-dark-tx mb-4 text-xl font-bold">
-                Self-Hosted Options
-            </h3>
-            <div class="mb-8 grid gap-4 md:grid-cols-2">
-                {
-                    readers.selfHosted.map((reader) => (
-                        <article class="group bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui hover:border-light-bl dark:hover:border-dark-bl rounded-lg border p-6 transition-all duration-200 hover:shadow-lg">
-                            <a
-                                href={reader.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="flex h-full flex-col no-underline"
-                            >
-                                <div class="mb-3 flex items-center gap-3">
-                                    <span class="text-xl" role="img" aria-hidden="true">
-                                        {reader.icon}
-                                    </span>
-                                    <h4 class="text-light-tx dark:text-dark-tx group-hover:text-light-bl dark:group-hover:text-dark-bl text-lg font-bold transition-colors duration-200">
-                                        {reader.name}
-                                    </h4>
-                                </div>
-                                <p class="text-light-tx-2 dark:text-dark-tx-2 flex-1">
-                                    {reader.description}
-                                </p>
-                                <div class="text-light-bl dark:text-dark-bl mt-4 flex items-center font-medium">
-                                    <span class="text-sm">Visit website</span>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="ml-1 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                </div>
-                            </a>
-                        </article>
-                    ))
-                }
-            </div>
-
-            <h2 class="text-light-tx dark:text-dark-tx mt-8 mb-6 text-2xl font-bold">
-                How to Subscribe
-            </h2>
-            <ol class="text-light-tx dark:text-dark-tx list-decimal space-y-2 pl-6">
-                <li>Choose an RSS reader from the options above or use your preferred one.</li>
-                <li>Copy the URL of the feed you want to subscribe to.</li>
-                <li>In your RSS reader, look for an "Add Feed" or "Subscribe" button.</li>
-                <li>Paste the feed URL and confirm the subscription.</li>
-                <li>You'll now receive updates whenever new content is published!</li>
-            </ol>
         </div>
-    </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {
+                feeds.map((feed) => (
+                    <article class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui hover:border-light-bl dark:hover:border-dark-bl rounded-xl border p-5 transition-colors">
+                        <h2 class="text-light-tx dark:text-dark-tx mb-2 flex items-center gap-2 text-lg font-semibold">
+                            <span aria-hidden="true">{feed.icon}</span>
+                            {feed.title}
+                        </h2>
+                        <p
+                            class="text-light-tx-2 dark:text-dark-tx-2 mb-4 min-h-[2.5rem] text-sm leading-5 line-clamp-2"
+                        >
+                            {feed.description}
+                        </p>
+                        <a
+                            href={feed.url}
+                            class="text-light-bl dark:text-dark-bl break-all text-sm font-medium hover:underline"
+                        >
+                            {feed.url}
+                        </a>
+                    </article>
+                ))
+            }
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+            <section class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui rounded-xl border p-5 sm:p-6">
+                <h2 class="text-light-tx dark:text-dark-tx mb-3 text-lg font-semibold">How to Subscribe</h2>
+                <ol class="text-light-tx-2 dark:text-dark-tx-2 list-decimal space-y-2 pl-5 text-sm">
+                    <li>Copy one feed URL above.</li>
+                    <li>Open your RSS reader and choose Add Feed.</li>
+                    <li>Paste the URL and save.</li>
+                </ol>
+            </section>
+
+            <section class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui rounded-xl border p-5 sm:p-6">
+                <h2 class="text-light-tx dark:text-dark-tx mb-3 text-lg font-semibold">
+                    Recommended Readers
+                </h2>
+                <ul class="space-y-3">
+                    {
+                        recommendations.map((reader) => (
+                            <li>
+                                <a
+                                    href={reader.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="text-light-bl dark:text-dark-bl text-sm font-medium hover:underline"
+                                >
+                                    {reader.name}
+                                </a>
+                                <p class="text-light-tx-2 dark:text-dark-tx-2 mt-1 text-xs">
+                                    {reader.type}: {reader.note}
+                                </p>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </section>
+        </div>
+    </section>
 </Layout>

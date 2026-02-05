@@ -97,26 +97,22 @@
         {
             "title": "First Place (Special Mention)",
             "date": "2018-05-27",
-            "awarder": "GIZ Techathon National Hackathon",
-            "summary": "Developed an innovative solution for sustainable energy management."
+            "awarder": "GIZ Techathon National Hackathon"
         },
         {
             "title": "Second Place",
             "date": "2018-05-20",
-            "awarder": "GIZ Techathon Regional Hackathon",
-            "summary": "Created a prototype for renewable energy monitoring system."
+            "awarder": "GIZ Techathon Regional Hackathon"
         },
         {
             "title": "First Place",
             "date": "2020-03-03",
-            "awarder": "TCS TechBytes Quiz (Regional)",
-            "summary": "Won the regional round of TCS's flagship technical quiz competition."
+            "awarder": "TCS TechBytes Quiz (Regional)"
         },
         {
             "title": "Third Place",
             "date": "2019-03-13",
-            "awarder": "TCS TechBytes Quiz (Regional)",
-            "summary": "Secured third position in the technical quiz competition."
+            "awarder": "TCS TechBytes Quiz (Regional)"
         }
     ],
     "certificates": [

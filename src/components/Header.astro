@@ -3,11 +3,14 @@ import Grid from './Grid.astro';
 import GridBox from './GridBox.astro';
 import ThemeSelector from './ThemeSelector.astro';
 import MobileThemeSelector from './MobileThemeSelector.astro';
+import { Icon } from 'astro-icon/components';
 
 interface NavItem {
     href: string;
     label: string;
     match: (path: string) => boolean;
+    iconName?: string;
+    ariaLabel?: string;
 }
 
 const navigation: NavItem[] = [
@@ -32,14 +35,16 @@ const navigation: NavItem[] = [
         match: (path) => path.startsWith('garden')
     },
     {
-        href: '/rss',
-        label: 'RSS',
-        match: (path) => path.startsWith('rss')
-    },
-    {
         href: '/cv',
         label: 'CV',
         match: (path) => path.startsWith('cv')
+    },
+    {
+        href: '/rss',
+        label: 'RSS',
+        iconName: 'ph:rss-simple-bold',
+        ariaLabel: 'RSS',
+        match: (path) => path.startsWith('rss')
     }
 ];
 
@@ -107,16 +112,17 @@ const currentPath = pathname.slice(1); // remove the leading slash
         <GridBox desktopStart={4} desktopEnd={12} classes="flex items-center justify-end">
             <nav class="flex items-center space-x-8">
                 {
-                    navigation.map(({ href, label, match }) => (
+                    navigation.map(({ href, label, iconName, ariaLabel, match }) => (
                         <a
                             href={href}
+                            aria-label={ariaLabel}
                             class:list={[
                                 'text-light-tx-2 dark:text-dark-tx-2 hover:text-light-tx dark:hover:text-dark-tx text-base transition-colors',
                                 match(currentPath) &&
                                     'text-light-tx dark:text-dark-tx font-semibold'
                             ]}
                         >
-                            {label}
+                            {iconName ? <Icon name={iconName} width={18} /> : label}
                         </a>
                     ))
                 }
@@ -135,9 +141,10 @@ const currentPath = pathname.slice(1); // remove the leading slash
         <div class="mx-auto max-w-7xl px-4 py-4">
             <nav class="space-y-2">
                 {
-                    navigation.map(({ href, label, match }) => (
+                    navigation.map(({ href, label, iconName, ariaLabel, match }) => (
                         <a
                             href={href}
+                            aria-label={ariaLabel}
                             class:list={[
                                 'block rounded-md px-3 py-2 text-base transition-colors',
                                 match(currentPath)
@@ -145,7 +152,9 @@ const currentPath = pathname.slice(1); // remove the leading slash
                                     : 'text-light-tx-2 dark:text-dark-tx-2 hover:bg-light-ui dark:hover:bg-dark-ui hover:text-light-tx dark:hover:text-dark-tx'
                             ]}
                         >
-                            {label}
+                            <span class="inline-flex items-center gap-2">
+                                {iconName ? <Icon name={iconName} width={18} /> : label}
+                            </span>
                         </a>
                     ))
                 }
