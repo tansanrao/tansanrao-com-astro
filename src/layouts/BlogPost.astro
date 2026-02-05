@@ -69,106 +69,99 @@ function buildToc(headings: Array<{ depth: number; slug: string; text: string }>
     />
 
     <div class="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col lg:flex-row lg:gap-8">
-            {/* Left Sidebar */}
-            <aside class="hidden lg:block lg:w-64">
-                <div class="space-y-8 lg:sticky lg:top-8">
-                    {
-                        draft && (
-                            <div class="border-light-ye dark:border-dark-ye rounded-lg border-l-4 bg-yellow-50 p-4 dark:bg-yellow-900/20">
-                                <h2 class="text-light-ye-2 dark:text-dark-ye-2 mb-1 text-base font-semibold">
-                                    Draft Post
-                                </h2>
-                                <p class="text-light-ye dark:text-dark-ye text-sm">
-                                    This post is a draft and will not be visible in production.
-                                </p>
-                            </div>
-                        )
-                    }
-                    {
-                        isOld && (
-                            <div class="border-light-bl dark:border-dark-bl rounded-lg border-l-4 bg-blue-50 p-4 dark:bg-blue-900/20">
-                                <h2 class="text-light-bl-2 dark:text-dark-bl-2 mb-1 text-base font-semibold">
-                                    Older Content
-                                </h2>
-                                <p class="text-light-bl dark:text-dark-bl text-sm">
-                                    This post is over 2 years old. While the core concepts may still
-                                    be valid, some technical details may be outdated.
-                                </p>
-                            </div>
-                        )
-                    }
-                    {
-                        toc.length > 0 && (
-                            <div class="bg-light-bg-2 dark:bg-dark-bg-2 max-h-[calc(100vh-2rem)] overflow-hidden rounded-lg p-4 shadow-sm">
-                                <h2 class="text-light-tx dark:text-dark-tx mb-4 text-base font-semibold">
-                                    On this page
-                                </h2>
-                                <div class="relative max-h-[calc(100vh-8rem)] overflow-y-auto">
-                                    <TableOfContents toc={toc} />
-                                </div>
-                            </div>
-                        )
-                    }
-                </div>
-            </aside>
-
-            {/* Main Content */}
-            <main class="min-w-0 flex-1 lg:max-w-2xl xl:max-w-3xl">
-                {/* Hero Image */}
+        {/* Main Content */}
+        <main class="min-w-0 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
+            <div class="space-y-4">
                 {
-                    heroImage && (
-                        <div class="mb-8">
-                            <img
-                                src={heroImage.src}
-                                alt={title}
-                                class="h-auto w-full rounded-lg shadow-md"
-                            />
+                    draft && (
+                        <div class="border-light-ye dark:border-dark-ye rounded-lg border-l-4 bg-yellow-50 p-4 dark:bg-yellow-900/20">
+                            <h2 class="text-light-ye-2 dark:text-dark-ye-2 mb-1 text-base font-semibold">
+                                Draft Post
+                            </h2>
+                            <p class="text-light-ye dark:text-dark-ye text-sm">
+                                This post is a draft and will not be visible in production.
+                            </p>
                         </div>
                     )
                 }
+                {
+                    isOld && (
+                        <div class="border-light-bl dark:border-dark-bl rounded-lg border-l-4 bg-blue-50 p-4 dark:bg-blue-900/20">
+                            <h2 class="text-light-bl-2 dark:text-dark-bl-2 mb-1 text-base font-semibold">
+                                Older Content
+                            </h2>
+                            <p class="text-light-bl dark:text-dark-bl text-sm">
+                                This post is over 2 years old. While the core concepts may still
+                                be valid, some technical details may be outdated.
+                            </p>
+                        </div>
+                    )
+                }
+            </div>
 
-                {/* Article Content */}
-                <article class="prose dark:prose-invert article-content max-w-none">
-                    <slot />
-                    <BlogPostFootnotes footnotes={footnotes} />
-                </article>
-            </main>
-        </div>
+            {/* Hero Image */}
+            {
+                heroImage && (
+                    <div class="mb-8">
+                        <img
+                            src={heroImage.src}
+                            alt={title}
+                            class="h-auto w-full rounded-lg shadow-md"
+                        />
+                    </div>
+                )
+            }
+
+            {/* Article Content */}
+            <article class="prose dark:prose-invert article-content max-w-none">
+                <slot />
+                <BlogPostFootnotes footnotes={footnotes} />
+            </article>
+        </main>
     </div>
 
-    {/* Mobile Floating TOC */}
+    {/* Floating TOC Bar */}
     {
         toc.length > 0 && (
-            <div class="fixed right-6 bottom-6 z-50 lg:hidden" id="mobile-toc-container">
+            <div
+                class="fixed bottom-4 left-4 right-4 z-50 md:left-6 md:right-auto md:w-80"
+                id="floating-toc-container"
+            >
                 <button
-                    id="mobile-toc-button"
-                    class="bg-light-bl dark:bg-dark-bl hover:bg-light-bl-2 dark:hover:bg-dark-bl-2 text-paper flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-colors"
-                    aria-label="Table of Contents"
+                    id="floating-toc-button"
+                    class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui text-light-tx dark:text-dark-tx flex w-full items-center justify-between gap-3 rounded-full border px-4 py-3 shadow-lg transition-colors"
+                    aria-expanded="false"
+                    aria-controls="floating-toc-panel"
                 >
+                    <span class="min-w-0 flex-1 text-left">
+                        <span class="text-light-tx-2 dark:text-dark-tx-2 block text-xs uppercase tracking-wide">
+                            On this page
+                        </span>
+                        <span
+                            class="block truncate text-sm font-medium"
+                            data-toc-current
+                        >
+                            {toc[0]?.text ?? 'On this page'}
+                        </span>
+                    </span>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6"
+                        class="h-4 w-4 rotate-180 transition-transform duration-200"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        data-toc-chevron
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h7"
-                        />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 <div
-                    id="mobile-toc-content"
-                    class="bg-light-bg-2 dark:bg-dark-bg-2 fixed right-6 bottom-20 hidden max-h-[70vh] w-[calc(100vw-3rem)] max-w-sm overflow-auto rounded-lg p-4 shadow-xl"
+                    id="floating-toc-panel"
+                    class="bg-light-bg-2 dark:bg-dark-bg-2 border-light-ui dark:border-dark-ui absolute bottom-full left-0 right-0 mb-2 hidden max-h-[70vh] overflow-hidden rounded-2xl border p-4 shadow-xl md:max-h-[60vh]"
                 >
-                    <h2 class="text-light-tx dark:text-dark-tx mb-4 text-base font-semibold">
-                        On this page
-                    </h2>
-                    <TableOfContents toc={toc} />
+                    <div class="max-h-[60vh] overflow-y-auto" data-toc-scroll>
+                        <TableOfContents toc={toc} variant="floating" />
+                    </div>
                 </div>
             </div>
         )
@@ -176,27 +169,39 @@ function buildToc(headings: Array<{ depth: number; slug: string; text: string }>
 </Layout>
 
 <script>
-    const mobileButton = document.getElementById('mobile-toc-button');
-    const mobileContent = document.getElementById('mobile-toc-content');
-    const mobileContainer = document.getElementById('mobile-toc-container');
+    const floatingButton = document.getElementById('floating-toc-button');
+    const floatingPanel = document.getElementById('floating-toc-panel');
+    const floatingContainer = document.getElementById('floating-toc-container');
+    const floatingChevron = floatingButton?.querySelector('[data-toc-chevron]');
 
-    if (mobileButton && mobileContent && mobileContainer) {
+    function setPanelOpen(isOpen: boolean) {
+        if (!floatingButton || !floatingPanel) return;
+        floatingPanel.classList.toggle('hidden', !isOpen);
+        floatingButton.setAttribute('aria-expanded', String(isOpen));
+        if (floatingChevron) {
+            floatingChevron.classList.toggle('rotate-180', !isOpen);
+        }
+    }
+
+    if (floatingButton && floatingPanel && floatingContainer) {
         // Toggle TOC visibility
-        mobileButton.addEventListener('click', () => {
-            mobileContent.classList.toggle('hidden');
+        floatingButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const isOpen = !floatingPanel.classList.contains('hidden');
+            setPanelOpen(!isOpen);
         });
 
         // Close TOC when clicking outside
         document.addEventListener('click', (event) => {
-            if (!mobileContainer.contains(event.target as Node)) {
-                mobileContent.classList.add('hidden');
+            if (!floatingContainer.contains(event.target as Node)) {
+                setPanelOpen(false);
             }
         });
 
         // Close TOC when clicking a link
-        mobileContent.querySelectorAll('a').forEach((link) => {
+        floatingPanel.querySelectorAll('a').forEach((link) => {
             link.addEventListener('click', () => {
-                mobileContent.classList.add('hidden');
+                setPanelOpen(false);
             });
         });
     }

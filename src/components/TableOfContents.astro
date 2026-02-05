@@ -3,9 +3,64 @@ import type { TocHeading } from '../types/toc';
 
 interface Props {
     toc: TocHeading[];
+    variant?: 'default' | 'floating';
 }
 
-const { toc } = Astro.props;
+const { toc, variant = 'default' } = Astro.props;
+const isFloating = variant === 'floating';
+
+const baseHeadingClasses = [
+    'toc-link',
+    'relative',
+    'block',
+    'overflow-hidden',
+    'rounded-md',
+    'px-3',
+    'py-2',
+    'text-sm',
+    'transition-all',
+    'duration-200'
+];
+
+const baseSubheadingClasses = [
+    'toc-link',
+    'relative',
+    'block',
+    'overflow-hidden',
+    'rounded-md',
+    'py-2',
+    'pr-3',
+    'pl-6',
+    'text-sm',
+    'transition-all',
+    'duration-200'
+];
+
+const inactiveClasses = isFloating
+    ? ['text-light-tx-2', 'dark:text-dark-tx-2', 'hover:text-light-tx', 'dark:hover:text-dark-tx']
+    : [
+          'bg-light-ui/50',
+          'dark:bg-dark-ui/50',
+          'text-light-tx-2',
+          'dark:text-dark-tx-2',
+          'hover:bg-light-ui/80',
+          'dark:hover:bg-dark-ui/80',
+          'hover:text-light-tx',
+          'dark:hover:text-dark-tx'
+      ];
+
+const activeClasses = isFloating
+    ? ['text-light-bl', 'dark:text-dark-bl', 'font-medium']
+    : [
+          'bg-light-bl/10',
+          'dark:bg-dark-bl/10',
+          'text-light-bl',
+          'dark:text-dark-bl',
+          'font-medium',
+          'border-l-2',
+          'border-light-bl',
+          'dark:border-dark-bl'
+      ];
 
 // Client-side script to handle active section highlighting
 const script = `
@@ -13,7 +68,8 @@ const script = `
     // Get all TOC links from both desktop and mobile views
     const tocLinks = document.querySelectorAll('.toc-link');
     const tocLinksMap = new Map(); // Map to store links by href
-    const tocContainer = document.querySelector('.overflow-y-auto');
+    const tocContainer = document.querySelector('[data-toc-scroll]') || document.querySelector('.overflow-y-auto');
+    const currentSectionLabels = document.querySelectorAll('[data-toc-current]');
 
     // Group links by their href for synced highlighting
     tocLinks.forEach(link => {
@@ -32,35 +88,44 @@ const script = `
 
     // Function to scroll TOC to show active item
     function scrollTocToActiveItem(activeLinks) {
-      if (!tocContainer || !activeLinks || activeLinks.length === 0) return;
+      if (!activeLinks || activeLinks.length === 0) return;
       
-      // Find the first active link that's in the desktop TOC (not mobile)
-      const desktopActiveLink = activeLinks.find(link => {
-        const container = link.closest('.overflow-y-auto');
-        return container === tocContainer;
-      });
+      const targetLink = activeLinks.find(link => link.closest('[data-toc-scroll]')) || activeLinks[0];
+      const targetContainer = targetLink?.closest('[data-toc-scroll]') || tocContainer;
+      if (!targetContainer || !targetLink) return;
       
-      if (desktopActiveLink) {
-        const containerRect = tocContainer.getBoundingClientRect();
-        const linkRect = desktopActiveLink.getBoundingClientRect();
+      const containerRect = targetContainer.getBoundingClientRect();
+      const linkRect = targetLink.getBoundingClientRect();
         
-        // Check if the link is outside the visible area
-        const isAboveView = linkRect.top < containerRect.top;
-        const isBelowView = linkRect.bottom > containerRect.bottom;
+      // Check if the link is outside the visible area
+      const isAboveView = linkRect.top < containerRect.top;
+      const isBelowView = linkRect.bottom > containerRect.bottom;
+      
+      if (isAboveView || isBelowView) {
+        // Calculate the position to scroll to (center the active item)
+        const linkOffsetTop = targetLink.offsetTop;
+        const containerHeight = targetContainer.clientHeight;
+        const linkHeight = targetLink.offsetHeight;
+        const scrollTop = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
         
-        if (isAboveView || isBelowView) {
-          // Calculate the position to scroll to (center the active item)
-          const linkOffsetTop = desktopActiveLink.offsetTop;
-          const containerHeight = tocContainer.clientHeight;
-          const linkHeight = desktopActiveLink.offsetHeight;
-          const scrollTop = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-          
-          tocContainer.scrollTo({
-            top: Math.max(0, scrollTop),
-            behavior: 'smooth'
-          });
-        }
+        targetContainer.scrollTo({
+          top: Math.max(0, scrollTop),
+          behavior: 'smooth'
+        });
       }
+    }
+
+    function updateCurrentSectionLabel(activeLinks) {
+      if (!currentSectionLabels || currentSectionLabels.length === 0) return;
+      if (!activeLinks || activeLinks.length === 0) return;
+
+      const activeLink = activeLinks[0];
+      const labelText = activeLink.getAttribute('data-toc-text') || activeLink.textContent?.trim();
+      if (!labelText) return;
+
+      currentSectionLabels.forEach(label => {
+        label.textContent = labelText;
+      });
     }
 
     // Function to update active state for all instances of a link
@@ -68,30 +133,32 @@ const script = `
       if (!Array.isArray(links)) return;
       
       links.forEach(link => {
+        const variant = link.getAttribute('data-toc-variant') === 'floating' ? 'floating' : 'default';
+        const activeClasses = variant === 'floating'
+          ? ['text-light-bl', 'dark:text-dark-bl', 'font-medium']
+          : [
+              'bg-light-bl/10', 'dark:bg-dark-bl/10',
+              'text-light-bl', 'dark:text-dark-bl',
+              'font-medium',
+              'border-l-2', 'border-light-bl', 'dark:border-dark-bl'
+            ];
+        const inactiveClasses = variant === 'floating'
+          ? ['text-light-tx-2', 'dark:text-dark-tx-2', 'hover:text-light-tx', 'dark:hover:text-dark-tx']
+          : [
+              'bg-light-ui/50', 'dark:bg-dark-ui/50',
+              'text-light-tx-2', 'dark:text-dark-tx-2',
+              'hover:bg-light-ui/80', 'dark:hover:bg-dark-ui/80',
+              'hover:text-light-tx', 'dark:hover:text-dark-tx'
+            ];
+
         if (isActive) {
-          link.classList.remove(
-            'text-light-tx-2', 'dark:text-dark-tx-2',
-            'hover:bg-light-ui/80', 'dark:hover:bg-dark-ui/80',
-            'hover:text-light-tx', 'dark:hover:text-dark-tx'
-          );
-          link.classList.add(
-            'bg-light-bl/10', 'dark:bg-dark-bl/10',
-            'text-light-bl', 'dark:text-dark-bl',
-            'font-medium',
-            'border-l-2', 'border-light-bl', 'dark:border-dark-bl'
-          );
+          link.classList.remove(...inactiveClasses);
+          link.classList.add(...activeClasses);
+          link.setAttribute('aria-current', 'true');
         } else {
-          link.classList.remove(
-            'bg-light-bl/10', 'dark:bg-dark-bl/10',
-            'text-light-bl', 'dark:text-dark-bl',
-            'font-medium',
-            'border-l-2', 'border-light-bl', 'dark:border-dark-bl'
-          );
-          link.classList.add(
-            'text-light-tx-2', 'dark:text-dark-tx-2',
-            'hover:bg-light-ui/80', 'dark:hover:bg-dark-ui/80',
-            'hover:text-light-tx', 'dark:hover:text-dark-tx'
-          );
+          link.classList.remove(...activeClasses);
+          link.classList.add(...inactiveClasses);
+          link.removeAttribute('aria-current');
         }
       });
     }
@@ -159,6 +226,7 @@ const script = `
             const activeLinks = tocLinksMap.get(newActiveHref);
             updateActiveState(activeLinks, true);
             scrollTocToActiveItem(activeLinks);
+            updateCurrentSectionLabel(activeLinks);
           }
           
           lastActiveHref = newActiveHref;
@@ -201,6 +269,7 @@ const script = `
           const activeLinks = tocLinksMap.get(newActiveHref);
           updateActiveState(activeLinks, true);
           scrollTocToActiveItem(activeLinks);
+          updateCurrentSectionLabel(activeLinks);
           lastActiveHref = newActiveHref;
         }
       }
@@ -230,12 +299,11 @@ const script = `
                 <li>
                     <a
                         href={`#${heading.slug}`}
+                        data-toc-variant={variant}
+                        data-toc-text={heading.text}
                         class:list={[
-                            'toc-link relative block overflow-hidden rounded-md px-3 py-2 text-sm transition-all duration-200',
-                            'bg-light-ui/50 dark:bg-dark-ui/50',
-                            'text-light-tx-2 dark:text-dark-tx-2',
-                            'hover:bg-light-ui/80 dark:hover:bg-dark-ui/80',
-                            'hover:text-light-tx dark:hover:text-dark-tx'
+                            ...baseHeadingClasses,
+                            ...inactiveClasses
                         ]}
                     >
                         {heading.text}
@@ -246,12 +314,11 @@ const script = `
                                 <li>
                                     <a
                                         href={`#${subheading.slug}`}
+                                        data-toc-variant={variant}
+                                        data-toc-text={subheading.text}
                                         class:list={[
-                                            'toc-link relative block overflow-hidden rounded-md py-2 pr-3 pl-6 text-sm transition-all duration-200',
-                                            'bg-light-ui/50 dark:bg-dark-ui/50',
-                                            'text-light-tx-2 dark:text-dark-tx-2',
-                                            'hover:bg-light-ui/80 dark:hover:bg-dark-ui/80',
-                                            'hover:text-light-tx dark:hover:text-dark-tx'
+                                            ...baseSubheadingClasses,
+                                            ...inactiveClasses
                                         ]}
                                     >
                                         {subheading.text}
