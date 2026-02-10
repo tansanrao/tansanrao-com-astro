@@ -190,6 +190,29 @@ export function parseDateInput(value: Date | string): Date {
 }
 
 /**
+ * Parse frontmatter date inputs with Astro/YAML compatibility.
+ *
+ * Astro can provide unquoted frontmatter date and datetime values as `Date` objects.
+ * Those objects are already interpreted as UTC by the parser, so we reinterpret their
+ * UTC components as wall time in the configured site timezone.
+ */
+export function parseFrontmatterDateInput(value: Date | string): Date {
+    if (value instanceof Date) {
+        return convertWallTimeToDate(
+            value.getUTCFullYear(),
+            value.getUTCMonth() + 1,
+            value.getUTCDate(),
+            value.getUTCHours(),
+            value.getUTCMinutes(),
+            value.getUTCSeconds(),
+            value.getUTCMilliseconds()
+        );
+    }
+
+    return parseDateInput(value);
+}
+
+/**
  * Ensures a date is interpreted in the configured timezone if no timezone is specified
  */
 export function ensureTimezone(date: Date | string): Date {

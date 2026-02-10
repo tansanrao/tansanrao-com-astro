@@ -1,13 +1,201 @@
 ---
-title: Setup Fedora 43 on Nvidia Nosts
-description: "All the setup and config necessary for our default Fedora 43 Server install on lab nodes."
+title: Setup Fedora 43 on NVIDIA Nodes
+description:
+    'Quick reference for Fedora 43 Server installs on lab nodes (NVIDIA GPU + Mellanox NIC).'
 pubDate: 2026-02-05
-updatedDate: 2026-02-05
+updatedDate: 2026-02-10
 topics:
-  - Useful Snippets
+    - Useful Snippets
 draft: false
 authors:
-  - name: Tanuj Ravi Rao
-    url: 'https://tansanrao.com'
+    - name: Tanuj Ravi Rao
+      url: 'https://tansanrao.com'
 ---
 
+## 0) Baseline OS prep
+
+On a fresh Fedora 43 install:
+
+- Update packages.
+- Create users + add SSH keys.
+- Install kernel headers/devel for DKMS.
+
+```bash
+sudo dnf -y upgrade
+sudo dnf -y install kernel-devel-matched kernel-headers
+```
+
+## 1) NVIDIA drivers (Fedora 43 use Fedora 42 CUDA repo)
+
+Fedora 43 doesn’t have official NVIDIA repos yet; Fedora 42 works.
+
+Add the repo:
+
+```bash
+sudo dnf config-manager addrepo --from-repofile=https://developer.download.nvidia.com/compute/cuda/repos/fedora42/x86_64/cuda-fedora42.repo
+```
+
+Install **open kernel modules** (all our lab hardware supports this):
+
+### Compute-only nodes (servers)
+
+```bash
+sudo dnf -y install nvidia-driver-cuda kmod-nvidia-open-dkms
+```
+
+### Workstations (GUI)
+
+```bash
+sudo dnf -y install nvidia-open
+```
+
+## 2) Mellanox NICs via DOCA (OFED/ROCE only)
+
+Use the **RHEL/Rocky 10** DOCA repo. On Fedora 43, `doca-all` / `doca-networking` depend on Python
+3.12 and won’t work; `doca-ofed` and `doca-roce` work fine (and are all we need).
+
+Create the repo file:
+
+```bash
+sudo tee /etc/yum.repos.d/doca.repo >/dev/null <<'EOF'
+[doca]
+name=DOCA Online Repo
+baseurl=https://linux.mellanox.com/public/repo/doca/3.2.1/rhel10/x86_64/
+enabled=1
+gpgcheck=0
+EOF
+```
+
+Install:
+
+```bash
+sudo dnf clean all
+sudo dnf -y install doca-ofed
+```
+
+Reboot and verify:
+
+```bash
+sudo reboot
+```
+
+After reboot:
+
+- `nvidia-smi` should see the GPU
+- Mellanox tooling should see the NIC
+
+```bash
+nvidia-smi
+
+sudo mst start
+sudo mst status
+```
+
+## 3) NVIDIA Container Toolkit (Podman + Docker)
+
+Some tools require Docker, so install it:
+
+```bash
+sudo dnf -y install docker docker-compose
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+Add NVIDIA Container Toolkit repo:
+
+```bash
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | \
+  sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+```
+
+Install toolkit:
+
+```bash
+sudo dnf -y install nvidia-container-toolkit
+```
+
+### Podman: CDI config + test
+
+```bash
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+```
+
+```bash
+podman run --rm \
+  --device nvidia.com/gpu=all \
+  --security-opt=label=disable \
+  docker.io/nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+```
+
+### Docker: configure runtime + test
+
+```bash
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+```bash
+sudo docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+```
+
+## 4) Experiment network (100GbE + 100Gb IB between two nodes)
+
+### 4.1 Identify Mellanox device + set link types
+
+```bash
+sudo mst start
+sudo mst status
+```
+
+Set **port 1 = Ethernet** and **port 2 = InfiniBand** (use the correct device from `mst status`):
+
+```bash
+sudo mlxconfig -d /dev/mst/mt4123_pciconf0 set LINK_TYPE_P1=2 LINK_TYPE_P2=1
+```
+
+Reboot to apply:
+
+```bash
+sudo reboot
+```
+
+### 4.2 Bring up InfiniBand (Subnet Manager)
+
+Pick **one** node to run the subnet manager:
+
+```bash
+sudo systemctl enable --now opensmd
+sudo systemctl status opensmd --no-pager
+```
+
+Verify IB link status:
+
+```bash
+ibstat
+sudo iblinkinfo
+```
+
+Expected:
+
+- `State: Active`
+- `Physical state: LinkUp`
+- On ConnectX-6 dual 100G: typically negotiates `4x 25Gbps`
+
+### 4.3 (Optional) IPoIB sanity test
+
+```bash
+# Host 1
+sudo ip link set ibs93f1 up
+sudo ip addr add 10.10.10.1/24 dev ibs93f1
+
+# Host 2
+sudo ip link set ibs93f1 up
+sudo ip addr add 10.10.10.2/24 dev ibs93f1
+```
+
+Ping:
+
+```bash
+ping -c 3 10.10.10.2 # from node 1
+ping -c 3 10.10.10.1 # from node 2
+```

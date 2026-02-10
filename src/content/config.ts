@@ -1,9 +1,9 @@
 import { defineCollection, z } from 'astro:content';
-import { parseDateInput } from '@utils/datetime';
+import { parseFrontmatterDateInput } from '@utils/datetime';
 
 const dateInputSchema = z.union([z.date(), z.string()]).transform((value, ctx) => {
     try {
-        return parseDateInput(value);
+        return parseFrontmatterDateInput(value);
     } catch {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
