@@ -1,12 +1,19 @@
 <script lang="ts">
-import { getRelativeLocaleUrl } from "astro:i18n";
 import { onMount } from "svelte";
 import config from "$config";
 import i18nit from "$i18n";
 
 let { locale, route }: { locale: string; route: string } = $props();
 
-let path: string | undefined = $derived(route.slice(`/${locale === config.i18n.defaultLocale ? "" : locale}`.length) || undefined);
+let path: string = $derived.by(() => {
+	const prefix = locale === config.i18n.defaultLocale ? "" : `/${locale}`;
+	return route.slice(prefix.length) || "/";
+});
+
+function getLocaleHref(target: string) {
+	const prefix = target === config.i18n.defaultLocale ? "" : `/${target}`;
+	return `${prefix}${path === "/" ? "" : path}` || "/";
+}
 
 onMount(() => {
 	/** Register route update hook */
@@ -18,5 +25,5 @@ onMount(() => {
 </script>
 
 {#each config.i18n.locales as target}
-	<a data-no-swup href={getRelativeLocaleUrl(target, path)} lang={target} aria-current={locale === target ? "page" : undefined} class={locale === target ? "font-bold sm:bg-primary sm:text-background pointer-events-none" : ""}>{i18nit(target)("language")}</a>
+	<a data-no-swup href={getLocaleHref(target)} lang={target} aria-current={locale === target ? "page" : undefined} class={locale === target ? "font-bold sm:bg-primary sm:text-background pointer-events-none" : ""}>{i18nit(target)("language")}</a>
 {/each}
