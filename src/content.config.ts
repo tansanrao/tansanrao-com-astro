@@ -41,12 +41,12 @@ const jotting = defineCollection({
 });
 
 /**
- * Preface collection configuration
- * Represents introductory content, site announcements, or special pages
+ * News collection configuration
+ * Represents timestamped personal updates and announcements
  */
-const preface = defineCollection({
+const news = defineCollection({
 	// Load all markdown files
-	loader: glob({ pattern: "**/*.md", base: "./src/content/preface" }),
+	loader: glob({ pattern: "**/*.md", base: "./src/content/news" }),
 	schema: z.object({
 		timestamp: z.date() // Creation timestamp
 	})
@@ -61,4 +61,4 @@ const information = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx,yaml}", base: "./src/content/information" })
 });
 
-export const collections = { note, jotting, preface, information };
+export const collections = { note, jotting, news, information };

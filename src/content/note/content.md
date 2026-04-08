@@ -27,15 +27,15 @@ Content form is free and flexible, **usually short and concise**, which can be a
 
 Informational text contains four parts. If you remove the corresponding file, the corresponding area including the title will not be displayed on the site.
 
-### Preface
+### News
 
-"Preface" will be displayed on the site homepage as the **first impression** for visitors to understand you and the site. The homepage only displays the latest preface content, and clicking on the date allows you to view the **preface history**.
+"News" will be displayed on the site homepage as a stream of **timestamped updates**. The homepage displays the latest three news items, and clicking the section heading allows you to view the full **news archive**.
 
-You can talk about your **life updates**, **insights** from reading and watching, **journey** of site maintenance, etc. You don't need to be too formal, but you can use this to convey the site's **foundational emotions** and **creative philosophy**.
+You can talk about your **life updates**, **research milestones**, **insights** from reading and watching, **journey** of site maintenance, and similar small announcements. You don't need to be too formal, and short markdown snippets work well.
 
 Of course, you can also use this method to notify the site's **latest updates** or **important announcements**.
 
-It is recommended to use timestamps or serial numbers to name preface files. Although the program will not directly use them for sorting, it helps with maintenance and version management.
+It is recommended to use timestamps or serial numbers to name news files. Although the program will not directly use them for sorting, it helps with maintenance and version management.
 
 ### Introduction
 

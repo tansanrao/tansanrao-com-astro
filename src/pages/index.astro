@@ -6,9 +6,10 @@ import Base from "$layouts/Base.astro";
 import Heatmap from "$components/Heatmap.astro";
 import Logo from "$icons/site-logo.svg";
 
-const prefaces = (await getCollection("preface")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
+const news = (await getCollection("news")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
 const notes = await getCollection("note", note => !note.data.draft);
 const jottings = await getCollection("jotting", jotting => !jotting.data.draft);
+const latestNews = await Promise.all(news.slice(0, 3).map(async entry => ({ ...entry, content: (await render(entry)).Content })));
 
 let items: { id: string; type?: string; data: { timestamp: Date; tags?: string[]; [key: string]: any } }[] = [];
 const sections = config.latest || "*";
@@ -24,24 +25,63 @@ if (sections === "*" || sections.includes("note")) items = items.concat(notes);
 if (sections === "*" || sections.includes("jotting")) items = items.concat(jottings);
 
 const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime())[0];
-const preface = prefaces[0];
-const { Content } = preface ? await render(preface) : ({} as any);
 ---
+
+<style>
+	.news-row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.news-body > :first-child {
+		margin-top: 0;
+	}
+
+	.news-body > :last-child {
+		margin-bottom: 0;
+	}
+
+	.news-body p {
+		margin: 0;
+	}
+
+	@media screen and (min-width: 768px) {
+		.news-row {
+			grid-template-columns: 11rem minmax(0, 1fr);
+		}
+	}
+</style>
 
 <Base title="Home">
 	<main class="flex flex-col gap-5 sm:gap-20 grow">
 		<header class="flex items-center justify-center flex-wrap-reverse grow-[0.6]">
-			{config.prologue && <article class="me-auto text-xl sm:text-2xl leading-loose whitespace-pre-line italic">{config.prologue}</article>}
+			{config.prologue && <article class="me-auto text-md sm:text-xl leading-loose whitespace-pre-line italic">{config.prologue}</article>}
 			<Logo width={100} />
 		</header>
 
 		{
-			preface && (
-				<section class="flex flex-col">
-					<article class="markdown">
-						<Content />
-					</article>
-					<a href="/preface" class="self-end my-2 text-sm text-secondary">—— {Time.toLocaleDateString(preface.data.timestamp, "en")}</a>
+			latestNews.length > 0 && (
+				<section class="flex flex-col gap-4">
+					<div class="flex items-end justify-between gap-3">
+						<h2>
+							<a href="/news" class="link">Latest News</a>
+						</h2>
+						<a href="/news" class="text-sm text-secondary link">Archive</a>
+					</div>
+
+					<ul class="flex flex-col">
+						{
+							latestNews.map((entry, index) => (
+								<li class:list={["news-row grid items-start gap-3 py-5 md:gap-5", index > 0 && "border-t border-shadow/60"]}>
+									<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-sm text-secondary md:pt-1">
+										{Time.toLocaleDateString(entry.data.timestamp, "en")}
+									</time>
+									<article class="markdown news-body text-base leading-relaxed">
+										<entry.content />
+									</article>
+								</li>
+							))
+						}
+					</ul>
 				</section>
 			)
 		}
