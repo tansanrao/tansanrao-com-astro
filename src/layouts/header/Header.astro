@@ -6,11 +6,11 @@ import ThemeSwitcher from "./ThemeSwitcher.astro";
 const { title } = Astro.props;
 
 /** Define navigation routes configuration */
-const routes: { path: string; extra?: string[]; icon: `${string}--${string}`; label: string }[] = [
-	{ label: "Home", path: "/", extra: ["/news"], icon: "lucide--tent" },
-	{ label: "Note", path: "/note", icon: "lucide--list" },
-	{ label: "Jotting", path: "/jotting", icon: "lucide--feather" },
-	{ label: "About", path: "/about", icon: "lucide--at-sign" }
+const routes: { path: string; extra?: string[]; label: string }[] = [
+	{ label: "Home", path: "/", extra: ["/news"] },
+	{ label: "Note", path: "/note" },
+	{ label: "Jotting", path: "/jotting" },
+	{ label: "About", path: "/about" }
 ];
 
 const route = Astro.url.pathname;
@@ -26,6 +26,12 @@ const route = Astro.url.pathname;
 
 		&.active {
 			transform: translateX(0);
+		}
+	}
+
+	@media (min-width: 640px) {
+		#sidebar {
+			transform: none;
 		}
 	}
 
@@ -46,8 +52,8 @@ const route = Astro.url.pathname;
 	<button id="sidebar-open" aria-label="Open Sidebar" class="sm:hidden"><Icon name="lucide--align-justify" /></button>
 	<div id="sidebar-overlay" aria-hidden="true" class="sm:hidden fixed top-0 inset-s-0 w-screen h-screen transition-[background-color]"></div>
 
-	<nav id="sidebar" class="fixed top-0 inset-e-0 flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:contents overflow-hidden transition-transform">
-		<header class="grid gap-5 text-secondary grid-rows-[repeat(5,1fr)] sm:grid-rows-none sm:grid-cols-[repeat(4,1fr)]">
+	<nav id="sidebar" class="fixed top-0 inset-e-0 flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:static sm:inset-auto sm:ml-auto sm:flex-row sm:items-center sm:justify-end sm:gap-7 sm:p-0 sm:h-auto overflow-hidden transition-transform">
+		<header class="grid gap-5 text-secondary grid-rows-[repeat(5,1fr)] sm:flex sm:items-center sm:justify-end sm:gap-2">
 			<button id="sidebar-close" class="sm:hidden"><Icon name="lucide--x" /></button>
 			<Navigator {route} {routes} client:load />
 		</header>

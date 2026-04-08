@@ -1,8 +1,13 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import Icon from "$components/Icon.svelte";
 
-let { route, routes }: { route: string; routes: any[] } = $props();
+type RouteItem = {
+	path: string;
+	extra?: string[];
+	label: string;
+};
+
+let { route, routes }: { route: string; routes: RouteItem[] } = $props();
 
 /**
  * Check if a route is currently active based on the current route path
@@ -37,8 +42,16 @@ onMount(() => {
 
 {#each routes as item}
 	{@const isActive = active(item.path, item.extra)}
-	<a href={item.path} onclick={handleClose} class="relative inline-flex items-center group" class:max-sm:font-bold={isActive}>
-		<span class="sm:absolute sm:w-full h-full inline-flex items-center sm:justify-center sm:border-b-2 sm:py-1 transition-[border-color] duration-150 ease-linear" class:border-transparent={!isActive} class:border-secondary={isActive}><Icon name={item.icon} /></span>
-		<p class="w-full sm:py-1 px-2.5 sm:text-center sm:text-background sm:bg-primary sm:clip-path-hidden transition-[clip-path] group-hover:clip-path-visible">{item.label}</p>
+	<a
+		href={item.path}
+		onclick={handleClose}
+		class="inline-flex items-center w-full py-1 sm:w-auto sm:px-2.5 sm:border-b-2 transition-colors duration-150 ease-linear"
+		class:max-sm:font-bold={isActive}
+		class:text-primary={isActive}
+		class:text-secondary={!isActive}
+		class:border-primary={isActive}
+		class:border-transparent={!isActive}
+	>
+		{item.label}
 	</a>
 {/each}
