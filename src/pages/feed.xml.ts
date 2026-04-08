@@ -3,6 +3,7 @@ import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection, render } from "astro:content";
 import { Feed } from "feed";
 import config from "$config";
+import { blogEntryPath } from "$lib/paths";
 
 export const GET: APIRoute = async ({ site }) => {
 	const feed = new Feed({
@@ -23,20 +24,20 @@ export const GET: APIRoute = async ({ site }) => {
 	let items = [];
 	const sections = config.feed?.section || "*";
 
-	if (sections === "*" || sections.includes("note")) {
-		const notes = await getCollection("note", note => !note.data.draft);
-		notes.forEach(note => {
-			Reflect.set(note, "link", new URL(`/note/${note.id}`, site).toString());
+	if (sections === "*" || sections.includes("blog")) {
+		const blogEntries = await getCollection("blog", entry => !entry.data.draft);
+		blogEntries.forEach(entry => {
+			Reflect.set(entry, "link", new URL(blogEntryPath(entry), site).toString());
 		});
-		items.push(...notes);
+		items.push(...blogEntries);
 	}
 
-	if (sections === "*" || sections.includes("jotting")) {
-		const jottings = await getCollection("jotting", jotting => !jotting.data.draft);
-		jottings.forEach(jotting => {
-			Reflect.set(jotting, "link", new URL(`/jotting/${jotting.id}`, site).toString());
+	if (sections === "*" || sections.includes("notes")) {
+		const notes = await getCollection("notes", entry => !entry.data.draft);
+		notes.forEach(entry => {
+			Reflect.set(entry, "link", new URL(`/notes/${entry.id}`, site).toString());
 		});
-		items.push(...jottings);
+		items.push(...notes);
 	}
 
 	items = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime()).slice(0, config.feed?.limit || items.length);

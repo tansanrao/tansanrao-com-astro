@@ -1,5 +1,6 @@
 ---
 import { render, getCollection } from "astro:content";
+import { blogEntryPath } from "$lib/paths";
 import config from "$config";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
@@ -7,22 +8,24 @@ import Heatmap from "$components/Heatmap.astro";
 import Logo from "$icons/site-logo.svg";
 
 const news = (await getCollection("news")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
-const notes = await getCollection("note", note => !note.data.draft);
-const jottings = await getCollection("jotting", jotting => !jotting.data.draft);
+const blogEntries = await getCollection("blog", entry => !entry.data.draft);
+const notes = await getCollection("notes", entry => !entry.data.draft);
 const latestNews = await Promise.all(news.slice(0, 3).map(async entry => ({ ...entry, content: (await render(entry)).Content })));
 
 let items: { id: string; type?: string; data: { timestamp: Date; tags?: string[]; [key: string]: any } }[] = [];
 const sections = config.latest || "*";
 
-notes.forEach(note => {
-	Reflect.set(note, "type", "note");
+blogEntries.forEach(entry => {
+	Reflect.set(entry, "type", "blog");
+	Reflect.set(entry, "url", blogEntryPath(entry));
 });
-jottings.forEach(jotting => {
-	Reflect.set(jotting, "type", "jotting");
+notes.forEach(entry => {
+	Reflect.set(entry, "type", "notes");
+	Reflect.set(entry, "url", `/notes/${entry.id}`);
 });
 
-if (sections === "*" || sections.includes("note")) items = items.concat(notes);
-if (sections === "*" || sections.includes("jotting")) items = items.concat(jottings);
+if (sections === "*" || sections.includes("blog")) items = items.concat(blogEntries);
+if (sections === "*" || sections.includes("notes")) items = items.concat(notes);
 
 const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime())[0];
 ---
@@ -89,12 +92,12 @@ const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestam
 		{
 			latest && (
 				<footer class="flex items-center justify-center flex-wrap-reverse gap-10">
-					<Heatmap {notes} {jottings} />
+					<Heatmap blogEntries={blogEntries} {notes} />
 
 					<blockquote class="grow flex flex-col">
 						<h4>Latest</h4>
 						<div class="flex flex-col sm:flex-row justify-between gap-1 mt-1">
-							<a href={`/${latest.type}/${latest.id}`} class="link">
+							<a href={(latest as any).url} class="link">
 								{latest.data.series && `${latest.data.series} | `}
 								{latest.data.title}
 							</a>

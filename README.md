@@ -100,12 +100,12 @@ pnpm install
 
 Content creation is centralized in the `src/content` directory, mainly including:
 
-- `note` - Focused on carefully crafted and detailed long-form works
-- `jotting` - Lightweight and immediate content recording
+- `blog` - Focused on carefully crafted and detailed long-form works
+- `notes` - Lightweight and immediate content recording
 - `news` - Displayed on the homepage as timestamped personal updates
 - `information` - Containing various descriptive content
 
-For details, refer to the [Content Creation Guide](https://thought-lite.vercel.app/note/content).
+For details, refer to the [Content Creation Guide](https://thought-lite.vercel.app/blog/2026/01/content).
 
 ## 🤝 Contributing
 

@@ -2,6 +2,7 @@
 import { Temporal } from "temporal-polyfill";
 import config from "$config";
 import type { Section } from "$lib/config";
+import { blogEntryPath } from "$lib/paths";
 import Time from "$lib/time";
 
 /**
@@ -19,11 +20,11 @@ interface ContentItem {
  * Heatmap component props
  */
 interface Props {
+	blogEntries: ContentItem[];
 	notes: ContentItem[];
-	jottings: ContentItem[];
 }
 
-let { notes, jottings } = Astro.props;
+let { blogEntries, notes } = Astro.props;
 
 // Temporary storage for processed content and heatmap cells
 const contents: { section: Section; title: string; date: Temporal.PlainDate; link: string }[] = [];
@@ -33,23 +34,23 @@ const cells: { target: string; contents: typeof contents }[] = [];
 const frequency = config.heatmap?.unit || "day";
 const now = Time().toPlainDate();
 
-// Normalize notes and add to contents list
-notes.forEach(note => {
+// Normalize blog entries and add to contents list
+blogEntries.forEach(entry => {
 	contents.push({
-		section: "note",
-		title: note.data.title,
-		date: Time(note.data.timestamp.toISOString()).toPlainDate(),
-		link: `/note/${note.id}`
+		section: "blog",
+		title: entry.data.title,
+		date: Time(entry.data.timestamp.toISOString()).toPlainDate(),
+		link: blogEntryPath(entry)
 	});
 });
 
-// Normalize jottings and add to contents list
-jottings.forEach(jotting => {
+// Normalize notes and add to contents list
+notes.forEach(entry => {
 	contents.push({
-		section: "jotting",
-		title: jotting.data.title,
-		date: Time(jotting.data.timestamp.toISOString()).toPlainDate(),
-		link: `/jotting/${jotting.id}`
+		section: "notes",
+		title: entry.data.title,
+		date: Time(entry.data.timestamp.toISOString()).toPlainDate(),
+		link: `/notes/${entry.id}`
 	});
 });
 
@@ -121,20 +122,20 @@ if (frequency === "month") {
 
 			// Generate details for the popup based on cell content
 			if (count) {
-				const notes = cell.contents.filter(content => content.section === "note");
-				const jottings = cell.contents.filter(content => content.section === "jotting");
+				const blogEntries = cell.contents.filter(content => content.section === "blog");
+				const notes = cell.contents.filter(content => content.section === "notes");
 
-				if (notes.length) {
+				if (blogEntries.length) {
 					if (frequency === "month") {
-						details.push(<p>{notes.length} {notes.length === 1 ? "note" : "notes"}</p>);
+						details.push(<p>{blogEntries.length} {blogEntries.length === 1 ? "blog post" : "blog posts"}</p>);
 					} else {
 						details.push(
-							<p class="my-1">{notes.length} {notes.length === 1 ? "note" : "notes"}:</p>,
+							<p class="my-1">{blogEntries.length} {blogEntries.length === 1 ? "blog post" : "blog posts"}:</p>,
 							<ul class="flex flex-col gap-0.5">
-								{notes.map(note => (
+								{blogEntries.map(entry => (
 									<li>
-										<a href={note.link} aria-label={note.title} class="ms-1 link">
-											{note.title}
+										<a href={entry.link} aria-label={entry.title} class="ms-1 link">
+											{entry.title}
 										</a>
 									</li>
 								))}
@@ -143,17 +144,17 @@ if (frequency === "month") {
 					}
 				}
 
-				if (jottings.length) {
+				if (notes.length) {
 					if (frequency === "month") {
-						details.push(<p>{jottings.length} {jottings.length === 1 ? "jotting" : "jottings"}</p>);
+						details.push(<p>{notes.length} {notes.length === 1 ? "note" : "notes"}</p>);
 					} else {
 						details.push(
-							<p class="my-1">{jottings.length} {jottings.length === 1 ? "jotting" : "jottings"}:</p>,
+							<p class="my-1">{notes.length} {notes.length === 1 ? "note" : "notes"}:</p>,
 							<ul class="flex flex-col gap-0.5">
-								{jottings.map(jotting => (
+								{notes.map(entry => (
 									<li>
-										<a href={jotting.link} aria-label={jotting.title} class="ms-1 link">
-											{jotting.title}
+										<a href={entry.link} aria-label={entry.title} class="ms-1 link">
+											{entry.title}
 										</a>
 									</li>
 								))}

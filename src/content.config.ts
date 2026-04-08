@@ -3,12 +3,12 @@ import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
 
 /**
- * Note collection configuration
+ * Blog collection configuration
  * Represents main blog articles with comprehensive metadata
  */
-const note = defineCollection({
+const blog = defineCollection({
 	// Load all markdown files except those starting with underscore (private/draft files)
-	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/note" }),
+	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/blog" }),
 	schema: z.object({
 		title: z.string(), // Post title (required)
 		timestamp: z.date(), // Publication date (required)
@@ -23,14 +23,14 @@ const note = defineCollection({
 });
 
 /**
- * Jotting collection configuration
+ * Notes collection configuration
  * Represents shorter posts, quick thoughts, or micro-blog entries
  */
-const jotting = defineCollection({
+const notes = defineCollection({
 	// Load all markdown files except those starting with underscore
-	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/jotting" }),
+	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/notes" }),
 	schema: z.object({
-		title: z.string(), // Jotting title (required)
+		title: z.string(), // Note title (required)
 		timestamp: z.date(), // Publication date (required)
 		tags: z.array(z.string()).optional(), // Array of topic tags
 		description: z.string().optional(), // Brief description
@@ -61,4 +61,4 @@ const information = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx,yaml}", base: "./src/content/information" })
 });
 
-export const collections = { note, jotting, news, information };
+export const collections = { blog, notes, news, information };

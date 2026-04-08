@@ -16,8 +16,8 @@ const config = siteConfig({
 	},
 	timezone: "UTC",
 	pagination: {
-		note: 15,
-		jotting: 24
+		blog: 15,
+		notes: 24
 	},
 	heatmap: {
 		unit: "week"

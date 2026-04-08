@@ -1,0 +1,68 @@
+---
+import { getCollection, render } from "astro:content";
+import { blogEntryPath, blogEntryRestParam } from "$lib/paths";
+import Time from "$lib/time";
+import Base from "$layouts/Base.astro";
+import TOC from "$components/TOC.astro";
+import Position from "$components/Position.astro";
+import Icon from "$components/Icon.svelte";
+import Sensitive from "$components/Sensitive.svelte";
+
+export async function getStaticPaths() {
+	const entries = await getCollection("blog", entry => !entry.data.draft);
+	return entries.map(entry => ({ params: { id: blogEntryRestParam(entry) }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter: frontmatter } = await render(entry);
+
+const series = entry.data.series
+	? (await getCollection("blog", item => !item.data.draft && item.data.series === entry.data.series))
+			.sort((a, b) => a.data.timestamp.getTime() - b.data.timestamp.getTime())
+			.map(item => ({
+				title: item.data.title,
+				url: blogEntryPath(item),
+				current: item.id === entry.id
+			}))
+	: undefined;
+---
+
+<Base title={entry.data.title} description={entry.data.description} article={{ timestamp: entry.data.timestamp, section: entry.data.series, tags: entry.data.tags }}>
+	<main class="flex flex-col gap-6">
+		<header class="flex flex-col gap-4">
+			<h1 class="select-text">{entry.data.title}</h1>
+			<div class="flex flex-col gap-3 sm:flex-row *:flex *:items-center *:gap-1 *:text-[0.875rem] *:text-secondary">
+				<time datetime={entry.data.timestamp.toISOString()}><Icon name="lucide--calendar" />{Time.toString(entry.data.timestamp)}</time>
+				{
+					entry.data.series && (
+						<span>
+							<Icon name="lucide--layers" />
+							{entry.data.series}
+						</span>
+					)
+				}
+				{
+					!!entry.data.tags?.length && (
+						<span>
+							<Icon name="lucide--hash" />
+							{entry.data.tags?.join("; ")}
+						</span>
+					)
+				}
+				<span><Icon name="lucide--pilcrow" />{frontmatter.words} {frontmatter.words === 1 ? "word" : "words"}</span>
+			</div>
+			<hr class="border-b border-weak" />
+		</header>
+
+		<Sensitive back="/blog" sensitive={entry.data.sensitive} client:load>
+			<div class="contents">
+				<div class="flex gap-5">
+					<section id="markdown-content" class="markdown"><Content /></section>
+					{(entry.data.toc || !!entry.data.series) && <TOC headings={entry.data.toc ? headings : undefined} {series} />}
+				</div>
+			</div>
+		</Sensitive>
+
+		<Position toc={entry.data.toc} series={!!entry.data.series} />
+	</main>
+</Base>

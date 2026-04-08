@@ -59,30 +59,30 @@ if (copyright.type === "CC0 1.0") {
 	if (copyright.type.includes("ND")) ccIcons.push("fa6-brands--creative-commons-nd"); // No derivatives
 }
 
-// Fetch notes and jottings collections to calculate total word count
+// Fetch blog and notes collections to calculate total word count
 
-const notes = await getCollection("note", note => {
-	return !note.data.draft;
+const blogEntries = await getCollection("blog", entry => {
+	return !entry.data.draft;
 });
 
-// Calculate total word count across all notes
-const noteWords = (await Promise.all(notes.map(async note => (await render(note)).remarkPluginFrontmatter.words))).reduce(
+// Calculate total word count across all blog entries
+const blogWords = (await Promise.all(blogEntries.map(async entry => (await render(entry)).remarkPluginFrontmatter.words))).reduce(
 	(summary, words) => summary + words,
 	0
 );
 
-const jottings = await getCollection("jotting", jotting => {
-	return !jotting.data.draft;
+const notes = await getCollection("notes", entry => {
+	return !entry.data.draft;
 });
 
-// Calculate total word count across all jottings
-const jottingWords = (await Promise.all(jottings.map(async jotting => (await render(jotting)).remarkPluginFrontmatter.words))).reduce(
+// Calculate total word count across all notes
+const notesWords = (await Promise.all(notes.map(async entry => (await render(entry)).remarkPluginFrontmatter.words))).reduce(
 	(summary, words) => summary + words,
 	0
 );
 
 // Aggregate total word count
-const totalWords = noteWords + jottingWords;
+const totalWords = blogWords + notesWords;
 
 const policy = await getEntry("information", "policy");
 ---
