@@ -1,17 +1,17 @@
 import siteConfig from "./src/lib/config";
 
 const config = siteConfig({
-	title: "ThoughtLite",
+	title: "Tanuj Ravi Rao",
 	prologue: "If you need a website\nthat loads fast and has great SEO, then Astro is for you.",
 	author: {
-		name: "Your Name",
-		email: "hi@your.mail",
-		link: "https://your.website"
+		name: "Tanuj Ravi Rao",
+		email: "email@tansanrao.com",
+		link: "https://tansanrao.com"
 	},
-	description: "A modern Astro theme focused on content creation.",
+	description: "A personal blog by Tanuj Ravi Rao.",
 	copyright: {
-		type: "CC BY-NC-ND 4.0",
-		year: "2025"
+		type: "CC BY-NC-SA 4.0",
+		year: "2026"
 	},
 	timezone: "UTC",
 	pagination: {
@@ -19,8 +19,7 @@ const config = siteConfig({
 		jotting: 24
 	},
 	heatmap: {
-		unit: "day",
-		weeks: 20
+		unit: "week"
 	},
 	feed: {
 		section: "*",

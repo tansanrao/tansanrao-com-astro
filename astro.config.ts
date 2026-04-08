@@ -35,7 +35,7 @@ import { flexokiDarkTheme, flexokiLightTheme } from "./src/styles/shiki/flexoki"
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://thought-lite.vercel.app",
+	site: "https://tansanrao.com",
 	trailingSlash: "never",
 	markdown: {
 		remarkPlugins: [
