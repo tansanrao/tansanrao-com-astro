@@ -2,7 +2,7 @@
 import { Font, type CssVariable } from "astro:assets";
 
 const { title, subtitle, description, author, article } = Astro.props;
-const mainFont: CssVariable = "--font-noto-serif";
+const mainFont: CssVariable = "--font-source-serif-4";
 ---
 
 <html lang="en" dir="ltr">
@@ -47,8 +47,7 @@ const mainFont: CssVariable = "--font-noto-serif";
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="sitemap" href="/sitemap-index.xml" />
 
-		<Font cssVariable="--font-playwrite-mx" />
-		<Font cssVariable="--font-maple-mono-nf-cn" />
+		<Font cssVariable="--font-ibm-plex-mono" />
 		<Font cssVariable={mainFont} />
 
 		<style set:html={`html{--font-serif:var(${mainFont})}`}></style>

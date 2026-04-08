@@ -89,7 +89,7 @@
 
 	body {
 		font-size: 1.0625rem;
-		font-family: var(--font-serif), var(--font-mono);
+		font-family: var(--font-serif);
 		color: var(--primary-color);
 		background-color: var(--background-color);
 		overflow-x: clip;
@@ -223,9 +223,8 @@
 	--color-selection: var(--selection-color);
 	--color-overlay: var(--overlay-color);
 
-	--font-serif: var(--font-noto-serif);
-	--font-mono: var(--font-maple-mono-nf-cn);
-	--font-cursive: var(--font-playwrite-mx), var(--font-the-peak-font-plus);
+	--font-serif: var(--font-source-serif-4);
+	--font-mono: var(--font-ibm-plex-mono);
 
 	@keyframes shaky {
 		0% {
