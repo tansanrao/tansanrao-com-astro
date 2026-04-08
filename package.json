@@ -1,9 +1,9 @@
 {
-	"name": "astro-theme-thought-lite",
+	"name": "tansanrao-com-astro",
 	"type": "module",
 	"private": true,
-	"version": "0.39.0",
-	"description": "A modern Astro theme focused on content creation",
+	"version": "0.1.0",
+	"description": "An astro theme based on thought-lite",
 	"keywords": [
 		"astro",
 		"theme",
@@ -12,18 +12,10 @@
 		"typescript",
 		"i18n"
 	],
-	"homepage": "https://github.com/tuyuritio/astro-theme-thought-lite",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/tuyuritio/astro-theme-thought-lite.git"
-	},
-	"bugs": {
-		"url": "https://github.com/tuyuritio/astro-theme-thought-lite/issues"
-	},
 	"license": "GPL-3.0",
 	"author": {
-		"name": "tuyuritio",
-		"url": "https://github.com/tuyuritio"
+		"name": "tansanrao",
+		"url": "https://github.com/tansanrao"
 	},
 	"packageManager": "pnpm@10.30.1",
 	"scripts": {
