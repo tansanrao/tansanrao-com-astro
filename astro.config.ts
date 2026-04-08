@@ -31,6 +31,7 @@ import sectionize from "@hbsnow/rehype-sectionize";
 import copy from "@tuyuritio/shiki-code-copy";
 
 import reading from "./src/lib/reading";
+import { flexokiDarkTheme, flexokiLightTheme } from "./src/styles/shiki/flexoki";
 
 import ZeoSevenFonts from "./src/fonts/zeo-seven-fonts";
 
@@ -78,8 +79,8 @@ export default defineConfig({
 		smartypants: false,
 		shikiConfig: {
 			themes: {
-				light: "github-light",
-				dark: "dark-plus"
+				light: /** @type {import('astro').MarkdownShikiConfig['themes']['light']} */ (flexokiLightTheme),
+				dark: /** @type {import('astro').MarkdownShikiConfig['themes']['dark']} */ (flexokiDarkTheme)
 			},
 			transformers: [copy({ duration: 1500 })]
 		}

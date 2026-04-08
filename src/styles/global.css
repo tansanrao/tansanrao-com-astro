@@ -16,32 +16,35 @@
 
 :root,
 [data-theme="light"] {
-	--primary-color: #2a2a28;
-	--secondary-color: #50504d;
-	--remark-color: #757575;
-	--weak-color: #9f9f9c;
-	--background-color: #fffffd;
-	--block-color: #eeeeee;
-	--shadow-color: #cdcdcc;
-	--selection-color: #adadacc3;
+	--primary-color: #100f0f;
+	--secondary-color: #575653;
+	--remark-color: #6f6e69;
+	--weak-color: #9f9d96;
+	--background-color: #fffcf0;
+	--block-color: #f2f0e5;
+	--shadow-color: #cecdc3;
+	--selection-color: rgba(67, 133, 190, 0.28);
+	--overlay-color: rgba(16, 15, 15, 0.38);
 
 	--swup-fade-theme-duration: 0.15s;
 
 	.astro-code,
 	.astro-code span {
-		background-color: var(--block-color) !important;
+		color: var(--shiki-light) !important;
+		background-color: var(--shiki-light-bg) !important;
 	}
 }
 
 [data-theme="dark"] {
-	--primary-color: #dddddb;
-	--secondary-color: #aaaaa8;
-	--remark-color: #a5a5a5;
-	--weak-color: #5d5d5a;
-	--background-color: #0e0e0c;
-	--block-color: #1e1e1e;
-	--shadow-color: #323231;
-	--selection-color: #adadacc3;
+	--primary-color: #cecdc3;
+	--secondary-color: #b7b5ac;
+	--remark-color: #9f9d96;
+	--weak-color: #6f6e69;
+	--background-color: #100f0f;
+	--block-color: #1c1b1a;
+	--shadow-color: #403e3c;
+	--selection-color: rgba(32, 94, 166, 0.34);
+	--overlay-color: rgba(16, 15, 15, 0.72);
 
 	.astro-code,
 	.astro-code span {
@@ -218,6 +221,7 @@
 	--color-block: var(--block-color);
 	--color-shadow: var(--shadow-color);
 	--color-selection: var(--selection-color);
+	--color-overlay: var(--overlay-color);
 
 	--font-serif: var(--font-noto-serif);
 	--font-mono: var(--font-maple-mono-nf-cn);
