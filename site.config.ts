@@ -2,7 +2,8 @@ import siteConfig from "./src/lib/config";
 
 const config = siteConfig({
 	title: "Tanuj Ravi Rao",
-	prologue: "If you need a website\nthat loads fast and has great SEO, then Astro is for you.",
+	prologue:
+		"This is the website of Tanuj Ravi Rao. I'm an engineer turned researcher working on accelerating dataplanes through kernel extensions. This is a collection of my thoughts, notes, and writings on various topics that interest me. I hope you find something interesting here.",
 	author: {
 		name: "Tanuj Ravi Rao",
 		email: "email@tansanrao.com",
