@@ -14,10 +14,6 @@ const config = siteConfig({
 		year: "2025"
 	},
 	timezone: "UTC",
-	i18n: {
-		locales: ["en", "zh-cn", "ja"],
-		defaultLocale: "en"
-	},
 	pagination: {
 		note: 15,
 		jotting: 24
@@ -32,7 +28,5 @@ const config = siteConfig({
 	},
 	latest: "*"
 });
-
-export const monolocale = Number(config.i18n.locales.length) === 1;
 
 export default config;

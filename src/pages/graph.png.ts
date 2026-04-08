@@ -7,7 +7,6 @@ import graph from "$graph/default";
  */
 export const GET: APIRoute = async () => {
 	const image = await graph({
-		locale: config.i18n.defaultLocale,
 		title: config.title,
 		author: config.author.name,
 		description: config.description

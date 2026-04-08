@@ -12,7 +12,7 @@ import { loadFont } from ".";
 </div>
 */
 
-export default async ({ locale, title, description, author }: { locale: string; title: string; description: string; author: string }) => {
+export default async ({ title, description, author }: { title: string; description: string; author: string }) => {
 	const svg = await satori(
 		{
 			type: "div",
@@ -83,7 +83,7 @@ export default async ({ locale, title, description, author }: { locale: string; 
 			fonts: [
 				{
 					name: "Serif",
-					data: await loadFont(locale)
+					data: await loadFont()
 				}
 			]
 		}

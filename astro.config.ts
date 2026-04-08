@@ -32,20 +32,12 @@ import copy from "@tuyuritio/shiki-code-copy";
 
 import reading from "./src/lib/reading";
 
-import siteConfig from "./site.config";
 import ZeoSevenFonts from "./src/fonts/zeo-seven-fonts";
 
 // https://astro.build/config
 export default defineConfig({
 	site: "https://thought-lite.vercel.app",
 	trailingSlash: "never",
-	i18n: {
-		...siteConfig.i18n,
-		routing: {
-			redirectToDefaultLocale: false,
-			prefixDefaultLocale: false
-		}
-	},
 	markdown: {
 		remarkPlugins: [
 			[GFM, { singleTilde: false }],
@@ -157,13 +149,6 @@ export default defineConfig({
 				"monospace"
 			],
 			cssVariable: "--font-maple-mono-nf-cn"
-		},
-		{
-			name: "The Peak Font Plus",
-			provider: ZeoSevenFonts(),
-			optimizedFallbacks: false,
-			fallbacks: ["Georgia", "STSong", "serif"],
-			cssVariable: "--font-the-peak-font-plus"
 		}
 	]
 });

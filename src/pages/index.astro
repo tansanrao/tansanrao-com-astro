@@ -1,0 +1,75 @@
+---
+import { render, getCollection } from "astro:content";
+import config from "$config";
+import Time from "$lib/time";
+import Base from "$layouts/Base.astro";
+import Heatmap from "$components/Heatmap.astro";
+import Logo from "$icons/site-logo.svg";
+
+const prefaces = (await getCollection("preface")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
+const notes = await getCollection("note", note => !note.data.draft);
+const jottings = await getCollection("jotting", jotting => !jotting.data.draft);
+
+let items: { id: string; type?: string; data: { timestamp: Date; tags?: string[]; [key: string]: any } }[] = [];
+const sections = config.latest || "*";
+
+notes.forEach(note => {
+	Reflect.set(note, "type", "note");
+});
+jottings.forEach(jotting => {
+	Reflect.set(jotting, "type", "jotting");
+});
+
+if (sections === "*" || sections.includes("note")) items = items.concat(notes);
+if (sections === "*" || sections.includes("jotting")) items = items.concat(jottings);
+
+const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime())[0];
+const preface = prefaces[0];
+const { Content } = preface ? await render(preface) : ({} as any);
+---
+
+<Base title="Home">
+	<main class="flex flex-col gap-5 sm:gap-20 grow">
+		<header class="flex items-center justify-center flex-wrap-reverse grow-[0.6]">
+			{config.prologue && <article class="me-auto font-cursive font-thin text-xl sm:text-2xl leading-loose whitespace-pre-line">{config.prologue}</article>}
+			<Logo width={100} />
+		</header>
+
+		{
+			preface && (
+				<section class="flex flex-col">
+					<article class="markdown">
+						<Content />
+					</article>
+					<a href="/preface" class="self-end my-2 text-sm text-secondary">—— {Time.toLocaleDateString(preface.data.timestamp, "en")}</a>
+				</section>
+			)
+		}
+
+		{
+			latest && (
+				<footer class="flex items-center justify-center flex-wrap-reverse gap-10">
+					<Heatmap {notes} {jottings} />
+
+					<blockquote class="grow flex flex-col">
+						<h4>Latest</h4>
+						<div class="flex flex-col sm:flex-row justify-between gap-1 mt-1">
+							<a href={`/${latest.type}/${latest.id}`} class="link">
+								{latest.data.series && `${latest.data.series} | `}
+								{latest.data.title}
+							</a>
+							<div class="flex gap-1">
+								{latest.data.tags?.map(tag => (
+									<a href={`/${latest.type}?tag=${encodeURIComponent(tag)}`} class="text-remark text-sm link">#{tag}</a>
+								))}
+							</div>
+						</div>
+						<time datetime={latest.data.timestamp.toISOString()} class="text-remark font-mono text-xs">
+							{Time.toString(latest.data.timestamp)}
+						</time>
+					</blockquote>
+				</footer>
+			)
+		}
+	</main>
+</Base>

@@ -1,15 +1,11 @@
 <script lang="ts">
 import { untrack } from "svelte";
-import { flip } from "svelte/animate";
 import config from "$config";
 import Time from "$lib/time";
 import Icon from "$components/Icon.svelte";
 import Pagination from "$components/Pagination.svelte";
-import i18nit from "$i18n";
 
-let { locale, notes, series: seriesList, tags: tagList }: { locale: string; notes: any[]; series: string[]; tags: string[] } = $props();
-
-const t = i18nit(locale);
+let { notes, series: seriesList, tags: tagList }: { notes: any[]; series: string[]; tags: string[] } = $props();
 
 /** Track initial load to parse URL parameters */
 let initial = $state(true);
@@ -123,7 +119,7 @@ $effect(() => {
 				<div class="flex max-sm:flex-col">
 					<div class="leading-[1.55] *:inline *:align-middle">
 						{#if note.data.top > 0}<Icon name="lucide--flag-triangle-right" class="rtl:-scale-x-100" />{/if}
-						{#if note.data.sensitive}<Icon name="lucide--siren" title={t("sensitive.icon")} />{/if}
+						{#if note.data.sensitive}<Icon name="lucide--siren" title="Contains sensitive content" />{/if}
 						{#if note.data.series}
 							<button onclick={() => chooseSeries(note.data.series, true)}>{note.data.series}</button>
 							<span aria-hidden="true">|</span>
@@ -139,7 +135,7 @@ $effect(() => {
 				<time datetime={note.data.timestamp.toISOString()} class="font-mono text-[0.65rem] text-remark">{Time.toString(note.data.timestamp)}</time>
 			</section>
 		{:else}
-			<div class="pt-[10vh] text-center text-secondary font-bold text-xl">{t("note.empty")}</div>
+			<div class="pt-[10vh] text-center text-secondary font-bold text-xl">No notes available</div>
 		{/each}
 
 		<Pagination bind:pages bind:page />
@@ -147,7 +143,7 @@ $effect(() => {
 
 	<aside class="sm:basis-50 shrink-0 flex flex-col gap-5">
 		<section>
-			<h4>{t("note.series")}</h4>
+			<h4>Series</h4>
 			<p>
 				{#each seriesList as seriesItem (seriesItem)}
 					<button class:selected={seriesItem == series} onclick={() => chooseSeries(seriesItem)}>{seriesItem}</button>
@@ -156,7 +152,7 @@ $effect(() => {
 		</section>
 
 		<section>
-			<h4>{t("note.tag")}</h4>
+			<h4>Tag</h4>
 			<p>
 				{#each tagList as tag (tag)}
 					<button class:selected={tags.includes(tag)} onclick={() => switchTag(tag)}>{tag}</button>

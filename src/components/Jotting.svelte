@@ -1,14 +1,10 @@
 <script lang="ts">
 import { untrack } from "svelte";
-import { flip } from "svelte/animate";
 import config from "$config";
 import Icon from "$components/Icon.svelte";
 import Pagination from "$components/Pagination.svelte";
-import i18nit from "$i18n";
 
-let { locale, jottings, tags: tagList }: { locale: string; jottings: any[]; tags: string[] } = $props();
-
-const t = i18nit(locale);
+let { jottings, tags: tagList }: { jottings: any[]; tags: string[] } = $props();
 
 /** Track initial load to parse URL parameters */
 let initial = $state(true);
@@ -96,7 +92,7 @@ $effect(() => {
 				<section animate:flip={{ duration: 150 }} class="flex flex-col justify-center border-b border-dashed border-b-weak pb-1">
 					<span class="flex items-center gap-1">
 						{#if jotting.data.top > 0}<Icon name="lucide--flag-triangle-right" class="rtl:-scale-x-100" />{/if}
-						{#if jotting.data.sensitive}<Icon name="lucide--siren" title={t("sensitive.icon")} />{/if}
+						{#if jotting.data.sensitive}<Icon name="lucide--siren" title="Contains sensitive content" />{/if}
 						<a href={jotting.url} class="leading-normal text-primary font-semibold link truncate">{jotting.data.title}</a>
 					</span>
 					<span class="flex gap-1">
@@ -106,7 +102,7 @@ $effect(() => {
 					</span>
 				</section>
 			{:else}
-				<div class="col-span-2 pt-[10vh] text-center text-secondary font-bold text-xl">{t("jotting.empty")}</div>
+				<div class="col-span-2 pt-[10vh] text-center text-secondary font-bold text-xl">No jottings available</div>
 			{/each}
 		</header>
 
@@ -115,7 +111,7 @@ $effect(() => {
 
 	<aside class="sm:basis-50 shrink-0 flex flex-col gap-5">
 		<section>
-			<h4>{t("jotting.tag")}</h4>
+			<h4>Tag</h4>
 			<p>
 				{#each tagList as tag (tag)}
 					<button class:selected={tags.includes(tag)} onclick={() => switchTag(tag)}>{tag}</button>

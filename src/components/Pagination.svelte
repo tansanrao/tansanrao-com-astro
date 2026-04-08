@@ -1,6 +1,4 @@
 <script lang="ts">
-import { flip } from "svelte/animate";
-import { fade } from "svelte/transition";
 import Icon from "./Icon.svelte";
 
 let { pages = $bindable(), page = $bindable() }: { pages: number; page: number } = $props();

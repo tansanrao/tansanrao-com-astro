@@ -9,8 +9,7 @@
 		"theme",
 		"blog",
 		"svelte",
-		"typescript",
-		"i18n"
+		"typescript"
 	],
 	"license": "GPL-3.0",
 	"author": {
@@ -23,7 +22,7 @@
 	"packageManager": "pnpm@10.32.1",
 	"scripts": {
 		"new": "tsx --loader esm-loader-yaml scripts/new.ts",
-		"dev": "astro dev",
+		"dev": "astro dev --host",
 		"check": "astro check",
 		"build": "astro build",
 		"preview": "astro preview",

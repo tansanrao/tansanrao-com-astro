@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+import Base from "$layouts/Base.astro";
+import Note from "$components/Note.svelte";
+
+const notes = await getCollection("note", note => !note.data.draft);
+
+const list = notes.map(note => ({
+	id: note.id,
+	url: `/note/${note.id}`,
+	data: {
+		title: note.data.title,
+		timestamp: note.data.timestamp,
+		series: note.data.series,
+		tags: note.data.tags,
+		sensitive: note.data.sensitive,
+		top: note.data.top
+	}
+}));
+
+const series = Array.from(new Set(notes.map(note => note.data.series).filter((series): series is string => Boolean(series)))).sort();
+const tags = Array.from(new Set(notes.flatMap(note => note.data.tags).filter((tag): tag is string => Boolean(tag)))).sort();
+---
+
+<Base title="Note">
+	<main class="flex flex-col grow">
+		<Note client:load notes={list} {series} {tags} />
+	</main>
+</Base>

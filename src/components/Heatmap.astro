@@ -1,10 +1,8 @@
 ---
-import { getRelativeLocaleUrl } from "astro:i18n";
 import { Temporal } from "temporal-polyfill";
-import config, { monolocale } from "$config";
+import config from "$config";
 import type { Section } from "$lib/config";
 import Time from "$lib/time";
-import i18nit from "$i18n";
 
 /**
  * Content item structure
@@ -21,15 +19,11 @@ interface ContentItem {
  * Heatmap component props
  */
 interface Props {
-	locale: string;
 	notes: ContentItem[];
 	jottings: ContentItem[];
 }
 
-let { locale, notes, jottings } = Astro.props;
-
-// Initialize translation function for current locale
-const t = i18nit(locale);
+let { notes, jottings } = Astro.props;
 
 // Temporary storage for processed content and heatmap cells
 const contents: { section: Section; title: string; date: Temporal.PlainDate; link: string }[] = [];
@@ -45,7 +39,7 @@ notes.forEach(note => {
 		section: "note",
 		title: note.data.title,
 		date: Time(note.data.timestamp.toISOString()).toPlainDate(),
-		link: getRelativeLocaleUrl(locale, `/note/${monolocale ? note.id : note.id.split("/").slice(1).join("/")}`)
+		link: `/note/${note.id}`
 	});
 });
 
@@ -55,7 +49,7 @@ jottings.forEach(jotting => {
 		section: "jotting",
 		title: jotting.data.title,
 		date: Time(jotting.data.timestamp.toISOString()).toPlainDate(),
-		link: getRelativeLocaleUrl(locale, `/jotting/${monolocale ? jotting.id : jotting.id.split("/").slice(1).join("/")}`)
+		link: `/jotting/${jotting.id}`
 	});
 });
 
@@ -69,7 +63,7 @@ if (frequency === "month") {
 	// Initialize month-based cells
 	while (Temporal.PlainDate.compare(current, end) <= 0) {
 		cells.push({
-			target: current.toLocaleString(locale, { month: "short", year: "numeric" }),
+			target: current.toLocaleString("en", { month: "short", year: "numeric" }),
 			contents: []
 		});
 		current = current.add({ months: 1 });
@@ -87,7 +81,7 @@ if (frequency === "month") {
 	// Initialize week-based cells
 	while (Temporal.PlainDate.compare(current, now) <= 0) {
 		cells.push({
-			target: `${current.toLocaleString(locale, { month: "short", day: "numeric" })} - ${current.add({ days: 6 }).toLocaleString(locale, { month: "short", day: "numeric" })}`,
+			target: `${current.toLocaleString("en", { month: "short", day: "numeric" })} - ${current.add({ days: 6 }).toLocaleString("en", { month: "short", day: "numeric" })}`,
 			contents: []
 		});
 		current = current.add({ weeks: 1 });
@@ -107,7 +101,7 @@ if (frequency === "month") {
 	let current = start;
 	// Initialize day-based cells
 	while (Temporal.PlainDate.compare(current, weekend) <= 0) {
-		cells.push({ target: current.toLocaleString(locale, { dateStyle: "medium" }), contents: [] });
+		cells.push({ target: current.toLocaleString("en", { dateStyle: "medium" }), contents: [] });
 		current = current.add({ days: 1 });
 	}
 
@@ -132,10 +126,10 @@ if (frequency === "month") {
 
 				if (notes.length) {
 					if (frequency === "month") {
-						details.push(<p>{t("home.heatmap.note", { count: notes.length })}</p>);
+						details.push(<p>{notes.length} {notes.length === 1 ? "note" : "notes"}</p>);
 					} else {
 						details.push(
-							<p class="my-1">{t("home.heatmap.note", { count: notes.length })}：</p>,
+							<p class="my-1">{notes.length} {notes.length === 1 ? "note" : "notes"}:</p>,
 							<ul class="flex flex-col gap-0.5">
 								{notes.map(note => (
 									<li>
@@ -151,10 +145,10 @@ if (frequency === "month") {
 
 				if (jottings.length) {
 					if (frequency === "month") {
-						details.push(<p>{t("home.heatmap.jotting", { count: jottings.length })}</p>);
+						details.push(<p>{jottings.length} {jottings.length === 1 ? "jotting" : "jottings"}</p>);
 					} else {
 						details.push(
-							<p class="my-1">{t("home.heatmap.jotting", { count: jottings.length })}：</p>,
+							<p class="my-1">{jottings.length} {jottings.length === 1 ? "jotting" : "jottings"}:</p>,
 							<ul class="flex flex-col gap-0.5">
 								{jottings.map(jotting => (
 									<li>
@@ -169,7 +163,7 @@ if (frequency === "month") {
 				}
 			} else {
 				// Display empty message if no content
-				details.push(<p class="mt-1">{t("home.heatmap.empty")}</p>);
+				details.push(<p class="mt-1">No words</p>);
 			}
 
 			return (

@@ -8,7 +8,7 @@ type CCLicenseType = "CC0 1.0" | "CC BY 4.0" | "CC BY-SA 4.0" | "CC BY-NC 4.0" |
  */
 export type Section = "note" | "jotting";
 
-interface SiteConfigOptions<Locales extends readonly string[] = readonly string[]> {
+interface SiteConfigOptions {
 	/** Site Title */
 	title: string;
 
@@ -41,15 +41,6 @@ interface SiteConfigOptions<Locales extends readonly string[] = readonly string[
 
 	/** Timezone Configuration */
 	timezone?: string;
-
-	/** Internationalization Configuration */
-	i18n: {
-		/** Supported Locales */
-		locales: Locales;
-
-		/** Default Locale (must be one of the locales) */
-		defaultLocale: Locales[number];
-	};
 
 	/** Pagination Configuration */
 	pagination?: Partial<Record<Section, number>>;
@@ -108,6 +99,6 @@ interface SiteConfigOptions<Locales extends readonly string[] = readonly string[
  * @param config - Site configuration options
  * @returns The validated site configuration
  */
-export default function siteConfig<const Locales extends string[]>(config: SiteConfigOptions<Locales>): SiteConfigOptions<Locales> {
+export default function siteConfig(config: SiteConfigOptions): SiteConfigOptions {
 	return config;
 }

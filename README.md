@@ -11,11 +11,6 @@
         <a href="https://deepwiki.com/tuyuritio/astro-theme-thought-lite"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
     </p>
     <p>A modern <a href="https://astro.build/">Astro</a> theme, focused on content creation 🌟</p>
-    <p>
-        <small><ins>English</ins></small>
-        <small><a href="README.zh-cn.md">简体中文</a></small>
-        <small><a href="README.ja.md">日本語</a></small>
-    </p>
 </div>
 
 > [!NOTE]
@@ -29,7 +24,6 @@
 - [x] **Responsive Design** - Adaptive for mobile, tablet, and desktop.
 - [x] **Light / Dark Mode** - Auto-follows system preference with manual toggle support.
 - [x] **CSR Dynamic Content Filtering** - List filtering and pagination via History API.
-- [x] **i18n Support** - Extensible multilingual support, also works perfectly in monolingual mode.
 - [x] **Sitemap & Feed Subscription** - Automated generation of Sitemap and Atom Feed.
 - [x] **OpenGraph Support** - Built-in Open Graph meta tags for optimized social media sharing.
 
@@ -65,8 +59,6 @@ pnpm dev
 Related theme configuration can be found in the following documents:
 
 - [Astro Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/)
-- [Site Configuration Guide](https://thought-lite.vercel.app/note/configuration)
-- [Internationalization Configuration Guide](https://thought-lite.vercel.app/note/internationalization)
 
 ## 💻 Commands
 
@@ -121,7 +113,7 @@ All kinds of contributions are welcome and appreciated!
 
 - Help promote the project or assist other users
 - Report [issues](https://github.com/tuyuritio/astro-theme-thought-lite/issues) or suggest new features
-- Improve documentation or help with internationalization (i18n)
+- Improve documentation
 - Submit code contributions
 - See [Contribution Guide](CONTRIBUTING.md) for more information
 
@@ -145,7 +137,7 @@ All kinds of contributions are welcome and appreciated!
 - [Astro Sphere](https://github.com/markhorn-dev/astro-sphere)
 - [astro-vitesse](https://github.com/adrian-ub/astro-vitesse)
 - [Miniblog](https://github.com/nicholasdly/miniblog)
-- [AstroPaper with I18n](https://github.com/yousef8/astro-paper-i18n)
+- [AstroPaper](https://github.com/satnaing/astro-paper)
 
 ## 📜 License
 
