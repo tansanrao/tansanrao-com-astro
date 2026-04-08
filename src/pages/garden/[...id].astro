@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+	const entries = await getCollection("notes", entry => !entry.data.draft);
+	return entries.map(entry => ({
+		params: { id: entry.id },
+		props: {
+			destination: `/notes/${entry.id}`
+		}
+	}));
+}
+
+const { destination } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Redirecting…</title>
+		<meta name="robots" content="noindex" />
+		<link rel="canonical" href={destination} />
+		<meta http-equiv="refresh" content={`0;url=${destination}`} />
+	</head>
+	<body data-destination={destination}>
+		<p>Redirecting to <a href={destination}>{destination}</a>.</p>
+		<script>
+			const url = new URL(window.location.href);
+			const destination = document.body.dataset.destination || "/notes";
+			window.location.replace(`${destination}${url.search}${url.hash}`);
+		</script>
+	</body>
+</html>
