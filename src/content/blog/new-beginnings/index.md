@@ -7,7 +7,6 @@ description: >-
 timestamp: 2025-01-09 00:00:00+00:00
 tags:
   - writing
-  - personal-growth
 draft: false
 authors:
   - name: Tanuj Ravi Rao

@@ -3,7 +3,6 @@ title: My Thoughts on Internet Search
 description: A reflection on the state of search engines today and why I switched to Kagi.
 timestamp: 2025-03-11 00:00:00+00:00
 tags:
-  - writing
   - opinion
   - internet-search
 draft: false
