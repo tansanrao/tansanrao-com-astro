@@ -1,7 +1,8 @@
-**ThoughtLite** is a modern [Astro](https://astro.build/) theme focused on content creation.
+I'm a Ph.D. student in the Distributed Systems & Storage Laboratory
+(DSSL) and Rethinking OS Abstractions Laboratory (ROSALab) groups at the
+Department of Computer Science, Virginia Tech.
 
-The theme focuses on core content-related functions, aiming to build an **efficient and transparent** space for creation.
-
-Additionally, the theme supports modern features such as **responsive layout**, **feed generation**, and **dynamic content filtering**, providing users with a smooth experience.
-
-If you are interested in the theme, please visit the [**GitHub repository**](https://github.com/tuyuritio/astro-theme-thought-lite) for more information and quick start guide.
+I'm an engineer turned researcher with a passion for the practical, real-world
+side of systems research. My interests include all things operating systems,
+distributed systems, and networking. Right now, I'm focused on improving
+dataplane performance through kernel extensions.
