@@ -87,8 +87,8 @@ const totalWords = blogWords + notesWords;
 const policy = await getEntry("information", "policy");
 ---
 
-<footer class="flex flex-col sm:flex-row items-center justify-between gap-2 mt-8 mb-5 sm:mb-3 text-sm font-mono">
-	<div class="flex items-center gap-1">
+<footer class="flex flex-col sm:flex-row items-center justify-between gap-2 mt-32 mb-5 sm:mb-3 text-sm font-mono">
+	<div class="flex items-center gap-2">
 		{
 			copyright.type != "CC0 1.0" && (
 				<>
@@ -104,7 +104,7 @@ const policy = await getEntry("information", "policy");
 		</a>
 		<span>·</span>
 		<Icon name="lucide--activity" title={`Wrote ${totalWords} ${totalWords === 1 ? "word" : "words"}`} />
-		{
+		<!-- {
 			policy && (
 				<>
 					<span>·</span>
@@ -113,9 +113,9 @@ const policy = await getEntry("information", "policy");
 					</a>
 				</>
 			)
-		}
+		} -->
 	</div>
-	<code class="flex items-center gap-2.5">
+	<code class="flex items-center gap-2">
 		<p>Powered by</p>
 		<a href="https://astro.build/" aria-label="Astro" target="_blank" class="inline-flex"><Icon name="simple-icons--astro" title="Astro" /></a>
 		<span>·</span>

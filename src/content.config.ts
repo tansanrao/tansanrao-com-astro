@@ -2,6 +2,13 @@ import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
 
+const authorSchema = z.object({
+	name: z.string(),
+	url: z.string().url().optional()
+});
+
+const defaultAuthors = [{ name: "Tanuj Ravi Rao", url: "https://tansanrao.com" }];
+
 /**
  * Blog collection configuration
  * Represents main blog articles with comprehensive metadata
@@ -12,9 +19,13 @@ const blog = defineCollection({
 	schema: z.object({
 		title: z.string(), // Post title (required)
 		timestamp: z.date(), // Publication date (required)
+		updatedTimestamp: z.date().optional(), // Last substantive update time
 		series: z.string().optional(), // Series name for grouped posts
 		tags: z.array(z.string()).optional(), // Array of topic tags
 		description: z.string().optional(), // Post description/excerpt
+		authors: z.array(authorSchema).default(defaultAuthors), // Visible byline authors
+		canonicalURL: z.string().url().optional(), // Overrides self-canonical when syndicated
+		syndicated: z.boolean().default(false), // Marks a cross-posted page as noindex
 		sensitive: z.boolean().default(false), // Marks content as sensitive
 		toc: z.boolean().default(false), // Whether to show table of contents
 		top: z.number().int().nonnegative().default(0), // Top priority for sorting (higher is more important)

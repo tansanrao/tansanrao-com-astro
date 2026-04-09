@@ -8,7 +8,7 @@ import "$styles/markdown.css";
 import "medium-zoom/dist/style.css";
 import "katex/dist/katex.min.css";
 
-const { title: subtitle, description = config.description, article } = Astro.props;
+const { title: subtitle, description = config.description, article, canonicalURL, noindex = false } = Astro.props;
 const title = config.title;
 ---
 
@@ -39,7 +39,7 @@ const title = config.title;
 	document.addEventListener("astro:page-load", initialize);
 </script>
 
-<App {title} {subtitle} {description} {article} author={config.author.name}>
+<App {title} {subtitle} {description} {article} author={config.author.name} {canonicalURL} {noindex}>
 	<div class="flex flex-col mx-auto *:*:px-3 w-[min(100%,1000px)]">
 		<!-- Stretch body to full viewport height to prevent layout jumps from toggleable scrollbars. -->
 		<div id="body" class="flex flex-col min-h-screen">

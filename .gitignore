@@ -36,3 +36,4 @@ wrangler.toml
 # jetbrains setting folder
 .idea/
 .pnpm-store/
+ai-reference/
