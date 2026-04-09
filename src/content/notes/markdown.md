@@ -1,7 +1,7 @@
 ---
 title: Markdown Extension Manual
 timestamp: 2025-11-24 00:00:00+00:00
-tags: [Markup, Demo]
+tags: [Site-Docs]
 description: Detailed guide to extended Markdown syntax features in the theme.
 ---
 
@@ -177,18 +177,18 @@ ABBR abbr xABBRx
 > Plugin: [remark-extended-table](https://www.npmjs.com/package/remark-extended-table)
 
 ```
-| Left Align  | Center | Right Align |    Center     |
-|:----------- |:------:| -----------:| ------------- |
-| Normal Cell |     Merged Cell     || Merged Column |
-| Normal Cell |      2×2 Cell       ||       ^       |
-| Normal Cell |          ^          ||  Normal Cell  |
+| Left Align  |   Center    | Right Align | Center        |
+| :---------- | :---------: | ----------: | ------------- |
+| Normal Cell | Merged Cell |             | Merged Column |
+| Normal Cell |  2×2 Cell   |             | ^             |
+| Normal Cell |      ^      |             | Normal Cell   |
 ```
 
-| Left Align | Center | Right Align | Center |
-|:- |:-:| -:| - |
-| Normal Cell | Merged Cell || Merged Column |
-| Normal Cell | 2×2 Cell ||^|
-| Normal Cell | ^ || Normal Cell |
+| Left Align  |   Center    | Right Align | Center        |
+| :---------- | :---------: | ----------: | ------------- |
+| Normal Cell | Merged Cell |             | Merged Column |
+| Normal Cell |  2×2 Cell   |             | ^             |
+| Normal Cell |      ^      |             | Normal Cell   |
 
 ## Inline Element Attributes Extension {#custom-id}
 

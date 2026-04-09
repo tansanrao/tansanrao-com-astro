@@ -1,7 +1,7 @@
 ---
 title: Sensitive Content Example
 timestamp: 2025-08-28 00:00:00+00:00
-tags: [Sensitive, Demo]
+tags: [Site-Docs]
 description: This is a sample document demonstrating the sensitive content warning.
 sensitive: true
 ---
