@@ -20,7 +20,7 @@ authors:
 
 # Nexus KB Announcement
 
-![nexus-hero](../../images/blog/nexus-kb-announcement/nexus.webp)
+![nexus-hero](nexus.webp)
 
 *Originally published on [Nexus KB](https://nexus-kb.com/blog/nexus-kb-announcement/).*
 
@@ -47,9 +47,9 @@ Going into it, we had a small list of non-negotiables and then a much larger, en
 
 Development started off in a very 2025 manner: "the era of AI was nigh," said Egor's LinkedIn feed, and he decided that this was indeed the perfect opportunity to use this "revolutionary" bundle of matrices known as AI. After initiating a new GitHub repo and ordering it to use [Tauri](https://v2.tauri.app/), it was not long before it returned to him with its own custom mailing list parser and a UI that mostly worked after a lot more prodding. Even in this error-rich and barely functioning version, Egor had already found himself using it for browsing conversation threads on patches. After showing this demo to Tanuj, he was completely sold on the idea (being able to collapse a thread is quite the revelation).
 
-![version1-0](../../images/blog/nexus-kb-announcement/version1-0.jpg)
+![version1-0](version1-0.jpg)
 
-![version1-1](../../images/blog/nexus-kb-announcement/version1-1.jpg)
+![version1-1](version1-1.jpg)
 
 Sometime around November, we had v2 of the prototype. This time, we used the same mail parser that existing frontends like LWN used ([b4](https://b4.docs.kernel.org/en/latest/) and [JWZ](https://www.jwz.org/doc/threading.html)). This gave us thread parsing and other basic features, such as proper FROM and TO header identification. Surprisingly, or unsurprisingly for those who know, mail parsing is quite the nightmare. All of the special formatting falls largely onto the user of the mailing list, and any mistakes need to be handled cleanly by the parser. In v2, this parsing, in spite of the help of b4, was largely a mess structurally, and it was importantly missing the ability to connect patch series, one of the aforementioned non-negotiables.
 
@@ -61,7 +61,7 @@ The most important choice was the early decision to keep this system simple and 
 
 Our application is split into several components: we use Postgres as our DB, Meilisearch for search, an API server using Axum, and a worker written in Rust. That split is deliberate: Postgres owns truth, Meilisearch owns fast search, and the worker keeps request handlers read-focused. This way, our API can stay simple and predictable while ingestion, threading, lineage extraction, and search indexing happen in the background.
 
-![nexuskb-february](../../images/blog/nexus-kb-announcement/nexuskb-febuary.png)
+![nexuskb-february](nexuskb-febuary.png)
 
 Nexus processes data on a per-list flow: `pipeline_ingest -> pipeline_threading -> pipeline_lineage -> pipeline_lexical`, with embeddings pushed to a lower priority. That sequencing represents our priority of fresh threads and series first; semantic enrichment catches up later. The system is optimized so users can see newly ingested material as soon as lexical search and browse data are ready, instead of waiting for the most expensive part of the search stack to finish.
 

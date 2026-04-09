@@ -378,7 +378,7 @@ retaining backward compatibility. Next, we delve into the internal architecture
 of XNU – the hybrid kernel design that made all of this possible.
 
 ## XNU Kernel Architecture and Design
-![MacOS-Architecture.png](../../images/blog/xnu-kernel-and-darwin-evolution-and-architecture/MacOS-Architecture.png)
+![MacOS-Architecture.png](MacOS-Architecture.png)
 >File: Diagram of Mac OS X architecture.svg. (2024, December 29). _Wikimedia
 >Commons_. Retrieved 22:59, April 3, 2025 from
 >[https://commons.wikimedia.org](https://commons.wikimedia.org/w/index.php?title=File:Diagram_of_Mac_OS_X_architecture.svg&oldid=976998015).
