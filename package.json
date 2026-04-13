@@ -1,34 +1,28 @@
 {
-	"name": "astro-theme-thought-lite",
+	"name": "tansanrao-com-astro",
 	"type": "module",
 	"private": true,
-	"version": "0.39.0",
-	"description": "A modern Astro theme focused on content creation",
+	"version": "0.1.0",
+	"description": "An astro theme based on thought-lite",
 	"keywords": [
 		"astro",
 		"theme",
 		"blog",
 		"svelte",
-		"typescript",
-		"i18n"
+		"typescript"
 	],
-	"homepage": "https://github.com/tuyuritio/astro-theme-thought-lite",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/tuyuritio/astro-theme-thought-lite.git"
-	},
-	"bugs": {
-		"url": "https://github.com/tuyuritio/astro-theme-thought-lite/issues"
-	},
 	"license": "GPL-3.0",
 	"author": {
-		"name": "tuyuritio",
-		"url": "https://github.com/tuyuritio"
+		"name": "tansanrao",
+		"url": "https://github.com/tansanrao"
 	},
-	"packageManager": "pnpm@10.30.1",
+	"engines": {
+		"node": ">=22.12.0"
+	},
+	"packageManager": "pnpm@10.32.1",
 	"scripts": {
 		"new": "tsx --loader esm-loader-yaml scripts/new.ts",
-		"dev": "astro dev",
+		"dev": "astro dev --host",
 		"check": "astro check",
 		"build": "astro build",
 		"preview": "astro preview",
@@ -38,10 +32,10 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@astrojs/markdown-remark": "^6.3.10",
-		"@astrojs/mdx": "^4.3.13",
-		"@astrojs/sitemap": "^3.7.0",
-		"@astrojs/svelte": "^7.2.5",
+		"@astrojs/markdown-remark": "^7.1.0",
+		"@astrojs/mdx": "^5.0.3",
+		"@astrojs/sitemap": "^3.7.2",
+		"@astrojs/svelte": "^8.0.4",
 		"@hbsnow/rehype-sectionize": "^1.0.7",
 		"@iconify-json/fa6-brands": "^1.2.6",
 		"@iconify-json/lucide": "^1.2.92",
@@ -57,7 +51,7 @@
 		"@tuyuritio/remark-ruby": "^1.0.2",
 		"@tuyuritio/remark-spoiler": "^0.0.2",
 		"@tuyuritio/shiki-code-copy": "^1.0.0",
-		"astro": "^5.17.3",
+		"astro": "^6.1.5",
 		"feed": "^5.2.0",
 		"katex": "^0.16.28",
 		"mdast-util-to-string": "^4.0.0",
@@ -82,7 +76,7 @@
 		"unified": "^11.0.5"
 	},
 	"devDependencies": {
-		"@astrojs/check": "^0.9.6",
+		"@astrojs/check": "^0.9.8",
 		"@biomejs/biome": "2.4.4",
 		"@clack/prompts": "^1.0.1",
 		"@rollup/plugin-yaml": "^4.1.2",

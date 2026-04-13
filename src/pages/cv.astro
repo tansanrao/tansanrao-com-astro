@@ -1,0 +1,582 @@
+---
+import type { MarkdownHeading } from "astro";
+import TOC from "$components/TOC.astro";
+import Position from "$components/Position.astro";
+import Base from "$layouts/Base.astro";
+import { formatDate, formatDateRange, hasItems, hasText, joinParts, resume } from "$lib/resume";
+
+const { basics } = resume;
+
+const sectionMeta = [
+	{ id: "work", title: "Work", show: hasItems(resume.work) },
+	{ id: "education", title: "Education", show: hasItems(resume.education) },
+	{ id: "publications", title: "Publications", show: hasItems(resume.publications) },
+	{ id: "awards", title: "Awards", show: hasItems(resume.awards) },
+	{ id: "certificates", title: "Certificates", show: hasItems(resume.certificates) },
+	{ id: "languages", title: "Languages", show: hasItems(resume.languages) },
+	{ id: "skills", title: "Skills", show: hasItems(resume.skills) },
+	{ id: "projects", title: "Projects", show: hasItems(resume.projects) },
+	{ id: "volunteer", title: "Volunteer", show: hasItems(resume.volunteer) },
+	{ id: "interests", title: "Interests", show: hasItems(resume.interests) },
+	{ id: "references", title: "References", show: hasItems(resume.references) }
+].filter(section => section.show);
+
+const headings: MarkdownHeading[] = sectionMeta.map(section => ({
+	depth: 2,
+	slug: section.id,
+	text: section.title
+}));
+
+const location = joinParts([basics.location?.city, basics.location?.region, basics.location?.countryCode]);
+const contactLinks = [
+	hasText(basics.email) ? { label: basics.email!, href: `mailto:${basics.email}` } : undefined,
+	hasText(basics.url) ? { label: basics.url!.replace(/^https?:\/\//, "").replace(/\/$/, ""), href: basics.url! } : undefined,
+	hasText(location) ? { label: location, href: undefined } : undefined
+].filter(Boolean);
+---
+
+<style>
+	.cv-page {
+		gap: 1.25rem;
+	}
+
+	.cv-header {
+		gap: 0.875rem;
+	}
+
+	.cv-kicker {
+		font-size: 2rem;
+		line-height: 1.05;
+	}
+
+	.cv-identity {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.cv-name {
+		font-size: 1.4rem;
+		line-height: 1.1;
+		color: var(--primary-color);
+	}
+
+	.cv-label {
+		max-width: 48rem;
+		font-size: 1rem;
+		line-height: 1.35;
+		color: var(--secondary-color);
+	}
+
+	.cv-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.9rem;
+		font-size: 0.95rem;
+		line-height: 1.35;
+		color: var(--secondary-color);
+	}
+
+	.cv-summary {
+		max-width: 48rem;
+		font-size: 1rem;
+		line-height: 1.45;
+	}
+
+	.cv-layout {
+		display: flex;
+		gap: 1.25rem;
+	}
+
+	.cv-content {
+		min-width: 0;
+		flex: 1;
+		line-height: 1.5;
+	}
+
+	.cv-content.markdown,
+	.cv-content.markdown section {
+		gap: 0;
+	}
+
+	.cv-sections {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.cv-section {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+	}
+
+	.cv-section > h2 {
+		border-bottom: 1px solid var(--shadow-color);
+		padding-bottom: 0.2rem;
+		font-size: 1.45rem;
+		line-height: 1.15;
+		font-weight: 700;
+	}
+
+	.cv-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.cv-entry {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		border-inline-start: 1px solid color-mix(in srgb, var(--shadow-color) 80%, transparent);
+		padding-inline-start: 0.85rem;
+	}
+
+	.cv-entry-head {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: start;
+		column-gap: 1rem;
+		row-gap: 0.15rem;
+	}
+
+	.cv-title {
+		font-size: 1rem;
+		line-height: 1.24;
+		font-weight: 700;
+	}
+
+	.cv-meta-text {
+		font-size: 0.88rem;
+		line-height: 1.32;
+		color: var(--secondary-color);
+	}
+
+	.cv-meta-strong {
+		font-weight: 600;
+	}
+
+	.cv-entry-submeta,
+	.cv-item-body {
+		grid-column: 1 / -1;
+	}
+
+	.cv-entry-submeta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.08rem;
+	}
+
+	.cv-entry-date {
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		line-height: 1.25;
+		color: var(--secondary-color);
+		white-space: nowrap;
+		font-weight: 400;
+	}
+
+	.cv-item-body {
+		font-size: 0.94rem;
+		line-height: 1.42;
+	}
+
+	.cv-item-stack {
+		display: flex;
+		flex-direction: column;
+		gap: 0.9rem;
+	}
+
+	.cv-row-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.9rem;
+	}
+
+	.cv-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: start;
+		gap: 0.15rem 1rem;
+	}
+
+	.cv-chip-list {
+		display: grid;
+		gap: 0.75rem 1rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cv-chip {
+		display: flex;
+		flex-direction: column;
+		gap: 0.08rem;
+		padding: 0.45rem 0.7rem;
+		border: 1px solid var(--shadow-color);
+		border-radius: 0.75rem;
+		background: color-mix(in srgb, var(--block-color) 55%, transparent);
+	}
+
+	.cv-bullets {
+		margin-top: 0.05rem;
+		padding-inline-start: 1rem;
+	}
+
+	.cv-bullets li + li {
+		margin-top: 0.15rem;
+	}
+
+	.cv-labeled {
+		font-size: 0.88rem;
+		line-height: 1.32;
+		color: var(--secondary-color);
+	}
+
+	.cv-labeled strong {
+		font-weight: 600;
+		color: var(--primary-color);
+	}
+
+	@media (max-width: 640px) {
+		.cv-kicker {
+			font-size: 1.7rem;
+		}
+
+		.cv-name {
+			font-size: 1.2rem;
+		}
+
+		.cv-layout {
+			gap: 0.75rem;
+		}
+
+		.cv-sections {
+			gap: 1.5rem;
+		}
+
+		.cv-section > h2 {
+			font-size: 1.25rem;
+		}
+
+		.cv-row {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.cv-chip-list {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>
+
+<Base title="CV" description={basics.summary || basics.label}>
+	<main class="cv-page flex flex-col">
+		<header class="cv-header flex flex-col">
+			<h1 class="cv-kicker select-text">Curriculum Vitae</h1>
+			<div class="flex flex-col gap-2.5">
+				<div class="cv-identity">
+					<h2 class="cv-name">{basics.name}</h2>
+					{hasText(basics.label) && <p class="cv-label">{basics.label}</p>}
+				</div>
+				<div class="cv-meta">
+					{contactLinks.map(item =>
+						item?.href ? (
+							<a href={item.href} class="link">
+								{item.label}
+							</a>
+						) : (
+							<span>{item?.label}</span>
+						)
+					)}
+				</div>
+				{hasText(basics.summary) && <p class="cv-summary">{basics.summary}</p>}
+			</div>
+			<hr class="border-b border-weak" />
+		</header>
+
+		<div class="contents">
+			<div class="cv-layout">
+				<article id="markdown-content" class="markdown cv-content">
+					<div class="cv-sections">
+						{
+							hasItems(resume.work) && (
+								<section data-heading-rank="2" aria-labelledby="work" class="cv-section">
+									<h2 id="work">Work</h2>
+									<div class="cv-list">
+										{resume.work.map(item => (
+											<section class="not-prose cv-entry">
+												<div class="cv-entry-head">
+													<div>
+														<h3 class="cv-title">{item.position}</h3>
+													</div>
+													{hasText(formatDateRange(item.startDate, item.endDate)) && (
+														<p class="cv-entry-date">{formatDateRange(item.startDate, item.endDate)}</p>
+													)}
+													<div class="cv-entry-submeta">
+														{hasText(item.company) && <p class="cv-meta-text cv-meta-strong">{item.company}</p>}
+														{hasText(item.location) && <p class="cv-meta-text">{item.location}</p>}
+													</div>
+												</div>
+												{hasText(item.summary) && <p class="cv-item-body">{item.summary}</p>}
+												{hasItems(item.highlights) && (
+													<ul class="cv-bullets">
+														{item.highlights.map(highlight => (
+															<li>{highlight}</li>
+														))}
+													</ul>
+												)}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.education) && (
+								<section data-heading-rank="2" aria-labelledby="education" class="cv-section">
+									<h2 id="education">Education</h2>
+									<div class="cv-list">
+										{resume.education.map(item => (
+											<section class="not-prose cv-entry">
+												<div class="cv-entry-head">
+													<h3 class="cv-title">
+															{hasText(item.url) ? (
+																<a href={item.url} class="link">
+																	{item.institution}
+																</a>
+															) : (
+																item.institution
+															)}
+														</h3>
+													{hasText(formatDateRange(item.startDate, item.endDate)) && (
+														<p class="cv-entry-date">{formatDateRange(item.startDate, item.endDate)}</p>
+													)}
+													<div class="cv-entry-submeta">
+														<p class="cv-meta-text">{joinParts([item.studyType, item.area])}</p>
+														{hasText(item.location) && <p class="cv-meta-text">{item.location}</p>}
+													</div>
+												</div>
+												{hasText(item.score) && <p class="cv-labeled"><strong>Score:</strong> {item.score}</p>}
+												{hasItems(item.courses) && <p class="cv-labeled"><strong>Coursework:</strong> {item.courses.join("; ")}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.publications) && (
+								<section data-heading-rank="2" aria-labelledby="publications" class="cv-section">
+									<h2 id="publications">Publications</h2>
+									<div class="cv-item-stack">
+										{resume.publications.map(item => (
+											<section class="not-prose cv-item-stack">
+												<h3 class="cv-title">
+													{hasText(item.url) ? (
+														<a href={item.url} class="link">
+															{item.name}
+														</a>
+													) : (
+														item.name
+													)}
+												</h3>
+												<p class="cv-meta-text">{joinParts([item.publisher, formatDate(item.releaseDate || item.date)])}</p>
+												{hasText(item.summary) && <p class="cv-item-body">{item.summary}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.awards) && (
+								<section data-heading-rank="2" aria-labelledby="awards" class="cv-section">
+									<h2 id="awards">Awards</h2>
+									<div class="cv-row-list">
+										{resume.awards.map(item => (
+											<section class="not-prose cv-row">
+												<div class="cv-entry-submeta">
+													<h3 class="cv-title">{item.title}</h3>
+													{hasText(item.awarder) && <p class="cv-meta-text">{item.awarder}</p>}
+													{hasText(item.summary) && <p class="cv-item-body">{item.summary}</p>}
+												</div>
+												{hasText(item.date) && <p class="cv-entry-date">{formatDate(item.date)}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.certificates) && (
+								<section data-heading-rank="2" aria-labelledby="certificates" class="cv-section">
+									<h2 id="certificates">Certificates</h2>
+									<div class="cv-row-list">
+										{resume.certificates.map(item => (
+											<section class="not-prose cv-row">
+												<div class="cv-entry-submeta">
+													<h3 class="cv-title">
+														{hasText(item.url) ? (
+															<a href={item.url} class="link">
+																{item.name}
+															</a>
+														) : (
+															item.name
+														)}
+													</h3>
+													{hasText(item.issuer) && <p class="cv-meta-text">{item.issuer}</p>}
+												</div>
+												{hasText(item.date) && <p class="cv-entry-date">{formatDate(item.date)}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.languages) && (
+								<section data-heading-rank="2" aria-labelledby="languages" class="cv-section">
+									<h2 id="languages">Languages</h2>
+									<div class="not-prose cv-chip-list">
+										{resume.languages.map(item => (
+											<section class="cv-chip">
+												<h3 class="cv-title">{item.language}</h3>
+												{hasText(item.fluency) && <p class="cv-meta-text">{item.fluency}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.skills) && (
+								<section data-heading-rank="2" aria-labelledby="skills" class="cv-section">
+									<h2 id="skills">Skills</h2>
+									<div class="not-prose cv-item-stack">
+										{resume.skills.map(item => (
+											<section class="cv-entry-submeta">
+												<h3 class="cv-title">{item.name}</h3>
+												{hasText(item.level) && <p class="cv-meta-text">{item.level}</p>}
+												{hasItems(item.keywords) && <p class="cv-item-body">{item.keywords.join("; ")}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.projects) && (
+								<section data-heading-rank="2" aria-labelledby="projects" class="cv-section">
+									<h2 id="projects">Projects</h2>
+									<div class="cv-list">
+										{resume.projects.map(item => (
+											<section class="not-prose cv-entry">
+												<div class="cv-entry-head">
+													<h3 class="cv-title">
+															{hasText(item.url) ? (
+																<a href={item.url} class="link">
+																	{item.name}
+																</a>
+															) : (
+																item.name
+															)}
+														</h3>
+													{hasText(formatDateRange(item.startDate, item.endDate)) && (
+														<p class="cv-entry-date">{formatDateRange(item.startDate, item.endDate)}</p>
+													)}
+													<p class="cv-entry-submeta cv-meta-text">{joinParts([item.entity, item.type])}</p>
+												</div>
+												{hasText(item.description) && <p class="cv-item-body">{item.description}</p>}
+												{hasItems(item.roles) && <p class="cv-labeled"><strong>Roles:</strong> {item.roles.join("; ")}</p>}
+												{hasItems(item.keywords) && <p class="cv-labeled"><strong>Keywords:</strong> {item.keywords.join("; ")}</p>}
+												{hasItems(item.highlights) && (
+													<ul class="cv-bullets">
+														{item.highlights.map(highlight => (
+															<li>{highlight}</li>
+														))}
+													</ul>
+												)}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.volunteer) && (
+								<section data-heading-rank="2" aria-labelledby="volunteer" class="cv-section">
+									<h2 id="volunteer">Volunteer</h2>
+									<div class="cv-list">
+										{resume.volunteer.map(item => (
+											<section class="not-prose cv-entry">
+												<div class="cv-entry-head">
+													<h3 class="cv-title">
+															{item.position}
+															{hasText(item.organization) && <span class="cv-meta-text cv-meta-strong"> · {item.organization}</span>}
+													</h3>
+													{hasText(formatDateRange(item.startDate, item.endDate)) && (
+														<p class="cv-entry-date">{formatDateRange(item.startDate, item.endDate)}</p>
+													)}
+												</div>
+												{hasText(item.summary) && <p class="cv-item-body">{item.summary}</p>}
+												{hasItems(item.highlights) && (
+													<ul class="cv-bullets">
+														{item.highlights.map(highlight => (
+															<li>{highlight}</li>
+														))}
+													</ul>
+												)}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.interests) && (
+								<section data-heading-rank="2" aria-labelledby="interests" class="cv-section">
+									<h2 id="interests">Interests</h2>
+									<div class="not-prose cv-item-stack">
+										{resume.interests.map(item => (
+											<section class="cv-entry-submeta">
+												<h3 class="cv-title">{item.name}</h3>
+												{hasItems(item.keywords) && <p class="cv-item-body">{item.keywords.join("; ")}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+
+						{
+							hasItems(resume.references) && (
+								<section data-heading-rank="2" aria-labelledby="references" class="cv-section">
+									<h2 id="references">References</h2>
+									<div class="not-prose cv-item-stack">
+										{resume.references.map(item => (
+											<section class="cv-entry-submeta">
+												<h3 class="cv-title">{item.name}</h3>
+												{hasText(item.reference) && <p class="cv-item-body">{item.reference}</p>}
+											</section>
+										))}
+									</div>
+								</section>
+							)
+						}
+					</div>
+				</article>
+				<TOC {headings} />
+			</div>
+		</div>
+
+		<Position toc={true} />
+	</main>
+</Base>

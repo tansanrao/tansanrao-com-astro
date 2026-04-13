@@ -1,30 +1,26 @@
 import siteConfig from "./src/lib/config";
 
 const config = siteConfig({
-	title: "ThoughtLite",
-	prologue: "If you need a website\nthat loads fast and has great SEO, then Astro is for you.",
+	title: "Tanuj Ravi Rao",
+	prologue:
+		"This is the website of Tanuj Ravi Rao. I'm an engineer turned researcher working on accelerating dataplanes through kernel extensions. This is a collection of my thoughts, notes, and writings on various topics that interest me. I hope you find something interesting here.",
 	author: {
-		name: "Your Name",
-		email: "hi@your.mail",
-		link: "https://your.website"
+		name: "Tanuj Ravi Rao",
+		email: "email@tansanrao.com",
+		link: "https://tansanrao.com"
 	},
-	description: "A modern Astro theme focused on content creation.",
+	description: "A personal blog by Tanuj Ravi Rao.",
 	copyright: {
-		type: "CC BY-NC-ND 4.0",
-		year: "2025"
+		type: "CC BY-NC-SA 4.0",
+		year: "2026"
 	},
 	timezone: "UTC",
-	i18n: {
-		locales: ["en", "zh-cn", "ja"],
-		defaultLocale: "en"
-	},
 	pagination: {
-		note: 15,
-		jotting: 24
+		blog: 15,
+		notes: 24
 	},
 	heatmap: {
-		unit: "day",
-		weeks: 20
+		unit: "week"
 	},
 	feed: {
 		section: "*",
@@ -32,7 +28,5 @@ const config = siteConfig({
 	},
 	latest: "*"
 });
-
-export const monolocale = Number(config.i18n.locales.length) === 1;
 
 export default config;

@@ -1,0 +1,30 @@
+---
+import { getCollection } from "astro:content";
+import { blogEntryPath } from "$lib/paths";
+import Base from "$layouts/Base.astro";
+import Blog from "$components/Blog.svelte";
+
+const blogEntries = await getCollection("blog", entry => !entry.data.draft);
+
+const list = blogEntries.map(entry => ({
+	id: entry.id,
+	url: blogEntryPath(entry),
+	data: {
+		title: entry.data.title,
+		timestamp: entry.data.timestamp,
+		series: entry.data.series,
+		tags: entry.data.tags,
+		sensitive: entry.data.sensitive,
+		top: entry.data.top
+	}
+}));
+
+const series = Array.from(new Set(blogEntries.map(entry => entry.data.series).filter((series): series is string => Boolean(series)))).sort();
+const tags = Array.from(new Set(blogEntries.flatMap(entry => entry.data.tags).filter((tag): tag is string => Boolean(tag)))).sort();
+---
+
+<Base title="Blog">
+	<main class="flex flex-col grow">
+		<Blog client:load entries={list} {series} {tags} />
+	</main>
+</Base>

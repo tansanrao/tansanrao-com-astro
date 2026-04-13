@@ -1,0 +1,22 @@
+---
+const destination = "/notes";
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Redirecting…</title>
+		<meta name="robots" content="noindex" />
+		<link rel="canonical" href={destination} />
+		<meta http-equiv="refresh" content={`0;url=${destination}`} />
+	</head>
+	<body>
+		<p>Redirecting to <a href={destination}>{destination}</a>.</p>
+		<script>
+			const url = new URL(window.location.href);
+			window.location.replace(`/notes${url.search}${url.hash}`);
+		</script>
+	</body>
+</html>

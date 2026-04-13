@@ -23,14 +23,20 @@ function Time(time?: string | Date, userTimezone: boolean = false) {
  */
 namespace Time {
 	/**
-	 * Format date-time as "YYYY/MM/DD-HH:MM:SS"
+	 * Format date-time as "YYYY-MM-DD HH:MM UTC"
 	 * @param time ISO string or Date object
 	 * @param userTimezone Whether to use user's local timezone
 	 * @returns Formatted date-time string
 	 */
 	export function toString(time?: string | Date, userTimezone: boolean = false): string {
 		const datetime = Time(time, userTimezone);
-		return datetime.toString().substring(0, 19).replace(/-/g, "/").replace("T", "-");
+		const year = datetime.year;
+		const month = String(datetime.month).padStart(2, "0");
+		const day = String(datetime.day).padStart(2, "0");
+		const hour = String(datetime.hour).padStart(2, "0");
+		const minute = String(datetime.minute).padStart(2, "0");
+
+		return `${year}-${month}-${day} ${hour}:${minute} UTC`;
 	}
 
 	/**

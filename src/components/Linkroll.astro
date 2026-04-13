@@ -1,11 +1,7 @@
 ---
-import i18nit from "$i18n";
 import Icon from "$components/Icon.svelte";
 
 interface Props {
-	/** Current locale/language code */
-	locale: string;
-
 	/** Array of link items to display in the linkroll */
 	links: Array<{
 		/** Display title of the link */
@@ -25,19 +21,17 @@ interface Props {
 	}>;
 }
 
-const { locale, links } = Astro.props;
-
-const t = i18nit(locale, "linkroll");
+const { links } = Astro.props;
 
 const types = {
-	resources: { name: t("type.resources"), icon: "lucide--tool-case" },
-	community: { name: t("type.community"), icon: "lucide--network" },
-	insights: { name: t("type.insights"), icon: "lucide--lightbulb" },
-	technology: { name: t("type.technology"), icon: "lucide--terminal" },
-	expertise: { name: t("type.expertise"), icon: "lucide--book-open-text" },
-	creative: { name: t("type.creative"), icon: "lucide--palette" },
-	lifestyle: { name: t("type.lifestyle"), icon: "lucide--coffee" },
-	general: { name: t("type.general"), icon: "lucide--box" }
+	resources: { name: "Tools & Resources", icon: "lucide--tool-case" },
+	community: { name: "Organizations & Projects", icon: "lucide--network" },
+	insights: { name: "Media & Inspiration", icon: "lucide--lightbulb" },
+	technology: { name: "Technology & Development", icon: "lucide--terminal" },
+	expertise: { name: "Professional & Academic", icon: "lucide--book-open-text" },
+	creative: { name: "Design & Creativity", icon: "lucide--palette" },
+	lifestyle: { name: "Lifestyle & Hobbies", icon: "lucide--coffee" },
+	general: { name: "General & Others", icon: "lucide--box" }
 } as const;
 
 const fallback = "/linkback.webp";

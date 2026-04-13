@@ -16,32 +16,35 @@
 
 :root,
 [data-theme="light"] {
-	--primary-color: #2a2a28;
-	--secondary-color: #50504d;
-	--remark-color: #757575;
-	--weak-color: #9f9f9c;
-	--background-color: #fffffd;
-	--block-color: #eeeeee;
-	--shadow-color: #cdcdcc;
-	--selection-color: #adadacc3;
+	--primary-color: #100f0f;
+	--secondary-color: #575653;
+	--remark-color: #6f6e69;
+	--weak-color: #9f9d96;
+	--background-color: #fffcf0;
+	--block-color: #f2f0e5;
+	--shadow-color: #cecdc3;
+	--selection-color: rgba(67, 133, 190, 0.28);
+	--overlay-color: rgba(16, 15, 15, 0.38);
 
 	--swup-fade-theme-duration: 0.15s;
 
 	.astro-code,
 	.astro-code span {
-		background-color: var(--block-color) !important;
+		color: var(--shiki-light) !important;
+		background-color: var(--shiki-light-bg) !important;
 	}
 }
 
 [data-theme="dark"] {
-	--primary-color: #dddddb;
-	--secondary-color: #aaaaa8;
-	--remark-color: #a5a5a5;
-	--weak-color: #5d5d5a;
-	--background-color: #0e0e0c;
-	--block-color: #1e1e1e;
-	--shadow-color: #323231;
-	--selection-color: #adadacc3;
+	--primary-color: #cecdc3;
+	--secondary-color: #b7b5ac;
+	--remark-color: #9f9d96;
+	--weak-color: #6f6e69;
+	--background-color: #100f0f;
+	--block-color: #1c1b1a;
+	--shadow-color: #403e3c;
+	--selection-color: rgba(32, 94, 166, 0.34);
+	--overlay-color: rgba(16, 15, 15, 0.72);
 
 	.astro-code,
 	.astro-code span {
@@ -86,7 +89,7 @@
 
 	body {
 		font-size: 1.0625rem;
-		font-family: var(--font-serif), var(--font-mono);
+		font-family: var(--font-serif);
 		color: var(--primary-color);
 		background-color: var(--background-color);
 		overflow-x: clip;
@@ -218,54 +221,10 @@
 	--color-block: var(--block-color);
 	--color-shadow: var(--shadow-color);
 	--color-selection: var(--selection-color);
+	--color-overlay: var(--overlay-color);
 
-	--font-serif: var(--font-noto-serif);
-	--font-mono: var(--font-maple-mono-nf-cn);
-	--font-cursive: var(--font-playwrite-mx), var(--font-the-peak-font-plus);
-
-	@keyframes shaky {
-		0% {
-			transform: translate(0, 0) rotate(0deg);
-		}
-		10% {
-			transform: translate(-1px, -2px) rotate(-1deg);
-		}
-		20% {
-			transform: translate(-3px, 1px) rotate(1deg);
-		}
-		30% {
-			transform: translate(2px, -1px) rotate(0deg);
-		}
-		40% {
-			transform: translate(1px, 2px) rotate(1deg);
-		}
-		50% {
-			transform: translate(-1px, -1px) rotate(-1deg);
-		}
-		60% {
-			transform: translate(-3px, 1px) rotate(0deg);
-		}
-		70% {
-			transform: translate(2px, 1px) rotate(-1deg);
-		}
-		80% {
-			transform: translate(-1px, -2px) rotate(1deg);
-		}
-		90% {
-			transform: translate(2px, 2px) rotate(0deg);
-		}
-		100% {
-			transform: translate(0, 0) rotate(-1deg);
-		}
-	}
-
-	--animate-shaky: shaky 0.6s infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	:root {
-		--animate-shaky: none;
-	}
+	--font-serif: var(--font-source-serif-4);
+	--font-mono: var(--font-ibm-plex-mono);
 }
 
 @layer components {

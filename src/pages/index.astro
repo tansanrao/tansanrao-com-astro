@@ -1,0 +1,120 @@
+---
+import { render, getCollection } from "astro:content";
+import { blogEntryPath } from "$lib/paths";
+import config from "$config";
+import Time from "$lib/time";
+import Base from "$layouts/Base.astro";
+import Heatmap from "$components/Heatmap.astro";
+import Logo from "$icons/site-logo.svg";
+
+const news = (await getCollection("news")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
+const blogEntries = await getCollection("blog", entry => !entry.data.draft);
+const notes = await getCollection("notes", entry => !entry.data.draft);
+const latestNews = await Promise.all(news.slice(0, 3).map(async entry => ({ ...entry, content: (await render(entry)).Content })));
+
+let items: { id: string; type?: string; data: { timestamp: Date; tags?: string[]; [key: string]: any } }[] = [];
+const sections = config.latest || "*";
+
+blogEntries.forEach(entry => {
+	Reflect.set(entry, "type", "blog");
+	Reflect.set(entry, "url", blogEntryPath(entry));
+});
+notes.forEach(entry => {
+	Reflect.set(entry, "type", "notes");
+	Reflect.set(entry, "url", `/notes/${entry.id}`);
+});
+
+if (sections === "*" || sections.includes("blog")) items = items.concat(blogEntries);
+if (sections === "*" || sections.includes("notes")) items = items.concat(notes);
+
+const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime())[0];
+---
+
+<style>
+	.news-row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.news-body > :first-child {
+		margin-top: 0;
+	}
+
+	.news-body > :last-child {
+		margin-bottom: 0;
+	}
+
+	.news-body p {
+		margin: 0;
+	}
+
+	@media screen and (min-width: 768px) {
+		.news-row {
+			grid-template-columns: 11rem minmax(0, 1fr);
+		}
+	}
+</style>
+
+<Base title="Home">
+	<main class="flex flex-col gap-5 sm:gap-20 grow">
+		<header class="flex flex-col justify-center gap-6 md:gap-8 grow-[0.6]">
+			<div class="self-center">
+				<Logo width={100} />
+			</div>
+			{config.prologue && <article class="text-md sm:text-xl leading-loose whitespace-pre-line italic">{config.prologue}</article>}
+		</header>
+
+		{
+			latestNews.length > 0 && (
+				<section class="flex flex-col gap-4">
+					<div class="flex items-end justify-between gap-3">
+						<h2>
+							<a href="/news" class="link">Latest News</a>
+						</h2>
+						<a href="/news" class="text-sm text-secondary link">Archive</a>
+					</div>
+
+					<ul class="flex flex-col">
+						{
+							latestNews.map((entry, index) => (
+								<li class:list={["news-row grid items-start gap-3 py-5 md:gap-5", index > 0 && "border-t border-shadow/60"]}>
+									<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-sm text-secondary md:pt-1">
+										{Time.toLocaleDateString(entry.data.timestamp, "en")}
+									</time>
+									<article class="markdown news-body text-base leading-relaxed">
+										<entry.content />
+									</article>
+								</li>
+							))
+						}
+					</ul>
+				</section>
+			)
+		}
+
+		{
+			latest && (
+				<footer class="flex items-center justify-center flex-wrap-reverse gap-10">
+					<Heatmap blogEntries={blogEntries} {notes} />
+
+					<blockquote class="grow flex flex-col">
+						<h4>Latest</h4>
+						<div class="flex flex-col sm:flex-row justify-between gap-1 mt-1">
+							<a href={(latest as any).url} class="link">
+								{latest.data.series && `${latest.data.series} | `}
+								{latest.data.title}
+							</a>
+							<div class="flex gap-1">
+								{latest.data.tags?.map(tag => (
+									<a href={`/${latest.type}?tag=${encodeURIComponent(tag)}`} class="text-remark text-sm link">#{tag}</a>
+								))}
+							</div>
+						</div>
+						<time datetime={latest.data.timestamp.toISOString()} class="text-remark font-mono text-xs">
+							{Time.toString(latest.data.timestamp)}
+						</time>
+					</blockquote>
+				</footer>
+			)
+		}
+	</main>
+</Base>

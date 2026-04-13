@@ -1,17 +1,13 @@
 ---
 import type { MarkdownHeading } from "astro";
 import Icon from "$components/Icon.svelte";
-import i18nit from "$i18n";
 
 interface Props {
-	locale: string;
 	headings?: Heading[];
 	series?: { title: string; url: string; current: boolean }[];
 }
 
-const { locale, headings, series } = Astro.props;
-
-const t = i18nit(locale);
+const { headings, series } = Astro.props;
 
 // Extended heading type with additional properties for tree rendering
 // - last: indicates if this heading is the last child in its parent group
@@ -70,7 +66,7 @@ if (headings) {
 
 		&.active {
 			pointer-events: auto;
-			background-color: #aaaaaa88;
+			background-color: var(--overlay-color);
 		}
 	}
 </style>
@@ -83,7 +79,7 @@ if (headings) {
 		{
 			headings && (
 				<section>
-					<h4>{t("contents")}</h4>
+					<h4>Contents</h4>
 					<nav class="overflow-y-auto">
 						<ul class="flex flex-col text-base list-none">
 							{headings.map((heading: Heading) => (
@@ -114,7 +110,7 @@ if (headings) {
 		{
 			series && series.length > 0 && (
 				<section class="flex flex-col gap-1">
-					<h4>{t("note.series")}</h4>
+					<h4>Series</h4>
 					<ul class="flex flex-col text-sm gap-0.5">
 						{series.map(item => (
 							<li class:list={["flex items-center gap-1.25 before:w-1 before:h-1 before:rounded-full", item.current ? "font-bold text-primary before:bg-primary" : "text-weak before:bg-weak"]}>

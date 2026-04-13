@@ -1,19 +1,31 @@
 import { glob } from "astro/loaders";
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
+
+const authorSchema = z.object({
+	name: z.string(),
+	url: z.string().url().optional()
+});
+
+const defaultAuthors = [{ name: "Tanuj Ravi Rao", url: "https://tansanrao.com" }];
 
 /**
- * Note collection configuration
+ * Blog collection configuration
  * Represents main blog articles with comprehensive metadata
  */
-const note = defineCollection({
+const blog = defineCollection({
 	// Load all markdown files except those starting with underscore (private/draft files)
-	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/note" }),
+	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/blog" }),
 	schema: z.object({
 		title: z.string(), // Post title (required)
 		timestamp: z.date(), // Publication date (required)
+		updatedTimestamp: z.date().optional(), // Last substantive update time
 		series: z.string().optional(), // Series name for grouped posts
 		tags: z.array(z.string()).optional(), // Array of topic tags
 		description: z.string().optional(), // Post description/excerpt
+		authors: z.array(authorSchema).default(defaultAuthors), // Visible byline authors
+		canonicalURL: z.string().url().optional(), // Overrides self-canonical when syndicated
+		syndicated: z.boolean().default(false), // Marks a cross-posted page as noindex
 		sensitive: z.boolean().default(false), // Marks content as sensitive
 		toc: z.boolean().default(false), // Whether to show table of contents
 		top: z.number().int().nonnegative().default(0), // Top priority for sorting (higher is more important)
@@ -22,14 +34,14 @@ const note = defineCollection({
 });
 
 /**
- * Jotting collection configuration
+ * Notes collection configuration
  * Represents shorter posts, quick thoughts, or micro-blog entries
  */
-const jotting = defineCollection({
+const notes = defineCollection({
 	// Load all markdown files except those starting with underscore
-	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/jotting" }),
+	loader: glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: "./src/content/notes" }),
 	schema: z.object({
-		title: z.string(), // Jotting title (required)
+		title: z.string(), // Note title (required)
 		timestamp: z.date(), // Publication date (required)
 		tags: z.array(z.string()).optional(), // Array of topic tags
 		description: z.string().optional(), // Brief description
@@ -40,12 +52,12 @@ const jotting = defineCollection({
 });
 
 /**
- * Preface collection configuration
- * Represents introductory content, site announcements, or special pages
+ * News collection configuration
+ * Represents timestamped personal updates and announcements
  */
-const preface = defineCollection({
+const news = defineCollection({
 	// Load all markdown files
-	loader: glob({ pattern: "**/*.md", base: "./src/content/preface" }),
+	loader: glob({ pattern: "**/*.md", base: "./src/content/news" }),
 	schema: z.object({
 		timestamp: z.date() // Creation timestamp
 	})
@@ -60,4 +72,4 @@ const information = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx,yaml}", base: "./src/content/information" })
 });
 
-export const collections = { note, jotting, preface, information };
+export const collections = { blog, notes, news, information };

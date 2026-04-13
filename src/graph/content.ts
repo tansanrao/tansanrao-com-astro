@@ -36,7 +36,6 @@ import { loadFont } from ".";
 */
 
 export default async ({
-	locale,
 	type,
 	site,
 	author,
@@ -45,7 +44,6 @@ export default async ({
 	series,
 	tags
 }: {
-	locale: string;
 	type: string;
 	site: string;
 	author: string;
@@ -220,7 +218,7 @@ export default async ({
 			fonts: [
 				{
 					name: "Serif",
-					data: await loadFont(locale)
+					data: await loadFont()
 				}
 			]
 		}

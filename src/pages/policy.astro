@@ -1,0 +1,19 @@
+---
+import { getEntry, render } from "astro:content";
+import Base from "$layouts/Base.astro";
+
+const policy = await getEntry("information", "policy");
+const { Content } = policy ? await render(policy) : ({} as any);
+---
+
+<Base title="Policy">
+	<main>
+		{
+			policy && (
+				<div class="markdown">
+					<Content />
+				</div>
+			)
+		}
+	</main>
+</Base>

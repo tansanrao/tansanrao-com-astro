@@ -1,11 +1,7 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
-import { fade } from "svelte/transition";
-import i18nit from "$i18n";
 
-let { locale, sensitive = false, back, children }: { locale: string; sensitive: boolean; back: string; children: Snippet } = $props();
-
-const t = i18nit(locale);
+let { sensitive = false, back, children }: { sensitive: boolean; back: string; children: Snippet } = $props();
 
 if (sensitive) {
 	$effect(() => {
@@ -16,17 +12,17 @@ if (sensitive) {
 
 {#if sensitive}
 	<div transition:fade={{ duration: 150 }} class="flex flex-col items-center justify-end gap-6">
-		<h2>{t("sensitive.title")}</h2>
+		<h2>Content Warning</h2>
 		<div class="flex flex-col items-center justify-end gap-3">
-			<p>{t("sensitive.description")}</p>
-			<p>{t("sensitive.warning")}</p>
+			<p>This content may contain explicit, violent, bloody, or emotionally triggering material.</p>
+			<p>If this content might affect your mental health, please leave immediately!</p>
 		</div>
 		<div class="flex gap-3">
 			<button class="font-bold text-background bg-red-500 py-1 px-2 rounded-md" onclick={() => (sensitive = false)}>
-				{t("sensitive.continue")}
+				I understand, continue reading
 			</button>
 			<a href={back} class="flex items-center font-bold text-background bg-secondary py-1 px-2 rounded-md">
-				{t("sensitive.back")}
+				Return to list
 			</a>
 		</div>
 	</div>
