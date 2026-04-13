@@ -25,7 +25,7 @@ let value = size !== undefined ? (typeof size === "number" ? `${size}px` : size)
 let dimensions = value ? `width: ${value}; height: ${value}` : "";
 </script>
 
-<figure aria-label={title} class="inline-flex items-center leading-none group/icon">
+<figure aria-label={title} class="inline-flex items-center leading-none select-none group/icon">
 	<i class="iconify {name} {className}" style={dimensions} aria-hidden="true"></i>
 
 	{#if title}

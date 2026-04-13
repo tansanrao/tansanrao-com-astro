@@ -93,7 +93,8 @@
 		color: var(--primary-color);
 		background-color: var(--background-color);
 		overflow-x: clip;
-		user-select: none;
+		-webkit-user-select: text;
+		user-select: text;
 	}
 
 	@media screen and (max-width: 640px) {
@@ -148,6 +149,8 @@
 		font-size: inherit;
 		cursor: pointer;
 		background: transparent;
+		-webkit-user-select: none;
+		user-select: none;
 	}
 
 	button[disabled] {
@@ -159,10 +162,14 @@
 		max-width: 100%;
 		height: auto;
 		-webkit-user-drag: none;
+		-webkit-user-select: none;
+		user-select: none;
 	}
 
 	svg {
 		fill: currentColor;
+		-webkit-user-select: none;
+		user-select: none;
 	}
 
 	hr {
