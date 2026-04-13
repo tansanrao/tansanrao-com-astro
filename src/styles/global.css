@@ -208,15 +208,7 @@
 }
 
 ::view-transition-new(root) {
-	z-index: 10001;
-}
-
-[data-theme="dark"]::view-transition-old(root) {
-	z-index: 10001;
-}
-
-[data-theme="dark"]::view-transition-new(root) {
-	z-index: 10000;
+	z-index: 9999;
 }
 
 @theme {

@@ -63,20 +63,19 @@ import Icon from "$components/Icon.svelte";
 		const x = rectangular.left + rectangular.width / 2;
 		const y = rectangular.top + rectangular.height / 2;
 		transition.ready.then(() => {
-			// Create expanding circle animation from click point
-			const path = [`circle(0% at ${x}px ${y}px)`, `circle(130% at ${x}px ${y}px)`];
+			// Use the furthest corner so the shrinking mask fully covers the viewport.
+			const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
 			document.documentElement.animate(
 				{
-					// Reverse animation direction based on theme transition
-					clipPath: target === "dark" ? [...path].reverse() : path
+					clipPath: [`circle(${radius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`]
 				},
 				{
 					duration: 400,
 					easing: "ease-in",
 					// Keep end state after animation completes to avoid flicker
 					fill: "forwards",
-					// Target different pseudo-elements for incoming/outgoing content
-					pseudoElement: target === "dark" ? "::view-transition-old(root)" : "::view-transition-new(root)"
+					// Always animate the outgoing snapshot away so the new theme is revealed underneath.
+					pseudoElement: "::view-transition-old(root)"
 				}
 			);
 		});
