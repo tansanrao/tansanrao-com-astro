@@ -10,9 +10,6 @@ interface Props {
 		/** Target URL of the link */
 		url: string;
 
-		/** Category type of the link */
-		type: keyof typeof types;
-
 		/** Optional image URL for the link avatar */
 		image?: string;
 
@@ -22,17 +19,6 @@ interface Props {
 }
 
 const { links } = Astro.props;
-
-const types = {
-	resources: { name: "Tools & Resources", icon: "lucide--tool-case" },
-	community: { name: "Organizations & Projects", icon: "lucide--network" },
-	insights: { name: "Media & Inspiration", icon: "lucide--lightbulb" },
-	technology: { name: "Technology & Development", icon: "lucide--terminal" },
-	expertise: { name: "Professional & Academic", icon: "lucide--book-open-text" },
-	creative: { name: "Design & Creativity", icon: "lucide--palette" },
-	lifestyle: { name: "Lifestyle & Hobbies", icon: "lucide--coffee" },
-	general: { name: "General & Others", icon: "lucide--box" }
-} as const;
 
 const fallback = "/linkback.webp";
 ---
@@ -47,7 +33,6 @@ const fallback = "/linkback.webp";
 						<a href={link.url} target="_blank" rel="noopener noreferrer" class="font-bold after:hidden link truncate">
 							{link.title}
 						</a>
-						<Icon name={types[link.type].icon} title={types[link.type].name} size="0.9rem" />
 					</div>
 					{link.description && (
 						<p title={link.description} class="text-xs text-secondary truncate">
