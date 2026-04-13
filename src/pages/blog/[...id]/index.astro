@@ -7,6 +7,8 @@ import TOC from "$components/TOC.astro";
 import Position from "$components/Position.astro";
 import Icon from "$components/Icon.svelte";
 import Sensitive from "$components/Sensitive.svelte";
+import MarkdownAlert from "$components/MarkdownAlert.astro";
+import { isOlderThanYears } from "$lib/content-age";
 
 export async function getStaticPaths() {
 	const entries = await getCollection("blog", entry => !entry.data.draft);
@@ -16,6 +18,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content, headings, remarkPluginFrontmatter: frontmatter } = await render(entry);
 const authorNames = entry.data.authors.map(author => author.name);
+const showArchiveNotice = isOlderThanYears(entry.data.timestamp, 2);
 
 const series = entry.data.series
 	? (await getCollection("blog", item => !item.data.draft && item.data.series === entry.data.series))
@@ -97,7 +100,16 @@ const series = entry.data.series
 		<Sensitive back="/blog" sensitive={entry.data.sensitive} client:load>
 			<div class="contents">
 				<div class="flex gap-5">
-					<section id="markdown-content" class="markdown"><Content /></section>
+					<section id="markdown-content" class="markdown flex-1 min-w-0">
+						{
+							showArchiveNotice && (
+								<MarkdownAlert>
+									<p>This post is over 2 years old and the information contained could be outdated or now irrelevant.</p>
+								</MarkdownAlert>
+							)
+						}
+						<Content />
+					</section>
 					{(entry.data.toc || !!entry.data.series) && <TOC headings={entry.data.toc ? headings : undefined} {series} />}
 				</div>
 			</div>

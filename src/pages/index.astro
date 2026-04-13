@@ -56,9 +56,11 @@ const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestam
 
 <Base title="Home">
 	<main class="flex flex-col gap-5 sm:gap-20 grow">
-		<header class="flex items-center justify-center flex-wrap-reverse grow-[0.6]">
-			{config.prologue && <article class="me-auto text-md sm:text-xl leading-loose whitespace-pre-line italic">{config.prologue}</article>}
-			<Logo width={100} />
+		<header class="flex flex-col justify-center gap-6 md:gap-8 grow-[0.6]">
+			<div class="self-center">
+				<Logo width={100} />
+			</div>
+			{config.prologue && <article class="text-md sm:text-xl leading-loose whitespace-pre-line italic">{config.prologue}</article>}
 		</header>
 
 		{

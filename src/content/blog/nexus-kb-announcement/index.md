@@ -18,8 +18,6 @@ authors:
     url: 'https://tansanrao.com'
 ---
 
-# Nexus KB Announcement
-
 ![nexus-hero](nexus.webp)
 
 *Originally published on [Nexus KB](https://nexus-kb.com/blog/nexus-kb-announcement/).*
