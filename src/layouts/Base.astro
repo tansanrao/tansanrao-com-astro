@@ -23,6 +23,7 @@ import Time from "$lib/time";
 	const zoom: Zoom = MediumnZoom(undefined, { background: "#00000044" });
 	window.zoom = () => {
 		zoom.detach();
+		// Local markdown images provide `data-zoom-src` server-side so fullscreen zoom can load the original asset.
 		zoom.attach(".markdown img:not([data-nozoom])");
 	};
 
