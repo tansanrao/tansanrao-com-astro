@@ -1,6 +1,7 @@
 ---
 import { getCollection, getEntry, render } from "astro:content";
 import Icon from "$components/Icon.svelte";
+import Time from "$lib/time";
 
 let { author, copyright } = Astro.props;
 
@@ -83,12 +84,13 @@ const notesWords = (await Promise.all(notes.map(async entry => (await render(ent
 
 // Aggregate total word count
 const totalWords = blogWords + notesWords;
+const buildTimestamp = __BUILD_TIMESTAMP_UTC__;
 
 const policy = await getEntry("information", "policy");
 ---
 
 <footer class="flex flex-col sm:flex-row items-center justify-between gap-2 mt-32 mb-5 sm:mb-3 text-sm font-mono">
-	<div class="flex items-center gap-2">
+	<div class="flex flex-wrap items-center gap-2">
 		{
 			copyright.type != "CC0 1.0" && (
 				<>
@@ -104,6 +106,8 @@ const policy = await getEntry("information", "policy");
 		</a>
 		<span>·</span>
 		<Icon name="lucide--activity" title={`Wrote ${totalWords} ${totalWords === 1 ? "word" : "words"}`} />
+		<span>·</span>
+		<time datetime={buildTimestamp}>last updated at: {Time.toString(buildTimestamp)}</time>
 		<!-- {
 			policy && (
 				<>

@@ -33,6 +33,8 @@ import copy from "@tuyuritio/shiki-code-copy";
 import reading from "./src/lib/reading";
 import { flexokiDarkTheme, flexokiLightTheme } from "./src/styles/shiki/flexoki";
 
+const buildTimestampUtc = new Date().toISOString();
+
 // https://astro.build/config
 export default defineConfig({
 	site: "https://tansanrao.com",
@@ -84,6 +86,9 @@ export default defineConfig({
 		}
 	},
 	vite: {
+		define: {
+			__BUILD_TIMESTAMP_UTC__: JSON.stringify(buildTimestampUtc)
+		},
 		// @ts-expect-error
 		plugins: [yaml(), tailwindcss()]
 	},
