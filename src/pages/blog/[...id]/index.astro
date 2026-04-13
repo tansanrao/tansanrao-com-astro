@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import { blogEntryPath, blogEntryRestParam } from "$lib/paths";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
@@ -9,6 +9,7 @@ import Icon from "$components/Icon.svelte";
 import Sensitive from "$components/Sensitive.svelte";
 import MarkdownAlert from "$components/MarkdownAlert.astro";
 import { isOlderThanYears } from "$lib/content-age";
+import { renderMarkdownContent } from "$lib/render-markdown-content";
 
 export async function getStaticPaths() {
 	const entries = await getCollection("blog", entry => !entry.data.draft);
@@ -16,7 +17,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content, headings, remarkPluginFrontmatter: frontmatter } = await render(entry);
+const { html, headings, remarkPluginFrontmatter: frontmatter } = await renderMarkdownContent(entry);
 const authorNames = entry.data.authors.map(author => author.name);
 const showArchiveNotice = isOlderThanYears(entry.data.timestamp, 2);
 
@@ -108,7 +109,7 @@ const series = entry.data.series
 								</MarkdownAlert>
 							)
 						}
-						<Content />
+						<Fragment set:html={html} />
 					</section>
 					{(entry.data.toc || !!entry.data.series) && <TOC headings={entry.data.toc ? headings : undefined} {series} />}
 				</div>

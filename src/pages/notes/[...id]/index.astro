@@ -1,10 +1,11 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
 import Position from "$components/Position.astro";
 import Icon from "$components/Icon.svelte";
 import Sensitive from "$components/Sensitive.svelte";
+import { renderMarkdownContent } from "$lib/render-markdown-content";
 
 export async function getStaticPaths() {
 	const entries = await getCollection("notes", entry => !entry.data.draft);
@@ -12,7 +13,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content, remarkPluginFrontmatter: frontmatter } = await render(entry);
+const { html, remarkPluginFrontmatter: frontmatter } = await renderMarkdownContent(entry);
 ---
 
 <Base title={entry.data.title} description={entry.data.description} article={{ timestamp: entry.data.timestamp, tags: entry.data.tags }}>
@@ -35,7 +36,7 @@ const { Content, remarkPluginFrontmatter: frontmatter } = await render(entry);
 		</header>
 
 		<Sensitive back="/notes" sensitive={entry.data.sensitive} client:load>
-			<section id="markdown-content" class="markdown"><Content /></section>
+			<section id="markdown-content" class="markdown"><Fragment set:html={html} /></section>
 		</Sensitive>
 
 		<Position />
