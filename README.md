@@ -1,144 +1,24 @@
-# ThoughtLite
+# tansanrao-com-astro
 
-<div align="center">
-    <p>
-        <img alt="ThoughtLite Light Mode Preview" src=".github/assets/preview-light.webp">
-        <img alt="ThoughtLite Dark Mode Preview" src=".github/assets/preview-dark.webp">
-    </p>
-    <p>
-        <a href="https://github.com/tuyuritio/astro-theme-thought-lite/releases/latest"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/tuyuritio/astro-theme-thought-lite"></a>
-        <a href="https://raw.githubusercontent.com/tuyuritio/astro-theme-thought-lite/refs/heads/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/tuyuritio/astro-theme-thought-lite"></a>
-        <a href="https://deepwiki.com/tuyuritio/astro-theme-thought-lite"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
-    </p>
-    <p>A modern <a href="https://astro.build/">Astro</a> theme, focused on content creation 🌟</p>
-</div>
+This repository contains the source and theme for my personal website, [tansanrao.com](https://tansanrao.com/).
 
-> [!NOTE]
-> - `main` branch✅: Static build, can be deployed on any static hosting platform.
-> - `cloudflare` branch: Enables built-in comment system, only deployable on Cloudflare.
+## Attribution
 
-🎬 **Live Demo**: [Vercel](https://thought-lite.vercel.app)
+This site is based on [ThoughtLite](https://github.com/tuyuritio/astro-theme-thought-lite), an Astro theme created by [tuyuritio](https://github.com/tuyuritio). This repository is a derived work adapted for my personal site and is not the upstream ThoughtLite project.
 
-## ✨ Features
-
-- [x] **Responsive Design** - Adaptive for mobile, tablet, and desktop.
-- [x] **Light / Dark Mode** - Auto-follows system preference with manual toggle support.
-- [x] **CSR Dynamic Content Filtering** - List filtering and pagination via History API.
-- [x] **Sitemap & Feed Subscription** - Automated generation of Sitemap and Atom Feed.
-- [x] **OpenGraph Support** - Built-in Open Graph meta tags for optimized social media sharing.
-
-## ⚡️ Quick Start
-
-### Using Astro Command
-
-Run the following command:
+## Local Development
 
 ```sh
-pnpm create astro --template tuyuritio/astro-theme-thought-lite
-
-# Follow the interactive prompts to create the project
-
-cd <your-project-name>
-pnpm dev
-```
-
-### Using Template
-
-1. [Use this template](https://github.com/new?template_name=astro-theme-thought-lite&template_owner=tuyuritio) to create a new repository or [fork](https://github.com/tuyuritio/astro-theme-thought-lite/fork) this repository.
-2. Run the following commands:
-
-```sh
-git clone <your-repo-url>
-cd <your-repo-name>
 pnpm install
 pnpm dev
 ```
 
-## 🔧 Configuration
-
-Related theme configuration can be found in the following documents:
-
-- [Astro Configuration Reference](https://docs.astro.build/en/reference/configuration-reference/)
-
-## 💻 Commands
-
-The theme provides the following commonly used commands:
-
-| Command | Action |
-| --- | --- |
-| `pnpm install` | Install project dependencies |
-| `pnpm update` | Update project dependencies |
-| `pnpm new` | Create a new content file |
-| `pnpm dev` | Start the local development server (default: `http://localhost:4321`) |
-| `pnpm check` | Run Astro type checking |
-| `pnpm build` | Build the production version |
-| `pnpm preview` | Preview the built site |
-| `pnpm format` | Format code |
-| `pnpm lint` | Lint code |
-
-## 🚀 Deployment
-
-The current branch can be fully static built and deployed on any static hosting platform.
-
-For deployment methods on various platforms, refer to the [Astro Official Deployment Guide](https://docs.astro.build/en/guides/deploy/).
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/tuyuritio/astro-theme-thought-lite&project-name=astro-blog-thought-lite&repository-name=astro-blog-thought-lite&teamSlug=tuyuritios-projects)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/integration/start/deploy?repository=https://github.com/tuyuritio/astro-theme-thought-lite)
-
-## 🔄 Updates
-
-Run the following commands to sync upstream updates:
+To create a production build:
 
 ```sh
-git remote add theme https://github.com/tuyuritio/astro-theme-thought-lite.git
-git fetch theme
-git merge theme/main    # Add `--allow-unrelated-histories` flag for first update
-pnpm install
+pnpm build
 ```
 
-## ✍️ Content Creation
+## License
 
-Content creation is centralized in the `src/content` directory, mainly including:
-
-- `blog` - Focused on carefully crafted and detailed long-form works
-- `notes` - Lightweight and immediate content recording
-- `news` - Displayed on the homepage as timestamped personal updates
-- `information` - Containing various descriptive content
-
-For details, refer to the [Content Creation Guide](https://thought-lite.vercel.app/blog/2026/01/content).
-
-## 🤝 Contributing
-
-All kinds of contributions are welcome and appreciated!
-
-- Help promote the project or assist other users
-- Report [issues](https://github.com/tuyuritio/astro-theme-thought-lite/issues) or suggest new features
-- Improve documentation
-- Submit code contributions
-- See [Contribution Guide](CONTRIBUTING.md) for more information
-
-## 🙏 Acknowledgments
-
-### Tech Stack
-
-- **Core Framework** - [Astro](https://astro.build/)
-- **Core Language** - [TypeScript](https://www.typescriptlang.org/)
-- **UI Components** - [Svelte](https://svelte.dev/)
-- **CSS Engine** - [Tailwind CSS](https://tailwindcss.com/)
-- **Icons** - [Iconify](https://iconify.design/)
-- **Fonts** - [Google Fonts](https://fonts.google.com/) | [ZeoSeven Fonts](https://fonts.zeoseven.com/)
-- **Image Viewer** - [Medium Zoom](https://github.com/francoischalifour/medium-zoom)
-- **SPA Transitions** - [Swup](https://swup.js.org/)
-- **Code Quality** - [Biome](https://biomejs.dev/)
-- **Static Deployment** - [Vercel](https://vercel.com/)
-
-### Inspiration
-
-- [Astro Sphere](https://github.com/markhorn-dev/astro-sphere)
-- [astro-vitesse](https://github.com/adrian-ub/astro-vitesse)
-- [Miniblog](https://github.com/nicholasdly/miniblog)
-- [AstroPaper](https://github.com/satnaing/astro-paper)
-
-## 📜 License
-
-This project is licensed under [GPLv3](LICENSE), allowing free modification and distribution, but the original copyright notice must be retained.
+This repository remains licensed under [GPLv3](./LICENSE). ThoughtLite, the base theme this work is derived from, is also distributed under GPLv3.
