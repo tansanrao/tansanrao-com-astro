@@ -33,6 +33,7 @@ const entries = await Promise.all(news.map(async entry => ({ ...entry, content: 
 
 <Base title="News">
 	<main class="flex flex-col gap-4">
+		<h1 class="sr-only">News</h1>
 		<h2>News</h2>
 		<ul class="flex flex-col">
 			{

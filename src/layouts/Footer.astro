@@ -1,7 +1,8 @@
 ---
-import { getCollection, getEntry, render } from "astro:content";
+import { getCollection } from "astro:content";
 import Icon from "$components/Icon.svelte";
 import Time from "$lib/time";
+import { getWordCount } from "$lib/reading";
 
 let { author, copyright } = Astro.props;
 
@@ -67,26 +68,18 @@ const blogEntries = await getCollection("blog", entry => {
 });
 
 // Calculate total word count across all blog entries
-const blogWords = (await Promise.all(blogEntries.map(async entry => (await render(entry)).remarkPluginFrontmatter.words))).reduce(
-	(summary, words) => summary + words,
-	0
-);
+const blogWords = blogEntries.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
 
 const notes = await getCollection("notes", entry => {
 	return !entry.data.draft;
 });
 
 // Calculate total word count across all notes
-const notesWords = (await Promise.all(notes.map(async entry => (await render(entry)).remarkPluginFrontmatter.words))).reduce(
-	(summary, words) => summary + words,
-	0
-);
+const notesWords = notes.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
 
 // Aggregate total word count
 const totalWords = blogWords + notesWords;
 const buildTimestamp = __BUILD_TIMESTAMP_UTC__;
-
-const policy = await getEntry("information", "policy");
 ---
 
 <footer class="flex flex-col sm:flex-row items-center justify-between gap-2 mt-32 mb-5 sm:mb-3 text-sm font-mono">

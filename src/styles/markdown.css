@@ -184,10 +184,7 @@
 				height: 1em;
 				color: var(--secondary-color);
 				opacity: 0;
-				visibility: hidden;
-				transition:
-					opacity 0.15s ease-in-out,
-					visibility 0.15s ease-in-out;
+				transition: opacity 0.15s ease-in-out;
 
 				svg.done-icon {
 					display: none;
@@ -205,21 +202,10 @@
 			}
 
 			&:hover button,
-			button.code-copied {
+			button.code-copied,
+			button:focus-visible {
 				opacity: 1;
-				visibility: visible;
 			}
-		}
-
-		ruby rt {
-			font-size: 0.6em;
-		}
-
-		mark {
-			color: inherit;
-			background-color: initial;
-			text-decoration: underline wavy 0.05em;
-			text-underline-offset: 0.1em;
 		}
 
 		figure:has(img) {
@@ -367,35 +353,6 @@
 
 			svg {
 				margin-inline-end: 8px;
-			}
-		}
-
-		/* Spoiler text */
-		.spoiler {
-			filter: blur(3px);
-			transition: filter 50ms;
-
-			&:hover {
-				filter: none;
-			}
-		}
-
-		/* KaTeX math */
-		.katex {
-			* {
-				font-family: "KaTeX_Main", var(--font-serif);
-			}
-		}
-
-		.katex-display {
-			margin: 0px;
-			text-align: inherit;
-			padding-bottom: 2px;
-			overflow-x: auto;
-			overflow-y: hidden;
-
-			> .katex {
-				text-align: inherit;
 			}
 		}
 	}

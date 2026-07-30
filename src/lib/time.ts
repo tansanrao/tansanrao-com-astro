@@ -9,7 +9,7 @@ import config from "$config";
  * @param userTimezone Whether to use user's local timezone
  * @returns ZonedDateTime object
  */
-function Time(time?: string | Date, userTimezone: boolean = false) {
+export function Time(time?: string | Date, userTimezone: boolean = false) {
 	if (time instanceof Date) time = time.toISOString();
 
 	const instant = time ? Temporal.Instant.from(time) : Temporal.Now.instant();
@@ -21,7 +21,7 @@ function Time(time?: string | Date, userTimezone: boolean = false) {
 /**
  * Time utility functions
  */
-namespace Time {
+export namespace Time {
 	/**
 	 * Format date-time as "YYYY-MM-DD HH:MM UTC"
 	 * @param time ISO string or Date object

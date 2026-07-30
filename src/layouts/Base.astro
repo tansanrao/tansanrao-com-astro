@@ -6,7 +6,6 @@ import Footer from "$layouts/Footer.astro";
 import "$styles/global.css";
 import "$styles/markdown.css";
 import "medium-zoom/dist/style.css";
-import "katex/dist/katex.min.css";
 
 const { title: subtitle, description = config.description, article, canonicalURL, noindex = false } = Astro.props;
 const title = config.title;
@@ -14,7 +13,7 @@ const title = config.title;
 
 <script>
 	import MediumnZoom, { type Zoom } from "medium-zoom/dist/pure";
-import Time from "$lib/time";
+	import Time from "$lib/time";
 
 	// Set the `title` attribute of all `<time>` elements to the site-wide UTC format
 	const localizeTimes = () => document.querySelectorAll("time").forEach(time => time.dateTime && (time.title = Time.toString(time.dateTime)));
@@ -23,13 +22,34 @@ import Time from "$lib/time";
 	const zoom: Zoom = MediumnZoom(undefined, { background: "#00000044" });
 	window.zoom = () => {
 		zoom.detach();
-		// Local markdown images provide `data-zoom-src` server-side so fullscreen zoom can load the original asset.
 		zoom.attach(".markdown img:not([data-nozoom])");
 	};
+
+	// Bind copy buttons after the initial render and after every Swup page transition.
+	function initializeCodeCopy() {
+		document.querySelectorAll<HTMLButtonElement>(".markdown .code-copy-button").forEach(button => {
+			if (button.dataset.initialized === "true") return;
+			button.dataset.initialized = "true";
+
+			button.addEventListener("click", async () => {
+				const code = button.parentElement?.querySelector("pre code")?.textContent;
+				if (code === undefined) return;
+
+				await navigator.clipboard.writeText(code);
+				button.classList.add("code-copied");
+				button.ariaLabel = "Copied";
+				window.setTimeout(() => {
+					button.classList.remove("code-copied");
+					button.ariaLabel = "Copy code";
+				}, 1500);
+			});
+		});
+	}
 
 	// Page initialization function
 	function initialize() {
 		localizeTimes();
+		initializeCodeCopy();
 		window.zoom();
 	}
 

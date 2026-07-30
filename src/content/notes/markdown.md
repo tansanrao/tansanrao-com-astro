@@ -2,129 +2,44 @@
 title: Markdown Extension Manual
 timestamp: 2025-11-24 00:00:00+00:00
 tags: [Site-Docs]
-description: Detailed guide to extended Markdown syntax features in the theme.
+description: Guide to the Markdown features supported by the site.
 ---
 
-Astro uses [remark](https://github.com/remarkjs/remark) as its Markdown engine, providing a plugin configuration interface in `astro.config.ts`.
+Astro uses [Sätteri](https://satteri.bruits.org/) to process Markdown and MDX. The site supports GitHub-Flavored Markdown, footnotes, heading attributes, syntax-highlighted code blocks, image captions, and GitHub-style alerts.
 
-The theme includes the following plugins for syntax extensions:
+## Links
 
-## Insertion
+External links such as [the Astro documentation](https://docs.astro.build/) open in a new tab. Internal links, including this link to the [tables section](#tables), stay in the current tab.
 
-> Plugin: [`remark-ins`](https://www.npmjs.com/package/remark-ins)
+## Code blocks
 
-```
-++Inserted content++
-```
+Fenced code blocks include syntax highlighting and a copy button.
 
-++Inserted content++
-
-## Marking
-
-> Plugin: [`remark-flexible-markers`](https://www.npmjs.com/package/remark-flexible-markers)
-
-```
-==Marked content==
+```ts
+const message = "Hello from Sätteri";
+console.log(message);
 ```
 
-==Marked content==
+## Tables
 
-## Ruby
+GitHub-Flavored Markdown tables support column alignment and are wrapped for horizontal scrolling on narrow screens.
 
-> Plugin: [`@tuyuritio/remark-ruby`](https://www.npmjs.com/package/@tuyuritio/remark-ruby)
-
-```
-{Glossary}(glos|sa|ry)
-```
-
-{Glossary}(glos|sa|ry)
-
-```
-{Annotation}(an||no|ta|tion)
-```
-
-{Annotation}(an||no|ta|tion)
-
-## Spoiler
-
-> Plugin: [`@tuyuritio/remark-spoiler`](https://www.npmjs.com/package/@tuyuritio/remark-spoiler)
-
-```
-!!Spoiler content!!
-```
-
-!!Spoiler content!!
-
-## Emoji
-
-> Plugin: [`remark-gemoji`](https://www.npmjs.com/package/remark-gemoji)
-
-```
-:wink: :cry: :laughing: :yum:
-```
-
-:wink: :cry: :laughing: :yum:
-
-[Emoji Cheat Sheet](https://github.com/ikatyang/emoji-cheat-sheet?tab=readme-ov-file#table-of-contents)
-
-## Katex
-
-> Plugin: [`remark-math`](https://www.npmjs.com/package/remark-math) & [`rehype-katex`](https://www.npmjs.com/package/rehype-katex)
-
-```
-$e^{ix} = \cos x + i \sin x$
-```
-
-$e^{ix} = \cos x + i \sin x$
-
-```
-$$
-(f*g)(t)=\int f(\tau)g(t-\tau)d\tau
-$$
-```
-
-$$
-(f*g)(t)=\int f(\tau)g(t-\tau)d\tau
-$$
+| Left aligned | Centered | Right aligned |
+| :----------- | :------: | ------------: |
+| Alpha        |   Beta   |         Gamma |
+| One          |   Two    |         Three |
 
 ## Footnotes
 
-> Plugin: [`remark-footnotes-extra`](https://www.npmjs.com/package/remark-footnotes-extra)
+Standard GitHub-Flavored Markdown footnotes can contain formatting.[^footnote]
 
-```
-Footnote[^1]
-[^1]: Footnote **can have markup**.
-```
+[^footnote]: Footnotes can contain **strong text**, links, and other standard Markdown.
 
-Footnote[^1]
-[^1]: Footnote **can have markup**.
+## GitHub alerts
 
-```
-Inline Footnote^[Inline information]
-```
+The site preserves GitHub's blockquote-based alert syntax.
 
-Inline Footnote^[Inline information]
-
-## Abbreviations
-
-> Plugin: [`@tuyuritio/remark-abbreviation`](https://www.npmjs.com/package/@tuyuritio/remark-abbreviation)
-
-```
-ABBR abbr xABBRx
-
-*[ABBR]: Abbreviation
-```
-
-ABBR abbr xABBRx
-
-*[ABBR]: Abbreviation
-
-## GitHub Alerts
-
-> Plugin: [`@tuyuritio/remark-github-alert`](https://www.npmjs.com/package/@tuyuritio/remark-github-alert)
-
-
-```
+```md
 > [!NOTE]
 > General information
 ```
@@ -132,123 +47,32 @@ ABBR abbr xABBRx
 > [!NOTE]
 > General information
 
-```
 > [!TIP]
 > Optional information
-```
-
-> [!TIP]
-> Optional information
-
-```
-> [!IMPORTANT]
-> Important information
-```
 
 > [!IMPORTANT]
 > Important information
 
-```
 > [!WARNING]
 > Risk information
-```
-
-> [!WARNING]
-> Risk information
-
-```
-> [!CAUTION]
-> Warning information
-```
 
 > [!CAUTION]
 > Warning information
 
-```
-> [!NOTE] Hello
-> Custom title text
-```
+Custom titles follow the alert marker:
 
-> [!NOTE] Hello
-> Custom title text
-
-## Extended Tables
-
-> Plugin: [remark-extended-table](https://www.npmjs.com/package/remark-extended-table)
-
-```
-| Left Align  |   Center    | Right Align | Center        |
-| :---------- | :---------: | ----------: | ------------- |
-| Normal Cell | Merged Cell |             | Merged Column |
-| Normal Cell |  2×2 Cell   |             | ^             |
-| Normal Cell |      ^      |             | Normal Cell   |
+```md
+> [!NOTE] Custom title
+> Custom alert text
 ```
 
-| Left Align  |   Center    | Right Align | Center        |
-| :---------- | :---------: | ----------: | ------------- |
-| Normal Cell | Merged Cell |             | Merged Column |
-| Normal Cell |  2×2 Cell   |             | ^             |
-| Normal Cell |      ^      |             | Normal Cell   |
+> [!NOTE] Custom title
+> Custom alert text
 
-## Inline Element Attributes Extension {#custom-id}
+## Heading attributes {#custom-heading-id}
 
-<style>
-.red {
-  color: #ef4444;
-  font-weight: 600;
-}
+Sätteri supports IDs, classes, and attributes on headings.
 
-.big {
-  font-size: 1.25em;
-  font-weight: bold;
-}
-
-.colorful {
-  font-weight: bold;
-  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-  background-size: 200% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: rainbow 3s linear infinite;
-}
-
-@keyframes rainbow {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-</style>
-
-> Plugin: [`@tuyuritio/remark-attribute`](https://www.npmjs.com/package/@tuyuritio/remark-attribute)
-
+```md
+## Heading attributes {#custom-heading-id}
 ```
-## Inline Element Attributes Extension {#custom-id}
-```
-
-```
-![](https://picsum.photos/1600/900?random=1){width=300}
-```
-
-![](https://picsum.photos/1600/900?random=1){width=300}
-
-```
-**Important**{.colorful} content
-```
-
-**Important**{.colorful} content
-
-```
-*Multiple*{.red .big} classes
-```
-
-*Multiple*{.red .big} classes
-
-```
-**Custom attributes**{key="This is a value"}
-```
-
-**Custom attributes**{key="This is a value"}

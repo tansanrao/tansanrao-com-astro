@@ -4,7 +4,7 @@ import { z } from "astro/zod";
 
 const authorSchema = z.object({
 	name: z.string(),
-	url: z.string().url().optional()
+	url: z.url().optional()
 });
 
 const defaultAuthors = [{ name: "Tanuj Ravi Rao", url: "https://tansanrao.com" }];
@@ -24,7 +24,7 @@ const blog = defineCollection({
 		tags: z.array(z.string()).optional(), // Array of topic tags
 		description: z.string().optional(), // Post description/excerpt
 		authors: z.array(authorSchema).default(defaultAuthors), // Visible byline authors
-		canonicalURL: z.string().url().optional(), // Overrides self-canonical when syndicated
+		canonicalURL: z.url().optional(), // Overrides self-canonical when syndicated
 		syndicated: z.boolean().default(false), // Marks a cross-posted page as noindex
 		sensitive: z.boolean().default(false), // Marks content as sensitive
 		toc: z.boolean().default(false), // Whether to show table of contents

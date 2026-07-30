@@ -25,6 +25,7 @@ const tags = Array.from(new Set(blogEntries.flatMap(entry => entry.data.tags).fi
 
 <Base title="Blog">
 	<main class="flex flex-col grow">
+		<h1 class="sr-only">Blog</h1>
 		<Blog client:load entries={list} {series} {tags} />
 	</main>
 </Base>

@@ -1,36 +1,13 @@
 // @ts-check
 import { defineConfig, fontProviders } from "astro/config";
-import yaml from "@rollup/plugin-yaml";
+import { satteri } from "@astrojs/markdown-satteri";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 import swup from "@swup/astro";
 
-import GFM from "remark-gfm";
-import ins from "remark-ins";
-import mark from "remark-flexible-markers";
-import spoiler from "@tuyuritio/remark-spoiler";
-import CJK from "remark-cjk-friendly";
-import CJKStrikethrough from "remark-cjk-friendly-gfm-strikethrough";
-import ruby from "@tuyuritio/remark-ruby";
-import attr from "@tuyuritio/remark-attribute";
-import math from "remark-math";
-import gemoji from "remark-gemoji";
-import footnote from "remark-footnotes-extra";
-import abbr from "@tuyuritio/remark-abbreviation";
-import { remarkExtendedTable as table, extendedTableHandlers as tableHandler } from "remark-extended-table";
-import alerts from "@tuyuritio/remark-github-alert";
-import { rehypeHeadingIds as ids } from "@astrojs/markdown-remark";
-import anchor from "rehype-autolink-headings";
-import links from "rehype-external-links";
-import katex from "rehype-katex";
-import figure from "@tuyuritio/rehype-image-figure";
-import wrapper from "@tuyuritio/rehype-table-wrapper";
-import sectionize from "@hbsnow/rehype-sectionize";
-import copy from "@tuyuritio/shiki-code-copy";
-
-import reading from "./src/lib/reading";
+import { markdownHastPlugins, markdownMdastPlugins } from "./src/lib/markdown/plugins";
 import { flexokiDarkTheme, flexokiLightTheme } from "./src/styles/shiki/flexoki";
 
 const buildTimestampUtc = new Date().toISOString();
@@ -40,57 +17,30 @@ export default defineConfig({
 	site: "https://tansanrao.com",
 	trailingSlash: "never",
 	markdown: {
-		remarkPlugins: [
-			[GFM, { singleTilde: false }],
-			ins,
-			mark,
-			spoiler,
-			CJK,
-			[CJKStrikethrough, { singleTilde: false }],
-			ruby,
-			attr,
-			math,
-			gemoji,
-			footnote,
-			abbr,
-			[table, { colspanWithEmpty: true }],
-			[alerts, { typeFormat: "capitalize" }],
-			reading
-		],
-		remarkRehype: {
-			footnoteLabel: null,
-			footnoteLabelTagName: "p",
-			footnoteLabelProperties: {
-				className: ["hidden"]
-			},
-			handlers: {
-				...tableHandler
+		processor: satteri({
+			mdastPlugins: markdownMdastPlugins,
+			hastPlugins: markdownHastPlugins,
+			features: {
+				gfm: true,
+				frontmatter: true,
+				headingAttributes: true,
+				math: false,
+				smartPunctuation: false
 			}
-		},
-		rehypePlugins: [
-			ids,
-			[anchor, { behavior: "wrap" }],
-			[links, { target: "_blank", rel: ["nofollow", "noopener", "noreferrer"] }],
-			katex,
-			figure,
-			wrapper,
-			sectionize
-		],
-		smartypants: false,
+		}),
 		shikiConfig: {
 			themes: {
 				light: /** @type {import('astro').MarkdownShikiConfig['themes']['light']} */ (flexokiLightTheme),
 				dark: /** @type {import('astro').MarkdownShikiConfig['themes']['dark']} */ (flexokiDarkTheme)
-			},
-			transformers: [copy({ duration: 1500 })]
+			}
 		}
 	},
 	vite: {
 		define: {
+			// biome-ignore lint/style/useNamingConvention: Build-time globals use constant casing.
 			__BUILD_TIMESTAMP_UTC__: JSON.stringify(buildTimestampUtc)
 		},
-		// @ts-expect-error
-		plugins: [yaml(), tailwindcss()]
+		plugins: [tailwindcss()]
 	},
 	integrations: [
 		svelte(),

@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import { blogEntryPath, blogEntryRestParam } from "$lib/paths";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
@@ -9,7 +9,7 @@ import Icon from "$components/Icon.svelte";
 import Sensitive from "$components/Sensitive.svelte";
 import MarkdownAlert from "$components/MarkdownAlert.astro";
 import { isOlderThanYears } from "$lib/content-age";
-import { renderMarkdownContent } from "$lib/render-markdown-content";
+import { getReadingStats } from "$lib/reading";
 
 export async function getStaticPaths() {
 	const entries = await getCollection("blog", entry => !entry.data.draft);
@@ -17,7 +17,8 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { html, headings, remarkPluginFrontmatter: frontmatter } = await renderMarkdownContent(entry);
+const { Content, headings } = await render(entry);
+const { words } = getReadingStats(entry.body);
 const authorNames = entry.data.authors.map(author => author.name);
 const showArchiveNotice = isOlderThanYears(entry.data.timestamp, 2);
 
@@ -92,7 +93,7 @@ const series = entry.data.series
 							</span>
 						)
 					}
-					<span><Icon name="lucide--pilcrow" />{frontmatter.words} {frontmatter.words === 1 ? "word" : "words"}</span>
+					<span><Icon name="lucide--pilcrow" />{words} {words === 1 ? "word" : "words"}</span>
 				</div>
 			</div>
 			<hr class="border-b border-weak" />
@@ -109,7 +110,7 @@ const series = entry.data.series
 								</MarkdownAlert>
 							)
 						}
-						<Fragment set:html={html} />
+						<Content />
 					</section>
 					{(entry.data.toc || !!entry.data.series) && <TOC headings={entry.data.toc ? headings : undefined} {series} />}
 				</div>

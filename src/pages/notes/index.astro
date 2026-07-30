@@ -22,6 +22,7 @@ const tags = Array.from(new Set(notes.flatMap(entry => entry.data.tags).filter((
 
 <Base title="Notes">
 	<main class="flex flex-col grow">
+		<h1 class="sr-only">Notes</h1>
 		<Notes client:load entries={list} {tags} />
 	</main>
 </Base>
