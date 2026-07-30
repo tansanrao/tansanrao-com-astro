@@ -4,9 +4,10 @@ import Icon from "$components/Icon.svelte";
 export interface Props {
 	toc?: boolean;
 	series?: boolean;
+	inlineFrom?: "sm" | "lg";
 }
 
-const { toc, series } = Astro.props;
+const { toc, series, inlineFrom = "sm" } = Astro.props;
 ---
 
 <style>
@@ -41,7 +42,14 @@ const { toc, series } = Astro.props;
 	</button>
 	{
 		(toc || series) && (
-			<button type="button" data-drawer-open="toc" aria-controls="toc" aria-expanded="false" aria-label="Open Table of Contents" class="sm:hidden!">
+			<button
+				type="button"
+				data-drawer-open="toc"
+				aria-controls="toc"
+				aria-expanded="false"
+				aria-label="Open Table of Contents"
+				class:list={[inlineFrom === "lg" ? "lg:hidden!" : "sm:hidden!"]}
+			>
 				<Icon name="lucide--list" size={15} title="Contents" />
 			</button>
 		)

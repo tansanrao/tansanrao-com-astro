@@ -17,7 +17,8 @@ const title = config.title;
 
 	type DrawerName = "sidebar" | "toc";
 
-	const mobileViewport = window.matchMedia("(max-width: 639px)");
+	const compactViewport = window.matchMedia("(max-width: 639px)");
+	const wideDrawerViewport = window.matchMedia("(max-width: 1023px)");
 	const drawerOpeners = new Map<DrawerName, HTMLElement>();
 	let tocObserver: IntersectionObserver | undefined;
 
@@ -75,13 +76,18 @@ const title = config.title;
 		document.querySelectorAll<HTMLElement>(`[data-drawer-open="${name}"]`).forEach(trigger => trigger.setAttribute("aria-expanded", String(expanded)));
 	}
 
+	function drawerIsModal(name: DrawerName) {
+		if (name === "sidebar") return compactViewport.matches;
+		return drawerPanel(name)?.dataset.drawerInlineFrom === "lg" ? wideDrawerViewport.matches : compactViewport.matches;
+	}
+
 	function closeDrawer(name: DrawerName, restoreFocus = true) {
 		const panel = drawerPanel(name);
 		panel?.classList.remove("active");
 		drawerOverlay(name)?.classList.remove("active");
 		setDrawerTriggerState(name, false);
 
-		if (mobileViewport.matches) panel?.setAttribute("aria-hidden", "true");
+		if (drawerIsModal(name)) panel?.setAttribute("aria-hidden", "true");
 		else panel?.removeAttribute("aria-hidden");
 
 		if (document.documentElement.dataset.drawer === name) {
@@ -95,7 +101,7 @@ const title = config.title;
 	}
 
 	function openDrawer(name: DrawerName, opener: HTMLElement) {
-		if (!mobileViewport.matches) return;
+		if (!drawerIsModal(name)) return;
 
 		const panel = drawerPanel(name);
 		if (!panel) return;
@@ -117,10 +123,6 @@ const title = config.title;
 
 	function synchronizeDrawers() {
 		for (const name of ["sidebar", "toc"] as const) closeDrawer(name, false);
-
-		if (!mobileViewport.matches) {
-			document.querySelectorAll<HTMLElement>("[data-drawer]").forEach(panel => panel.removeAttribute("aria-hidden"));
-		}
 	}
 
 	function initializeTOC() {
@@ -221,9 +223,10 @@ const title = config.title;
 			return;
 		}
 
-		if (event.key !== "Tab" || !mobileViewport.matches) return;
+		if (event.key !== "Tab") return;
 		const activeDrawer = document.documentElement.dataset.drawer as DrawerName | undefined;
 		if (activeDrawer !== "sidebar" && activeDrawer !== "toc") return;
+		if (!drawerIsModal(activeDrawer)) return;
 
 		const panel = drawerPanel(activeDrawer);
 		const focusable = Array.from(
@@ -258,7 +261,8 @@ const title = config.title;
 		document.addEventListener("keydown", handleGlobalKeydown);
 		document.addEventListener("astro:page-load", initialize);
 		window.addEventListener("scroll", updateScrollProgress, { passive: true });
-		mobileViewport.addEventListener("change", synchronizeDrawers);
+		compactViewport.addEventListener("change", synchronizeDrawers);
+		wideDrawerViewport.addEventListener("change", synchronizeDrawers);
 	}
 
 	// Execute initialization on first load

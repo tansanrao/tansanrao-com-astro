@@ -5,9 +5,11 @@ import Icon from "$components/Icon.svelte";
 interface Props {
 	headings?: Heading[];
 	series?: { title: string; url: string; current: boolean }[];
+	inlineFrom?: "sm" | "lg";
 }
 
-const { headings, series } = Astro.props;
+const { headings, series, inlineFrom = "sm" } = Astro.props;
+const wideInlineLayout = inlineFrom === "lg";
 
 // Extended heading type with additional properties for tree rendering
 // - last: indicates if this heading is the last child in its parent group
@@ -71,11 +73,42 @@ if (headings) {
 	}
 </style>
 
-<div id="toc-overlay" data-drawer-overlay="toc" aria-hidden="true" class="sm:hidden fixed top-0 inset-s-0 w-screen h-screen transition-[background-color] max-sm:z-110"></div>
+<div
+	id="toc-overlay"
+	data-drawer-overlay="toc"
+	aria-hidden="true"
+	class:list={[
+		"fixed top-0 inset-s-0 w-screen h-screen transition-[background-color]",
+		wideInlineLayout ? "lg:hidden max-lg:z-110" : "sm:hidden max-sm:z-110"
+	]}
+>
+</div>
 
-<aside id="toc" data-drawer="toc" aria-hidden="true" class="sm:contents fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col items-start gap-2 p-5 bg-background h-full overflow-hidden transition-transform max-sm:z-120">
-	<button id="toc-close" type="button" data-drawer-close="toc" aria-label="Close Table of Contents" class="sm:hidden size-11 shrink-0 items-center justify-center -m-2 mb-0"><Icon name="lucide--x" /></button>
-	<div class="sm:sticky self-start min-h-0 flex-1 top-3 w-full sm:w-50 flex flex-col gap-7.5 overflow-y-auto sm:overflow-visible">
+<aside
+	id="toc"
+	data-drawer="toc"
+	data-drawer-inline-from={inlineFrom}
+	aria-hidden="true"
+	class:list={[
+		"fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col items-start gap-2 p-5 bg-background h-full overflow-hidden transition-transform",
+		wideInlineLayout ? "lg:contents max-lg:z-120" : "sm:contents max-sm:z-120"
+	]}
+>
+	<button
+		id="toc-close"
+		type="button"
+		data-drawer-close="toc"
+		aria-label="Close Table of Contents"
+		class:list={["size-11 shrink-0 items-center justify-center -m-2 mb-0", wideInlineLayout ? "lg:hidden" : "sm:hidden"]}
+	>
+		<Icon name="lucide--x" />
+	</button>
+	<div
+		class:list={[
+			"self-start min-h-0 flex-1 top-3 w-full flex flex-col gap-7.5 overflow-y-auto",
+			wideInlineLayout ? "lg:sticky lg:w-50 lg:flex-none lg:overflow-visible" : "sm:sticky sm:w-50 sm:flex-none sm:overflow-visible"
+		]}
+	>
 		{
 			headings && (
 				<section>
@@ -83,7 +116,13 @@ if (headings) {
 					<nav class="overflow-y-auto">
 						<ul class="flex flex-col text-base list-none">
 							{headings.map((heading: Heading) => (
-								<li id={`indicator-${heading.slug}`} class="group relative flex items-stretch h-10 sm:h-6 shrink-0 [&.indicate>a]:font-bold [&.indicate>a]:text-primary">
+								<li
+									id={`indicator-${heading.slug}`}
+									class:list={[
+										"group relative flex items-stretch h-10 shrink-0 [&.indicate>a]:font-bold [&.indicate>a]:text-primary",
+										wideInlineLayout ? "lg:h-6" : "sm:h-6"
+									]}
+								>
 									<div class="flex select-none" aria-hidden="true">
 										{heading.lines?.map(line => (
 											<div class="w-4 relative flex justify-center">{line && <span class="absolute top-0 bottom-0 border-s border-remark" />}</div>
@@ -113,8 +152,21 @@ if (headings) {
 					<h4>Series</h4>
 					<ul class="flex flex-col text-sm gap-0.5">
 						{series.map(item => (
-							<li class:list={["flex min-h-10 sm:min-h-0 items-center gap-1.25 before:w-1 before:h-1 before:rounded-full", item.current ? "font-bold text-primary before:bg-primary" : "text-weak before:bg-weak"]}>
-								<a href={item.url} title={item.title} class="flex items-center min-h-10 sm:min-h-0 truncate hover:font-bold hover:text-primary transition-[color,font-weight]">
+							<li
+								class:list={[
+									"flex min-h-10 items-center gap-1.25 before:w-1 before:h-1 before:rounded-full",
+									wideInlineLayout ? "lg:min-h-0" : "sm:min-h-0",
+									item.current ? "font-bold text-primary before:bg-primary" : "text-weak before:bg-weak"
+								]}
+							>
+								<a
+									href={item.url}
+									title={item.title}
+									class:list={[
+										"flex items-center min-h-10 truncate hover:font-bold hover:text-primary transition-[color,font-weight]",
+										wideInlineLayout ? "lg:min-h-0" : "sm:min-h-0"
+									]}
+								>
 									{item.title}
 								</a>
 							</li>

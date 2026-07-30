@@ -21,6 +21,7 @@ const { Content, headings } = await render(entry);
 const { words } = getReadingStats(entry.body);
 const authorNames = entry.data.authors.map(author => author.name);
 const showArchiveNotice = isOlderThanYears(entry.data.timestamp, 2);
+const hasSupplementaryNavigation = entry.data.toc || !!entry.data.series;
 
 const series = entry.data.series
 	? (await getCollection("blog", item => !item.data.draft && item.data.series === entry.data.series))
@@ -32,6 +33,23 @@ const series = entry.data.series
 			}))
 	: undefined;
 ---
+
+<style>
+	.blog-reading-layout {
+		width: 100%;
+		max-inline-size: 72ch;
+		margin-inline: auto;
+	}
+
+	@media (min-width: 1024px) {
+		.blog-reading-layout.has-supplementary-navigation {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 12.5rem;
+			gap: 1.25rem;
+			max-inline-size: calc(72ch + 13.75rem);
+		}
+	}
+</style>
 
 <Base
 	title={entry.data.title}
@@ -101,8 +119,8 @@ const series = entry.data.series
 
 		<Sensitive back="/blog" sensitive={entry.data.sensitive} client:load>
 			<div class="contents">
-				<div class="flex gap-5">
-					<section id="markdown-content" class="markdown flex-1 min-w-0">
+				<div class:list={["blog-reading-layout", { "has-supplementary-navigation": hasSupplementaryNavigation }]}>
+					<section id="markdown-content" class="markdown min-w-0">
 						{
 							showArchiveNotice && (
 								<MarkdownAlert>
@@ -112,11 +130,11 @@ const series = entry.data.series
 						}
 						<Content />
 					</section>
-					{(entry.data.toc || !!entry.data.series) && <TOC headings={entry.data.toc ? headings : undefined} {series} />}
+					{hasSupplementaryNavigation && <TOC headings={entry.data.toc ? headings : undefined} {series} inlineFrom="lg" />}
 				</div>
 			</div>
 		</Sensitive>
 
-		<Position toc={entry.data.toc} series={!!entry.data.series} />
+		<Position toc={entry.data.toc} series={!!entry.data.series} inlineFrom="lg" />
 	</main>
 </Base>
