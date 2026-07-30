@@ -29,6 +29,7 @@ export default defineConfig({
 			}
 		}),
 		shikiConfig: {
+			defaultColor: false,
 			themes: {
 				light: /** @type {import('astro').MarkdownShikiConfig['themes']['light']} */ (flexokiLightTheme),
 				dark: /** @type {import('astro').MarkdownShikiConfig['themes']['dark']} */ (flexokiDarkTheme)
