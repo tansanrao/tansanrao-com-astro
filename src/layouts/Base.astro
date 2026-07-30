@@ -15,6 +15,12 @@ const title = config.title;
 	import MediumnZoom, { type Zoom } from "medium-zoom/dist/pure";
 	import Time from "$lib/time";
 
+	type DrawerName = "sidebar" | "toc";
+
+	const mobileViewport = window.matchMedia("(max-width: 639px)");
+	const drawerOpeners = new Map<DrawerName, HTMLElement>();
+	let tocObserver: IntersectionObserver | undefined;
+
 	// Set the `title` attribute of all `<time>` elements to the site-wide UTC format
 	const localizeTimes = () => document.querySelectorAll("time").forEach(time => time.dateTime && (time.title = Time.toString(time.dateTime)));
 
@@ -35,29 +41,228 @@ const title = config.title;
 				const code = button.parentElement?.querySelector("pre code")?.textContent;
 				if (code === undefined) return;
 
-				await navigator.clipboard.writeText(code);
-				button.classList.add("code-copied");
-				button.ariaLabel = "Copied";
+				button.classList.remove("code-copied", "code-copy-failed");
+
+				try {
+					await navigator.clipboard.writeText(code);
+					button.classList.add("code-copied");
+					button.ariaLabel = "Copied";
+					button.title = "Copied";
+				} catch {
+					button.classList.add("code-copy-failed");
+					button.ariaLabel = "Copy failed";
+					button.title = "Copy failed";
+				}
+
 				window.setTimeout(() => {
-					button.classList.remove("code-copied");
+					button.classList.remove("code-copied", "code-copy-failed");
 					button.ariaLabel = "Copy code";
+					button.title = "Copy code";
 				}, 1500);
 			});
 		});
+	}
+
+	function drawerPanel(name: DrawerName) {
+		return document.getElementById(name);
+	}
+
+	function drawerOverlay(name: DrawerName) {
+		return document.querySelector<HTMLElement>(`[data-drawer-overlay="${name}"]`);
+	}
+
+	function setDrawerTriggerState(name: DrawerName, expanded: boolean) {
+		document.querySelectorAll<HTMLElement>(`[data-drawer-open="${name}"]`).forEach(trigger => trigger.setAttribute("aria-expanded", String(expanded)));
+	}
+
+	function closeDrawer(name: DrawerName, restoreFocus = true) {
+		const panel = drawerPanel(name);
+		panel?.classList.remove("active");
+		drawerOverlay(name)?.classList.remove("active");
+		setDrawerTriggerState(name, false);
+
+		if (mobileViewport.matches) panel?.setAttribute("aria-hidden", "true");
+		else panel?.removeAttribute("aria-hidden");
+
+		if (document.documentElement.dataset.drawer === name) {
+			delete document.documentElement.dataset.drawer;
+			document.documentElement.classList.remove("drawer-open");
+		}
+
+		const opener = drawerOpeners.get(name);
+		drawerOpeners.delete(name);
+		if (restoreFocus && opener?.isConnected) opener.focus();
+	}
+
+	function openDrawer(name: DrawerName, opener: HTMLElement) {
+		if (!mobileViewport.matches) return;
+
+		const panel = drawerPanel(name);
+		if (!panel) return;
+
+		for (const other of ["sidebar", "toc"] as const) {
+			if (other !== name) closeDrawer(other, false);
+		}
+
+		drawerOpeners.set(name, opener);
+		panel.classList.add("active");
+		panel.setAttribute("aria-hidden", "false");
+		drawerOverlay(name)?.classList.add("active");
+		setDrawerTriggerState(name, true);
+		document.documentElement.dataset.drawer = name;
+		document.documentElement.classList.add("drawer-open");
+
+		window.requestAnimationFrame(() => panel.querySelector<HTMLElement>(`[data-drawer-close="${name}"]`)?.focus());
+	}
+
+	function synchronizeDrawers() {
+		for (const name of ["sidebar", "toc"] as const) closeDrawer(name, false);
+
+		if (!mobileViewport.matches) {
+			document.querySelectorAll<HTMLElement>("[data-drawer]").forEach(panel => panel.removeAttribute("aria-hidden"));
+		}
+	}
+
+	function initializeTOC() {
+		tocObserver?.disconnect();
+
+		const indicators = new Map<string, Element>(
+			Array.from(document.querySelectorAll("li[id^='indicator-']")).map(indicator => [indicator.id.replace(/^indicator-/, ""), indicator])
+		);
+
+		tocObserver = new IntersectionObserver(entries => {
+			for (const { target, isIntersecting } of entries) {
+				const slug = target.getAttribute("aria-labelledby");
+				if (slug) indicators.get(slug)?.classList.toggle("indicate", isIntersecting);
+			}
+		});
+
+		document.querySelector("#markdown-content")?.querySelectorAll("section[data-heading-rank]").forEach(section => tocObserver?.observe(section));
+	}
+
+	function updateScrollProgress() {
+		const content = document.getElementById("markdown-content");
+		const circle = document.getElementById("progress-circle");
+		if (!content || !(circle instanceof SVGCircleElement)) return;
+
+		const contentHeight = content.scrollHeight;
+		const contentTop = content.offsetTop;
+		const viewportHeight = window.innerHeight;
+		const scrollTop = window.scrollY;
+		const scrolled = viewportHeight < contentHeight ? Math.max(0, scrollTop - contentTop) : scrollTop;
+		const scrollable =
+			viewportHeight < contentHeight ? contentHeight - viewportHeight : Math.max(0, contentHeight + contentTop - viewportHeight);
+		const progress = scrollable > 0 ? Math.min(1, scrolled / scrollable) : 1;
+
+		circle.style.strokeDashoffset = `${100 * (1 - progress)}`;
+	}
+
+	function closeHeatmaps(restoreFocus = false) {
+		document.querySelectorAll<HTMLElement>("[data-heatmap].is-open").forEach(figure => {
+			figure.classList.remove("is-open");
+			const trigger = figure.querySelector<HTMLButtonElement>("[data-heatmap-trigger]");
+			trigger?.setAttribute("aria-expanded", "false");
+			if (restoreFocus) trigger?.focus();
+		});
+	}
+
+	function handleGlobalClick(event: MouseEvent) {
+		if (!(event.target instanceof Element)) return;
+
+		const openTrigger = event.target.closest<HTMLElement>("[data-drawer-open]");
+		if (openTrigger) {
+			const name = openTrigger.dataset.drawerOpen as DrawerName | undefined;
+			if (name === "sidebar" || name === "toc") openDrawer(name, openTrigger);
+			return;
+		}
+
+		const closeTrigger = event.target.closest<HTMLElement>("[data-drawer-close]");
+		if (closeTrigger) {
+			const name = closeTrigger.dataset.drawerClose as DrawerName | undefined;
+			if (name === "sidebar" || name === "toc") closeDrawer(name);
+			return;
+		}
+
+		const overlay = event.target.closest<HTMLElement>("[data-drawer-overlay]");
+		if (overlay) {
+			const name = overlay.dataset.drawerOverlay as DrawerName | undefined;
+			if (name === "sidebar" || name === "toc") closeDrawer(name);
+			return;
+		}
+
+		if (event.target.closest("[data-scroll-top]")) {
+			document.scrollingElement?.scrollTo({ top: 0, behavior: "smooth" });
+			return;
+		}
+
+		const heatmapTrigger = event.target.closest<HTMLButtonElement>("[data-heatmap-trigger]");
+		if (heatmapTrigger) {
+			const figure = heatmapTrigger.closest<HTMLElement>("[data-heatmap]");
+			const willOpen = !figure?.classList.contains("is-open");
+			closeHeatmaps();
+			figure?.classList.toggle("is-open", willOpen);
+			heatmapTrigger.setAttribute("aria-expanded", String(willOpen));
+			return;
+		}
+
+		if (!event.target.closest("[data-heatmap]")) closeHeatmaps();
+		if (event.target.closest("#toc a")) closeDrawer("toc", false);
+		if (event.target.closest("#sidebar a")) closeDrawer("sidebar", false);
+	}
+
+	function handleGlobalKeydown(event: KeyboardEvent) {
+		if (event.key === "Escape") {
+			const activeDrawer = document.documentElement.dataset.drawer as DrawerName | undefined;
+			if (activeDrawer === "sidebar" || activeDrawer === "toc") {
+				closeDrawer(activeDrawer);
+				return;
+			}
+			closeHeatmaps(true);
+			return;
+		}
+
+		if (event.key !== "Tab" || !mobileViewport.matches) return;
+		const activeDrawer = document.documentElement.dataset.drawer as DrawerName | undefined;
+		if (activeDrawer !== "sidebar" && activeDrawer !== "toc") return;
+
+		const panel = drawerPanel(activeDrawer);
+		const focusable = Array.from(
+			panel?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []
+		).filter(element => element.getClientRects().length > 0);
+		if (focusable.length === 0) return;
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		if (event.shiftKey && document.activeElement === first) {
+			event.preventDefault();
+			last.focus();
+		} else if (!event.shiftKey && document.activeElement === last) {
+			event.preventDefault();
+			first.focus();
+		}
 	}
 
 	// Page initialization function
 	function initialize() {
 		localizeTimes();
 		initializeCodeCopy();
+		synchronizeDrawers();
+		initializeTOC();
+		updateScrollProgress();
 		window.zoom();
+	}
+
+	if (document.documentElement.dataset.interactionController !== "ready") {
+		document.documentElement.dataset.interactionController = "ready";
+		document.addEventListener("click", handleGlobalClick);
+		document.addEventListener("keydown", handleGlobalKeydown);
+		document.addEventListener("astro:page-load", initialize);
+		window.addEventListener("scroll", updateScrollProgress, { passive: true });
+		mobileViewport.addEventListener("change", synchronizeDrawers);
 	}
 
 	// Execute initialization on first load
 	initialize();
-
-	// Listen for page load event and re-initialize on page transitions
-	document.addEventListener("astro:page-load", initialize);
 </script>
 
 <App {title} {subtitle} {description} {article} author={config.author.name} {canonicalURL} {noindex}>

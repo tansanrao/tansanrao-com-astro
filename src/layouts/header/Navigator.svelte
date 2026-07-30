@@ -23,14 +23,6 @@ function active(path: string, extra?: string[]) {
 	return route.startsWith(path);
 }
 
-/**
- * Handle closing the sidebar navigation
- */
-function handleClose() {
-	document.getElementById("sidebar")!.classList.remove("active");
-	document.getElementById("sidebar-overlay")!.classList.remove("active");
-}
-
 onMount(() => {
 	/** Register route update hook */
 	const register = () => window.swup?.hooks.on("page:load", () => (route = window.location.pathname));
@@ -44,8 +36,7 @@ onMount(() => {
 	{@const isActive = active(item.path, item.extra)}
 	<a
 		href={item.path}
-		onclick={handleClose}
-		class="inline-flex items-center w-full py-1 sm:w-auto sm:px-2.5 sm:border-b-2 transition-colors duration-150 ease-linear"
+		class="inline-flex items-center w-full min-h-11 sm:min-h-0 sm:w-auto sm:px-2.5 sm:py-1 sm:border-b-2 transition-colors duration-150 ease-linear"
 		class:max-sm:font-bold={isActive}
 		class:text-primary={isActive}
 		class:text-secondary={!isActive}

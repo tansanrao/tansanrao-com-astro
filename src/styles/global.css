@@ -87,6 +87,19 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
+	html.drawer-open {
+		overflow: hidden;
+	}
+
+	html[data-drawer="sidebar"] .site-header {
+		z-index: 300;
+	}
+
+	html[data-drawer] [data-position-controls] {
+		opacity: 0;
+		pointer-events: none;
+	}
+
 	body {
 		font-size: 1.0625rem;
 		font-family: var(--font-serif);

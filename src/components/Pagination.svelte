@@ -6,19 +6,19 @@ let { pages = $bindable(), page = $bindable() }: { pages: number; page: number }
 
 {#if pages > 1}
 	<footer class="sticky bottom-0 flex items-center justify-center gap-3 mt-auto pb-1 text-weak bg-background font-mono">
-		<button onclick={() => (page = Math.max(1, page - 1))}><Icon name="lucide--arrow-left" class="rtl:-scale-x-100" /></button>
-		<button class:location={1 == page} onclick={() => (page = 1)}>{1}</button>
+		<button aria-label="Previous page" disabled={page <= 1} onclick={() => (page = Math.max(1, page - 1))}><Icon name="lucide--arrow-left" class="rtl:-scale-x-100" /></button>
+		<button aria-label="Page 1" aria-current={1 === page ? "page" : undefined} class:location={1 == page} onclick={() => (page = 1)}>{1}</button>
 
 		{#if pages > 7 && page > 4}<Icon name="lucide--ellipsis" />{/if}
 
 		{#each Array.from({ length: Math.min(5, pages - 2) }, (_, i) => i + Math.max(2, Math.min(pages - 5, page - 2))) as P (P)}
-			<button class:location={P == page} onclick={() => (page = P)} animate:flip={{ duration: 150 }} transition:fade={{ duration: 150 }}>{P}</button>
+			<button aria-label={`Page ${P}`} aria-current={P === page ? "page" : undefined} class:location={P == page} onclick={() => (page = P)} animate:flip={{ duration: 150 }} transition:fade={{ duration: 150 }}>{P}</button>
 		{/each}
 
 		{#if pages > 7 && page < pages - 3}<Icon name="lucide--ellipsis" />{/if}
 
-		<button class:location={pages == page} onclick={() => (page = pages)}>{pages}</button>
-		<button onclick={() => (page = Math.min(pages, page + 1))}><Icon name="lucide--arrow-right" class="rtl:-scale-x-100" /></button>
+		<button aria-label={`Page ${pages}`} aria-current={pages === page ? "page" : undefined} class:location={pages == page} onclick={() => (page = pages)}>{pages}</button>
+		<button aria-label="Next page" disabled={page >= pages} onclick={() => (page = Math.min(pages, page + 1))}><Icon name="lucide--arrow-right" class="rtl:-scale-x-100" /></button>
 	</footer>
 {/if}
 
@@ -43,6 +43,13 @@ footer {
 		&:hover,
 		&.location {
 			color: var(--primary-color);
+		}
+	}
+
+	@media (max-width: 639px) {
+		button {
+			width: 40px;
+			height: 40px;
 		}
 	}
 }

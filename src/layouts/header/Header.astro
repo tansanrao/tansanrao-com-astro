@@ -47,43 +47,22 @@ const route = Astro.url.pathname;
 	}
 </style>
 
-<header class="sticky top-0 flex items-center justify-between pt-3 pb-1 mb-4 bg-background z-100 sm:static sm:mb-12">
+<header class="site-header sticky top-0 flex items-center justify-between mb-4 bg-background z-100 sm:static sm:pt-3 sm:pb-1 sm:mb-12">
 	<a href="/" class="select-text text-lg sm:text-2xl font-bold">{title}</a>
 
-	<button id="sidebar-open" aria-label="Open Sidebar" class="sm:hidden"><Icon name="lucide--align-justify" /></button>
-	<div id="sidebar-overlay" aria-hidden="true" class="sm:hidden fixed top-0 inset-s-0 w-screen h-screen transition-[background-color]"></div>
+	<button id="sidebar-open" type="button" data-drawer-open="sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Open Sidebar" class="sm:hidden size-11 items-center justify-center"><Icon name="lucide--align-justify" /></button>
+	<div id="sidebar-overlay" data-drawer-overlay="sidebar" aria-hidden="true" class="sm:hidden fixed top-0 inset-s-0 w-screen h-screen transition-[background-color] z-110"></div>
 
-	<nav id="sidebar" class="fixed top-0 inset-e-0 flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:static sm:inset-auto sm:ml-auto sm:flex-row sm:items-center sm:justify-end sm:gap-7 sm:p-0 sm:h-auto overflow-hidden transition-transform">
+	<nav id="sidebar" data-drawer="sidebar" aria-hidden="true" aria-label="Primary" class="fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:static sm:inset-auto sm:w-auto sm:max-w-none sm:ml-auto sm:flex-row sm:items-center sm:justify-end sm:gap-7 sm:p-0 sm:h-auto overflow-y-auto sm:overflow-visible transition-transform z-120">
 		<header class="grid gap-5 text-secondary grid-rows-[repeat(5,1fr)] sm:flex sm:items-center sm:justify-end sm:gap-2">
-			<button id="sidebar-close" class="sm:hidden"><Icon name="lucide--x" /></button>
+			<button id="sidebar-close" type="button" data-drawer-close="sidebar" aria-label="Close Sidebar" class="sm:hidden size-11 items-center justify-center -m-2 mb-0"><Icon name="lucide--x" /></button>
 			<Navigator {route} {routes} client:load />
 		</header>
 
 		<footer class="flex flex-col items-start gap-2 sm:flex-row sm:gap-7">
 			<ThemeSwitcher />
 
-			<a href="/feed.xml" target="_blank" rel="noopener noreferrer" aria-label="Subscription" class="inline-flex"><Icon name="lucide--rss" /></a>
+			<a href="/feed.xml" target="_blank" rel="noopener noreferrer" aria-label="Subscription" class="inline-flex size-11 sm:size-auto items-center justify-center"><Icon name="lucide--rss" /></a>
 		</footer>
 	</nav>
 </header>
-
-<script>
-	const sidebar = document.getElementById("sidebar")!;
-	const overlay = document.getElementById("sidebar-overlay")!;
-	const open = document.getElementById("sidebar-open")!;
-	const close = document.getElementById("sidebar-close")!;
-
-	function handleOpen() {
-		overlay.classList.add("active");
-		sidebar.classList.add("active");
-	}
-
-	function handleClose() {
-		overlay.classList.remove("active");
-		sidebar.classList.remove("active");
-	}
-
-	open.addEventListener("click", handleOpen);
-	close.addEventListener("click", handleClose);
-	overlay.addEventListener("click", handleClose);
-</script>

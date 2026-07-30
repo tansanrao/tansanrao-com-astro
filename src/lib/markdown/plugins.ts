@@ -239,6 +239,7 @@ export const codeCopyPlugin = defineHastPlugin({
 							type: "button",
 							className: ["code-copy-button"],
 							ariaLabel: "Copy code",
+							ariaLive: "polite",
 							title: "Copy code"
 						},
 						children: [

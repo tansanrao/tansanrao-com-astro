@@ -97,7 +97,7 @@ $effect(() => {
 					</span>
 					<span class="flex gap-1">
 						{#each entry.data.tags as tag}
-							<button onclick={() => switchTag(tag, true)} class="text-[0.825rem] text-remark">#{tag}</button>
+							<button onclick={() => switchTag(tag, true)} class="max-sm:min-h-8 text-[0.825rem] text-remark">#{tag}</button>
 						{/each}
 					</span>
 				</section>
@@ -145,6 +145,11 @@ aside {
 				&.selected {
 					color: var(--background-color);
 					background-color: var(--primary-color);
+				}
+
+				@media (max-width: 639px) {
+					min-height: 2.25rem;
+					padding-inline: 0.5rem;
 				}
 
 				@media (min-width: 640px) {

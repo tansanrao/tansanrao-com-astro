@@ -66,6 +66,12 @@
 		h4,
 		h5,
 		h6 {
+			@media (max-width: 639px) {
+				&[id] {
+					scroll-margin-top: 4rem;
+				}
+			}
+
 			&[id] a {
 				text-decoration: none;
 
@@ -184,13 +190,20 @@
 				height: 1em;
 				color: var(--secondary-color);
 				opacity: 0;
-				transition: opacity 0.15s ease-in-out;
+				visibility: hidden;
+				transition:
+					color 0.15s ease-in-out,
+					opacity 0.15s ease-in-out,
+					visibility 0.15s ease-in-out;
 
 				svg.done-icon {
 					display: none;
 				}
 
 				&.code-copied {
+					opacity: 1;
+					visibility: visible;
+
 					svg.copy-icon {
 						display: none;
 					}
@@ -199,12 +212,34 @@
 						display: block;
 					}
 				}
+
+				&.code-copy-failed {
+					color: #d14d41;
+					opacity: 1;
+					visibility: visible;
+				}
 			}
 
 			&:hover button,
 			button.code-copied,
+			button.code-copy-failed,
 			button:focus-visible {
 				opacity: 1;
+				visibility: visible;
+			}
+
+			@media (max-width: 639px), (hover: none), (pointer: coarse) {
+				> button.code-copy-button {
+					top: 0.35em;
+					inset-inline-end: 0.35em;
+					width: 2.5rem;
+					height: 2.5rem;
+					padding: 0.7rem;
+					border-radius: 0.3rem;
+					background-color: color-mix(in srgb, var(--block-color) 88%, transparent);
+					opacity: 1;
+					visibility: visible;
+				}
 			}
 		}
 

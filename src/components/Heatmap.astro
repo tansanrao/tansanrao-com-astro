@@ -116,9 +116,11 @@ if (frequency === "month") {
 
 <section class:list={["grid gap-1", { "grid-flow-col grid-rows-7": frequency === "day", "grid-cols-13": frequency === "week", "grid-cols-12": frequency === "month" }]}>
 	{
-		cells.map(cell => {
+		cells.map((cell, index) => {
 			const count = cell.contents.length;
 			const details = [];
+			const detailId = `heatmap-details-${index}`;
+			const countLabel = `${count} ${count === 1 ? "entry" : "entries"}`;
 
 			// Generate details for the popup based on cell content
 			if (count) {
@@ -168,10 +170,23 @@ if (frequency === "month") {
 			}
 
 			return (
-				<figure class="group/pop">
-					<i class:list={["block bg-primary/10", { "w-2.5 h-2.5": frequency === "day", "w-4 h-4": frequency === "week", "w-4.5 h-4.5": frequency === "month" }, { "bg-primary/40": count > 0, "bg-primary/70": count > 1, "bg-primary": count > 2 }]} />
+				<figure class="group/pop" data-heatmap>
+					{count > 0 ? (
+						<button
+							type="button"
+							data-heatmap-trigger
+							aria-label={`${cell.target}: ${countLabel}`}
+							aria-controls={detailId}
+							aria-expanded="false"
+							class="heatmap-cell-trigger"
+						>
+							<i class:list={["block bg-primary/10", { "w-2.5 h-2.5": frequency === "day", "w-4 h-4": frequency === "week", "w-4.5 h-4.5": frequency === "month" }, { "bg-primary/40": count > 0, "bg-primary/70": count > 1, "bg-primary": count > 2 }]} />
+						</button>
+					) : (
+						<i class:list={["block bg-primary/10", { "w-2.5 h-2.5": frequency === "day", "w-4 h-4": frequency === "week", "w-4.5 h-4.5": frequency === "month" }]} />
+					)}
 
-					<div class="w-max flex flex-col mb-1 rounded-sm px-2 py-2 text-xs text-background bg-primary pop">
+					<div id={detailId} class="w-max max-w-[min(18rem,85vw)] flex flex-col mb-1 rounded-sm px-2 py-2 text-xs text-background bg-primary pop">
 						<time class="font-bold">{cell.target}</time>
 						{details}
 					</div>
@@ -182,6 +197,25 @@ if (frequency === "month") {
 </section>
 
 <style>
+	figure.is-open .pop,
+	figure:focus-within .pop {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.heatmap-cell-trigger {
+		position: relative;
+		padding: 0;
+	}
+
+	@media (max-width: 639px), (hover: none), (pointer: coarse) {
+		.heatmap-cell-trigger::before {
+			position: absolute;
+			inset: -4px;
+			content: "";
+		}
+	}
+
 	@supports (anchor-name: --anchor-heatmap) {
 		figure {
 			anchor-scope: --anchor-heatmap;
