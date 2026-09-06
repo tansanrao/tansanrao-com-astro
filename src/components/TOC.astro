@@ -1,177 +1,219 @@
 ---
 import type { MarkdownHeading } from "astro";
 import Icon from "$components/Icon.svelte";
+import TOCList, { type TOCNode } from "$components/TOCList.astro";
 
 interface Props {
-	headings?: Heading[];
+	headings?: MarkdownHeading[];
 	series?: { title: string; url: string; current: boolean }[];
-	inlineFrom?: "sm" | "lg";
+	inlineFrom?: "sm" | "reader";
 }
 
 const { headings, series, inlineFrom = "sm" } = Astro.props;
-const wideInlineLayout = inlineFrom === "lg";
-
-// Extended heading type with additional properties for tree rendering
-// - last: indicates if this heading is the last child in its parent group
-// - lines: array of booleans indicating which vertical connector lines should be drawn
-type Heading = MarkdownHeading & { last?: boolean; lines?: boolean[] };
-
-if (headings) {
-	// Determine which headings are the last in their sibling group
-	const stack: Heading[] = [];
-	headings.forEach(heading => {
-		// Pop headings from the stack that are at the same or deeper level
-		while (stack[stack.length - 1]?.depth >= heading.depth) {
-			const top = stack.pop();
-			// Mark as last if popped due to a shallower heading (not a sibling)
-			if (top && top.depth !== heading.depth) top.last = true;
-		}
-
-		stack.push(heading);
-	});
-
-	// Mark all remaining headings in the stack as last (they have no following siblings)
-	while (stack.length > 0) stack.pop()!.last = true;
-
-	// Calculate which vertical connector lines to show for each heading
-	const actives: boolean[] = [];
-
-	headings.forEach(heading => {
-		// For each depth level above this heading, record whether a vertical line should be drawn
-		for (let depth = 2; depth < heading.depth; depth++) {
-			heading.lines ??= [];
-			heading.lines[depth - 2] = actives[depth - 2];
-		}
-
-		// Update the active state for this heading's depth level
-		actives[heading.depth - 2] = !heading.last;
-	});
+const nodes: TOCNode[] = [];
+const stack: TOCNode[] = [];
+for (const heading of headings ?? []) {
+	const node = { ...heading, children: [] };
+	while (stack.length && stack[stack.length - 1].depth >= node.depth) stack.pop();
+	const parent = stack[stack.length - 1];
+	(parent ? parent.children : nodes).push(node);
+	stack.push(node);
 }
 ---
 
-<style>
+<style is:global>
 	#toc {
+		--toc-link-min-height: 44px;
+		position: fixed;
+		inset-block-start: 0;
+		inset-inline-end: 0;
+		z-index: 120;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		width: min(384px, calc(100vw - 32px));
+		height: 100dvh;
+		padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+		background: var(--background-color);
+		visibility: hidden;
 		transform: translateX(100%);
-
-		&:is([dir="rtl"] *) {
-			transform: translateX(-100%);
+		transition:
+			transform 180ms ease,
+			visibility 180ms;
+	}
+	[dir="rtl"] #toc {
+		transform: translateX(-100%);
+	}
+	#toc.active {
+		transform: translateX(0);
+		visibility: visible;
+	}
+	#toc-close {
+		width: 44px;
+		height: 44px;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+	}
+	.toc-scroll {
+		min-height: 0;
+		width: 100%;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		display: flex;
+		flex-direction: column;
+		gap: 28px;
+		padding: 4px;
+	}
+	#toc h4 {
+		margin-bottom: 12px;
+	}
+	#toc .toc-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	#toc .toc-list > li + li {
+		margin-top: 12px;
+	}
+	#toc .toc-list-nested {
+		padding-inline-start: 16px;
+		margin-top: 4px;
+	}
+	#toc .toc-list-nested > li + li {
+		margin-top: 4px;
+	}
+	#toc .toc-list a {
+		display: grid;
+		grid-template-columns: 8px minmax(0, 1fr);
+		align-content: center;
+		gap: 8px;
+		min-height: var(--toc-link-min-height);
+		padding-block: 2px;
+		color: var(--secondary-color);
+		font-weight: 600;
+		transition: color 150ms;
+	}
+	#toc .toc-list a::before {
+		content: "•";
+		color: var(--remark-color);
+	}
+	#toc .toc-list a > span {
+		min-width: 0;
+		overflow-wrap: anywhere;
+		white-space: normal;
+	}
+	#toc .toc-list-nested a,
+	#toc .toc-series a {
+		font-weight: 400;
+	}
+	#toc .toc-list-nested a::before {
+		content: "–";
+	}
+	#toc .toc-list a:hover,
+	#toc .indicate > a,
+	#toc a[aria-current] {
+		color: var(--primary-color);
+	}
+	#toc .indicate > a::before,
+	#toc a[aria-current]::before {
+		content: "▸";
+		color: var(--primary-color);
+	}
+	#toc-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 110;
+		pointer-events: none;
+		background: transparent;
+		transition: background-color 180ms;
+	}
+	#toc-overlay.active {
+		pointer-events: auto;
+		background: var(--overlay-color);
+	}
+	@media (min-width: 640px) {
+		#toc[data-drawer-inline-from="sm"] {
+			--toc-link-min-height: 0px;
+			position: sticky;
+			inset-block-start: 24px;
+			inset-inline-end: auto;
+			align-self: flex-start;
+			width: 200px;
+			flex: 0 0 200px;
+			height: auto;
+			max-height: calc(100dvh - 48px);
+			padding: 0;
+			visibility: visible;
+			transform: none;
+			z-index: auto;
 		}
-
-		&.active {
-			transform: translateX(0);
+		#toc[data-drawer-inline-from="sm"] #toc-close,
+		#toc-overlay[data-inline-from="sm"] {
+			display: none;
 		}
 	}
-
-	#toc-overlay {
-		pointer-events: none;
-		background-color: transparent;
-
-		&.active {
-			pointer-events: auto;
-			background-color: var(--overlay-color);
+	@media (min-width: 1100px) {
+		#toc[data-drawer-inline-from="reader"] {
+			--toc-link-min-height: 0px;
+			position: sticky;
+			inset-block-start: 24px;
+			inset-inline-end: auto;
+			align-self: start;
+			width: 288px;
+			height: auto;
+			max-height: calc(100dvh - 48px);
+			padding: 0;
+			visibility: visible;
+			transform: none;
+			z-index: auto;
+		}
+		#toc[data-drawer-inline-from="reader"] #toc-close,
+		#toc-overlay[data-inline-from="reader"] {
+			display: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		#toc,
+		#toc-overlay {
+			transition: none;
 		}
 	}
 </style>
 
-<div
-	id="toc-overlay"
-	data-drawer-overlay="toc"
-	aria-hidden="true"
-	class:list={[
-		"fixed top-0 inset-s-0 w-screen h-screen transition-[background-color]",
-		wideInlineLayout ? "lg:hidden max-lg:z-110" : "sm:hidden max-sm:z-110"
-	]}
->
-</div>
-
-<aside
-	id="toc"
-	data-drawer="toc"
-	data-drawer-inline-from={inlineFrom}
-	aria-hidden="true"
-	class:list={[
-		"fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col items-start gap-2 p-5 bg-background h-full overflow-hidden transition-transform",
-		wideInlineLayout ? "lg:contents max-lg:z-120" : "sm:contents max-sm:z-120"
-	]}
->
-	<button
-		id="toc-close"
-		type="button"
-		data-drawer-close="toc"
-		aria-label="Close Table of Contents"
-		class:list={["size-11 shrink-0 items-center justify-center -m-2 mb-0", wideInlineLayout ? "lg:hidden" : "sm:hidden"]}
-	>
+<div id="toc-overlay" data-drawer-overlay="toc" aria-hidden="true" data-inline-from={inlineFrom}></div>
+<aside id="toc" data-drawer="toc" data-drawer-inline-from={inlineFrom} aria-hidden="true" aria-label="Page navigation" inert>
+	<button id="toc-close" type="button" data-drawer-close="toc" aria-label="Close Table of Contents">
 		<Icon name="lucide--x" />
 	</button>
-	<div
-		class:list={[
-			"self-start min-h-0 flex-1 top-3 w-full flex flex-col gap-7.5 overflow-y-auto",
-			wideInlineLayout ? "lg:sticky lg:w-50 lg:flex-none lg:overflow-visible" : "sm:sticky sm:w-50 sm:flex-none sm:overflow-visible"
-		]}
-	>
+	<div class="toc-scroll">
 		{
-			headings && (
+			nodes.length > 0 && (
 				<section>
-					<h4>Contents</h4>
-					<nav class="overflow-y-auto">
-						<ul class="flex flex-col text-base list-none">
-							{headings.map((heading: Heading) => (
-								<li
-									id={`indicator-${heading.slug}`}
-									class:list={[
-										"group relative flex items-stretch h-10 shrink-0 [&.indicate>a]:font-bold [&.indicate>a]:text-primary",
-										wideInlineLayout ? "lg:h-6" : "sm:h-6"
-									]}
-								>
-									<div class="flex select-none" aria-hidden="true">
-										{heading.lines?.map(line => (
-											<div class="w-4 relative flex justify-center">{line && <span class="absolute top-0 bottom-0 border-s border-remark" />}</div>
-										))}
-
-										{heading.depth > 1 && (
-											<div class="w-4 relative flex justify-center">
-												<span class:list={["absolute top-0 border-s border-remark", heading.last ? "h-[calc(50%+1px)]" : "h-full"]} />
-												<span class="absolute top-1/2 inset-s-1/2 w-2 border-b border-remark" />
-											</div>
-										)}
-									</div>
-
-									<a href={`#${heading.slug}`} title={heading.text} class="grow min-w-0 inline-flex items-center ps-1 text-weak hover:font-bold hover:text-primary transition-[color,font-weight]">
-										<span class="truncate">{heading.text}</span>
-									</a>
-								</li>
-							))}
-						</ul>
+					<h4 id="toc-heading">Contents</h4>
+					<nav aria-labelledby="toc-heading">
+						<TOCList {nodes} />
 					</nav>
 				</section>
 			)
 		}
 		{
 			series && series.length > 0 && (
-				<section class="flex flex-col gap-1">
-					<h4>Series</h4>
-					<ul class="flex flex-col text-sm gap-0.5">
-						{series.map(item => (
-							<li
-								class:list={[
-									"flex min-h-10 items-center gap-1.25 before:w-1 before:h-1 before:rounded-full",
-									wideInlineLayout ? "lg:min-h-0" : "sm:min-h-0",
-									item.current ? "font-bold text-primary before:bg-primary" : "text-weak before:bg-weak"
-								]}
-							>
-								<a
-									href={item.url}
-									title={item.title}
-									class:list={[
-										"flex items-center min-h-10 truncate hover:font-bold hover:text-primary transition-[color,font-weight]",
-										wideInlineLayout ? "lg:min-h-0" : "sm:min-h-0"
-									]}
-								>
-									{item.title}
-								</a>
-							</li>
-						))}
-					</ul>
+				<section>
+					<h4 id="series-heading">Series</h4>
+					<nav aria-labelledby="series-heading">
+						<ul class="toc-list toc-series">
+							{series.map(item => (
+								<li>
+									<a href={item.url} aria-current={item.current ? "page" : undefined}>
+										<span>{item.title}</span>
+									</a>
+								</li>
+							))}
+						</ul>
+					</nav>
 				</section>
 			)
 		}

@@ -18,7 +18,7 @@ const title = config.title;
 	type DrawerName = "sidebar" | "toc";
 
 	const compactViewport = window.matchMedia("(max-width: 639px)");
-	const wideDrawerViewport = window.matchMedia("(max-width: 1023px)");
+	const wideDrawerViewport = window.matchMedia("(max-width: 1099px)");
 	const drawerOpeners = new Map<DrawerName, HTMLElement>();
 	let tocObserver: IntersectionObserver | undefined;
 
@@ -78,7 +78,7 @@ const title = config.title;
 
 	function drawerIsModal(name: DrawerName) {
 		if (name === "sidebar") return compactViewport.matches;
-		return drawerPanel(name)?.dataset.drawerInlineFrom === "lg" ? wideDrawerViewport.matches : compactViewport.matches;
+		return drawerPanel(name)?.dataset.drawerInlineFrom === "reader" ? wideDrawerViewport.matches : compactViewport.matches;
 	}
 
 	function closeDrawer(name: DrawerName, restoreFocus = true) {
@@ -87,8 +87,11 @@ const title = config.title;
 		drawerOverlay(name)?.classList.remove("active");
 		setDrawerTriggerState(name, false);
 
-		if (drawerIsModal(name)) panel?.setAttribute("aria-hidden", "true");
-		else panel?.removeAttribute("aria-hidden");
+		if (panel) {
+			panel.inert = drawerIsModal(name);
+			if (drawerIsModal(name)) panel.setAttribute("aria-hidden", "true");
+			else panel.removeAttribute("aria-hidden");
+		}
 
 		if (document.documentElement.dataset.drawer === name) {
 			delete document.documentElement.dataset.drawer;
@@ -111,6 +114,7 @@ const title = config.title;
 		}
 
 		drawerOpeners.set(name, opener);
+		panel.inert = false;
 		panel.classList.add("active");
 		panel.setAttribute("aria-hidden", "false");
 		drawerOverlay(name)?.classList.add("active");
@@ -270,7 +274,7 @@ const title = config.title;
 </script>
 
 <App {title} {subtitle} {description} {article} author={config.author.name} {canonicalURL} {noindex}>
-	<div class="flex flex-col mx-auto *:*:px-3 w-[min(100%,1000px)]">
+	<div class="site-shell flex flex-col mx-auto">
 		<!-- Stretch body to full viewport height to prevent layout jumps from toggleable scrollbars. -->
 		<div id="body" class="flex flex-col min-h-screen">
 			<Header {title} />

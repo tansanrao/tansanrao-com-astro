@@ -35,18 +35,24 @@ const series = entry.data.series
 ---
 
 <style>
-	.blog-reading-layout {
+	.blog-reading-layout,
+	.blog-header {
 		width: 100%;
-		max-inline-size: 72ch;
+		max-inline-size: 752px;
 		margin-inline: auto;
 	}
-
-	@media (min-width: 1024px) {
+	@media (min-width: 1100px) {
+		.blog-header.has-supplementary-navigation {
+			max-inline-size: 1088px;
+		}
+		.blog-header.has-supplementary-navigation > :not(hr) {
+			max-inline-size: calc(100% - 336px);
+		}
 		.blog-reading-layout.has-supplementary-navigation {
 			display: grid;
-			grid-template-columns: minmax(0, 1fr) 12.5rem;
-			gap: 1.25rem;
-			max-inline-size: calc(72ch + 13.75rem);
+			grid-template-columns: minmax(0, 1fr) 288px;
+			gap: 48px;
+			max-inline-size: 1088px;
 		}
 	}
 </style>
@@ -65,7 +71,7 @@ const series = entry.data.series
 	}}
 >
 	<main class="flex flex-col gap-6">
-		<header class="flex flex-col gap-4">
+		<header class:list={["blog-header flex flex-col gap-4", { "has-supplementary-navigation": hasSupplementaryNavigation }]}>
 			<h1 class="select-text">{entry.data.title}</h1>
 			<div class="flex flex-wrap gap-x-4 gap-y-2 text-[0.875rem] text-secondary">
 				<span class="flex items-center gap-1">
@@ -130,11 +136,11 @@ const series = entry.data.series
 						}
 						<Content />
 					</section>
-					{hasSupplementaryNavigation && <TOC headings={entry.data.toc ? headings : undefined} {series} inlineFrom="lg" />}
+					{hasSupplementaryNavigation && <TOC headings={entry.data.toc ? headings : undefined} {series} inlineFrom="reader" />}
 				</div>
 			</div>
 		</Sensitive>
 
-		<Position toc={entry.data.toc} series={!!entry.data.series} inlineFrom="lg" />
+		<Position toc={entry.data.toc} series={!!entry.data.series} inlineFrom="reader" />
 	</main>
 </Base>

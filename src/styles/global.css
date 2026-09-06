@@ -264,3 +264,13 @@
 		clip-path: inset(0 0 0 0);
 	}
 }
+
+/* Shared usable width, with gutters outside the content shell. */
+.site-shell {
+	width: min(100% - 48px, 1088px);
+}
+@media (max-width: 639px) {
+	.site-shell {
+		width: calc(100% - 32px);
+	}
+}

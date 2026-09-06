@@ -4,13 +4,30 @@ import Icon from "$components/Icon.svelte";
 export interface Props {
 	toc?: boolean;
 	series?: boolean;
-	inlineFrom?: "sm" | "lg";
+	inlineFrom?: "sm" | "reader";
 }
 
 const { toc, series, inlineFrom = "sm" } = Astro.props;
 ---
 
 <style>
+	figure {
+		inset-inline-end: 16px;
+	}
+	@media (min-width: 640px) {
+		figure[data-inline-from="sm"] [data-toc-trigger] {
+			display: none;
+		}
+	}
+	@media (min-width: 1100px) {
+		figure[data-inline-from="reader"] {
+			inset-inline-end: calc(max(24px, (100% - 1088px) / 2) + 290px);
+		}
+		figure[data-inline-from="reader"] [data-toc-trigger] {
+			display: none;
+		}
+	}
+
 	figure button {
 		position: relative;
 		display: flex;
@@ -33,7 +50,7 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 	}
 </style>
 
-<figure data-position-controls class="fixed inset-e-[calc(20px+max(calc((100%-1100px)/2),0px))] bottom-15 sm:bottom-30 flex flex-col gap-2 z-100 transition-opacity">
+<figure data-position-controls data-inline-from={inlineFrom} class="fixed bottom-15 sm:bottom-30 flex flex-col gap-2 z-100 transition-opacity">
 	<button type="button" data-scroll-top aria-label="Scroll to Top" class="border-weak">
 		<Icon name="lucide--arrow-up-to-line" size={18} title="To Top" />
 		<svg class="absolute -top-0.5 -inset-s-0.5 w-[calc(100%+4px)] h-[calc(100%+4px)] -rotate-90 transform-origin-center pointer-events-none">
@@ -42,14 +59,7 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 	</button>
 	{
 		(toc || series) && (
-			<button
-				type="button"
-				data-drawer-open="toc"
-				aria-controls="toc"
-				aria-expanded="false"
-				aria-label="Open Table of Contents"
-				class:list={[inlineFrom === "lg" ? "lg:hidden!" : "sm:hidden!"]}
-			>
+			<button type="button" data-drawer-open="toc" aria-controls="toc" aria-expanded="false" aria-label="Open Table of Contents" data-toc-trigger>
 				<Icon name="lucide--list" size={15} title="Contents" />
 			</button>
 		)
