@@ -1,16 +1,17 @@
 ---
-import { render, getCollection } from "astro:content";
+import { getCollection } from "astro:content";
 import { blogEntryPath } from "$lib/paths";
 import config from "$config";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
 import Heatmap from "$components/Heatmap.astro";
+import NewsList from "$components/NewsList.astro";
 import Logo from "$icons/site-logo.svg";
 
 const news = (await getCollection("news")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
 const blogEntries = await getCollection("blog", entry => !entry.data.draft);
 const notes = await getCollection("notes", entry => !entry.data.draft);
-const latestNews = await Promise.all(news.slice(0, 3).map(async entry => ({ ...entry, content: (await render(entry)).Content })));
+const latestNews = news.slice(0, 3);
 
 let items: { id: string; type?: string; data: { timestamp: Date; tags?: string[]; [key: string]: any } }[] = [];
 const sections = config.latest || "*";
@@ -29,30 +30,6 @@ if (sections === "*" || sections.includes("notes")) items = items.concat(notes);
 
 const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime())[0];
 ---
-
-<style>
-	.news-row {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.news-body > :first-child {
-		margin-top: 0;
-	}
-
-	.news-body > :last-child {
-		margin-bottom: 0;
-	}
-
-	.news-body p {
-		margin: 0;
-	}
-
-	@media screen and (min-width: 768px) {
-		.news-row {
-			grid-template-columns: 11rem minmax(0, 1fr);
-		}
-	}
-</style>
 
 <Base title="Home">
 	<main class="flex flex-col gap-5 sm:gap-20 grow">
@@ -74,20 +51,7 @@ const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestam
 						<a href="/news" class="text-sm text-secondary link">Archive</a>
 					</div>
 
-					<ul class="flex flex-col">
-						{
-							latestNews.map((entry, index) => (
-								<li class:list={["news-row grid items-start gap-3 py-5 md:gap-5", index > 0 && "border-t border-shadow/60"]}>
-									<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-sm text-secondary md:pt-1">
-										{Time.toLocaleDateString(entry.data.timestamp, "en")}
-									</time>
-									<article class="markdown news-body text-base leading-relaxed">
-										<entry.content />
-									</article>
-								</li>
-							))
-						}
-					</ul>
+					<NewsList entries={latestNews} />
 				</section>
 			)
 		}

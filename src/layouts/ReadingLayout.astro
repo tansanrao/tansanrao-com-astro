@@ -1,0 +1,45 @@
+---
+interface Props {
+	sidebar?: boolean;
+	fullWidth?: boolean;
+}
+
+const { sidebar = false, fullWidth = false } = Astro.props;
+---
+
+<main class:list={["reader flex flex-col gap-6", { "with-aside": sidebar, "full-width": fullWidth }]}>
+	<slot name="header" />
+	<slot />
+	<slot name="controls" />
+</main>
+
+<style>
+	/* These slot boundaries keep geometry independent of metadata and content rendering.
+	   The body can remain inside a content-warning gate without adding layout wrappers. */
+	.reader :global([data-reading-header]),
+	.reader :global([data-reading-body]) {
+		width: 100%;
+		max-inline-size: var(--reading-width);
+		margin-inline: auto;
+	}
+
+	.reader.full-width :global([data-reading-header]),
+	.reader.full-width :global([data-reading-body]) {
+		max-inline-size: none;
+	}
+
+	@media (min-width: 1100px) {
+		.reader.with-aside :global([data-reading-header]) {
+			max-inline-size: var(--site-width);
+		}
+		.reader.with-aside :global([data-reading-header] > :not(hr)) {
+			max-inline-size: calc(100% - var(--reading-aside-width) - var(--reading-gap));
+		}
+		.reader.with-aside :global([data-reading-body]) {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) var(--reading-aside-width);
+			gap: var(--reading-gap);
+			max-inline-size: var(--site-width);
+		}
+	}
+</style>

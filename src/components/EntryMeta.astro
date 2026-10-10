@@ -1,0 +1,41 @@
+---
+import Time from "$lib/time";
+import Icon from "$components/Icon.svelte";
+
+export interface Props {
+	timestamp: Date;
+	updatedTimestamp?: Date;
+	series?: string;
+	tags?: string[];
+	words: number;
+}
+
+const { timestamp, updatedTimestamp, series, tags, words } = Astro.props;
+---
+
+<time datetime={timestamp.toISOString()}><Icon name="lucide--calendar" />{Time.toString(timestamp)}</time>
+{
+	updatedTimestamp && (
+		<time datetime={updatedTimestamp.toISOString()}>
+			<Icon name="lucide--refresh-cw" />
+			Updated {Time.toString(updatedTimestamp)}
+		</time>
+	)
+}
+{
+	series && (
+		<span>
+			<Icon name="lucide--layers" />
+			{series}
+		</span>
+	)
+}
+{
+	!!tags?.length && (
+		<span>
+			<Icon name="lucide--hash" />
+			{tags?.join("; ")}
+		</span>
+	)
+}
+<span><Icon name="lucide--pilcrow" />{words} {words === 1 ? "word" : "words"}</span>

@@ -138,13 +138,13 @@ for (const heading of headings ?? []) {
 		#toc[data-drawer-inline-from="sm"] {
 			--toc-link-min-height: 0px;
 			position: sticky;
-			inset-block-start: 24px;
+			inset-block-start: var(--sticky-inset);
 			inset-inline-end: auto;
 			align-self: flex-start;
 			width: 200px;
 			flex: 0 0 200px;
 			height: auto;
-			max-height: calc(100dvh - 48px);
+			max-height: calc(100dvh - 2 * var(--sticky-inset));
 			padding: 0;
 			visibility: visible;
 			transform: none;
@@ -159,12 +159,12 @@ for (const heading of headings ?? []) {
 		#toc[data-drawer-inline-from="reader"] {
 			--toc-link-min-height: 0px;
 			position: sticky;
-			inset-block-start: 24px;
+			inset-block-start: var(--sticky-inset);
 			inset-inline-end: auto;
 			align-self: start;
-			width: 288px;
+			width: var(--reading-aside-width);
 			height: auto;
-			max-height: calc(100dvh - 48px);
+			max-height: calc(100dvh - 2 * var(--sticky-inset));
 			padding: 0;
 			visibility: visible;
 			transform: none;

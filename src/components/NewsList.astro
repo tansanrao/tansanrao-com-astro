@@ -1,0 +1,50 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import Time from "$lib/time";
+
+interface Props {
+	entries: CollectionEntry<"news">[];
+}
+
+const { entries } = Astro.props;
+const items = await Promise.all(entries.map(async entry => ({ ...entry, content: (await render(entry)).Content })));
+---
+
+<ul class="flex flex-col">
+	{
+		items.map((entry, index) => (
+			<li class:list={["news-row grid items-start gap-3 py-5 md:gap-5", index > 0 && "border-t border-shadow/60"]}>
+				<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-sm text-secondary md:pt-1">
+					{Time.toLocaleDateString(entry.data.timestamp, "en")}
+				</time>
+				<article class="markdown news-body text-base leading-relaxed">
+					<entry.content />
+				</article>
+			</li>
+		))
+	}
+</ul>
+
+<style>
+	.news-row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.news-body > :first-child {
+		margin-top: 0;
+	}
+
+	.news-body > :last-child {
+		margin-bottom: 0;
+	}
+
+	.news-body p {
+		margin: 0;
+	}
+
+	@media screen and (min-width: 768px) {
+		.news-row {
+			grid-template-columns: 11rem minmax(0, 1fr);
+		}
+	}
+</style>

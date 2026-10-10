@@ -1,0 +1,60 @@
+/* Theme values live here; component styling and layout rules consume them. */
+:root,
+[data-theme="light"] {
+	--primary-color: #100f0f;
+	--secondary-color: #575653;
+	--remark-color: #6f6e69;
+	--weak-color: #9f9d96;
+	--background-color: #fffcf0;
+	--block-color: #f2f0e5;
+	--shadow-color: #cecdc3;
+	--selection-color: rgba(67, 133, 190, 0.28);
+	--overlay-color: rgba(16, 15, 15, 0.38);
+}
+
+[data-theme="dark"] {
+	--primary-color: #cecdc3;
+	--secondary-color: #b7b5ac;
+	--remark-color: #9f9d96;
+	--weak-color: #6f6e69;
+	--background-color: #100f0f;
+	--block-color: #1c1b1a;
+	--shadow-color: #403e3c;
+	--selection-color: rgba(32, 94, 166, 0.34);
+	--overlay-color: rgba(16, 15, 15, 0.72);
+}
+
+:root {
+	--site-width: 1088px;
+	--page-gutter: 24px;
+	--page-gutter-compact: 16px;
+	--reading-width: 752px;
+	--reading-aside-width: 288px;
+	--reading-gap: 48px;
+	--sticky-inset: 24px;
+	--swup-fade-theme-duration: 0.15s;
+}
+
+@theme {
+	--color-primary: var(--primary-color);
+	--color-secondary: var(--secondary-color);
+	--color-remark: var(--remark-color);
+	--color-weak: var(--weak-color);
+	--color-background: var(--background-color);
+	--color-block: var(--block-color);
+	--color-shadow: var(--shadow-color);
+	--color-selection: var(--selection-color);
+	--color-overlay: var(--overlay-color);
+
+	--font-serif: var(--font-source-serif-4);
+	--font-mono: var(--font-ibm-plex-mono);
+
+	--text-body: 1.0625rem;
+	--text-body-compact: 1rem;
+	--text-heading-1: 2.25rem;
+	--text-heading-2: 1.75rem;
+	--text-heading-3: 1.5rem;
+	--text-heading-4: 1.25rem;
+	--text-heading-5: 1.125rem;
+	--text-heading-6: 1rem;
+}

@@ -1,0 +1,49 @@
+---
+import Icon from "$components/Icon.svelte";
+import EntryMeta, { type Props as EntryMetaProps } from "$components/EntryMeta.astro";
+
+interface Props extends EntryMetaProps {
+	title: string;
+	authors?: { name: string; url?: string }[];
+	variant?: "blog" | "notes";
+}
+
+const { title, authors, variant = "blog", ...metadata } = Astro.props;
+---
+
+<header data-reading-header class="flex flex-col gap-4">
+	<h1 class="select-text">{title}</h1>
+	{
+		variant === "blog" ? (
+			<div class="flex flex-wrap gap-x-4 gap-y-2 text-[0.875rem] text-secondary">
+				{authors && (
+					<span class="flex items-center gap-1">
+						<Icon name="lucide--user-round" />
+						<span class="flex flex-wrap items-center gap-1">
+							{authors.map((author, index) => (
+								<>
+									{author.url ? (
+										<a href={author.url} target="_blank" rel="noopener noreferrer" class="link">
+											{author.name}
+										</a>
+									) : (
+										<span>{author.name}</span>
+									)}
+									{index < authors.length - 1 && <span aria-hidden="true">,</span>}
+								</>
+							))}
+						</span>
+					</span>
+				)}
+				<div class="flex flex-wrap gap-x-4 gap-y-2 *:flex *:items-center *:gap-1">
+					<EntryMeta {...metadata} />
+				</div>
+			</div>
+		) : (
+			<div class="flex flex-col gap-3 sm:flex-row *:flex *:items-center *:gap-1 *:text-[0.875rem] *:text-secondary">
+				<EntryMeta {...metadata} />
+			</div>
+		)
+	}
+	<hr class="border-b border-weak" />
+</header>

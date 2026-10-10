@@ -12,7 +12,7 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 
 <style>
 	figure {
-		inset-inline-end: 16px;
+		inset-inline-end: var(--page-gutter-compact);
 	}
 	@media (min-width: 640px) {
 		figure[data-inline-from="sm"] [data-toc-trigger] {
@@ -21,7 +21,7 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 	}
 	@media (min-width: 1100px) {
 		figure[data-inline-from="reader"] {
-			inset-inline-end: calc(max(24px, (100% - 1088px) / 2) + 290px);
+			inset-inline-end: calc(max(var(--page-gutter), (100% - var(--site-width)) / 2) + var(--reading-aside-width) + 2px);
 		}
 		figure[data-inline-from="reader"] [data-toc-trigger] {
 			display: none;

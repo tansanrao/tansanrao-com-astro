@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 @plugin "@iconify/tailwind4" {
 	prefixes: lucide, simple-icons, fa6-brands;
@@ -16,18 +17,6 @@
 
 :root,
 [data-theme="light"] {
-	--primary-color: #100f0f;
-	--secondary-color: #575653;
-	--remark-color: #6f6e69;
-	--weak-color: #9f9d96;
-	--background-color: #fffcf0;
-	--block-color: #f2f0e5;
-	--shadow-color: #cecdc3;
-	--selection-color: rgba(67, 133, 190, 0.28);
-	--overlay-color: rgba(16, 15, 15, 0.38);
-
-	--swup-fade-theme-duration: 0.15s;
-
 	.astro-code,
 	.astro-code span {
 		color: var(--shiki-light) !important;
@@ -36,16 +25,6 @@
 }
 
 [data-theme="dark"] {
-	--primary-color: #cecdc3;
-	--secondary-color: #b7b5ac;
-	--remark-color: #9f9d96;
-	--weak-color: #6f6e69;
-	--background-color: #100f0f;
-	--block-color: #1c1b1a;
-	--shadow-color: #403e3c;
-	--selection-color: rgba(32, 94, 166, 0.34);
-	--overlay-color: rgba(16, 15, 15, 0.72);
-
 	.astro-code,
 	.astro-code span {
 		color: var(--shiki-dark) !important;
@@ -101,7 +80,7 @@
 	}
 
 	body {
-		font-size: 1.0625rem;
+		font-size: var(--text-body);
 		font-family: var(--font-serif);
 		color: var(--primary-color);
 		background-color: var(--background-color);
@@ -112,7 +91,7 @@
 
 	@media screen and (max-width: 640px) {
 		body {
-			font-size: 1rem;
+			font-size: var(--text-body-compact);
 		}
 	}
 
@@ -126,27 +105,27 @@
 	}
 
 	h1 {
-		font-size: 2.25rem;
+		font-size: var(--text-heading-1);
 	}
 
 	h2 {
-		font-size: 1.75rem;
+		font-size: var(--text-heading-2);
 	}
 
 	h3 {
-		font-size: 1.5rem;
+		font-size: var(--text-heading-3);
 	}
 
 	h4 {
-		font-size: 1.25rem;
+		font-size: var(--text-heading-4);
 	}
 
 	h5 {
-		font-size: 1.125rem;
+		font-size: var(--text-heading-5);
 	}
 
 	h6 {
-		font-size: 1rem;
+		font-size: var(--text-heading-6);
 	}
 
 	a {
@@ -224,21 +203,6 @@
 	z-index: 9999;
 }
 
-@theme {
-	--color-primary: var(--primary-color);
-	--color-secondary: var(--secondary-color);
-	--color-remark: var(--remark-color);
-	--color-weak: var(--weak-color);
-	--color-background: var(--background-color);
-	--color-block: var(--block-color);
-	--color-shadow: var(--shadow-color);
-	--color-selection: var(--selection-color);
-	--color-overlay: var(--overlay-color);
-
-	--font-serif: var(--font-source-serif-4);
-	--font-mono: var(--font-ibm-plex-mono);
-}
-
 @layer components {
 	.link {
 		@apply underline decoration-transparent decoration-[0.05em] underline-offset-[0.15em] transition-[text-decoration-color] hover:decoration-current;
@@ -267,10 +231,10 @@
 
 /* Shared usable width, with gutters outside the content shell. */
 .site-shell {
-	width: min(100% - 48px, 1088px);
+	width: min(100% - 2 * var(--page-gutter), var(--site-width));
 }
 @media (max-width: 639px) {
 	.site-shell {
-		width: calc(100% - 32px);
+		width: calc(100% - 2 * var(--page-gutter-compact));
 	}
 }
