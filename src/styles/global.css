@@ -174,16 +174,8 @@
 	}
 }
 
-.swup-progress-bar {
-	--direction: to right;
-
-	height: 0.15rem;
-	background: linear-gradient(var(--direction), var(--block-color), var(--secondary-color));
-
-	&:is(html[dir="rtl"] *) {
-		--direction: to left;
-		transform-origin: right center;
-	}
+html:not([data-drawers-ready]) :is([data-drawer-open], [data-drawer-close], [data-drawer-overlay]) {
+	display: none;
 }
 
 .medium-zoom-overlay {

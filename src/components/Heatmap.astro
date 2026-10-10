@@ -251,3 +251,26 @@ if (frequency === "month") {
 		}
 	}
 </style>
+
+<script>
+	function closeHeatmaps(restoreFocus = false) {
+		document.querySelectorAll<HTMLElement>("[data-heatmap].is-open").forEach(figure => {
+			figure.classList.remove("is-open");
+			const trigger = figure.querySelector<HTMLButtonElement>("[data-heatmap-trigger]");
+			trigger?.setAttribute("aria-expanded", "false");
+			if (restoreFocus) trigger?.focus();
+		});
+	}
+	document.addEventListener("click", event => {
+		if (!(event.target instanceof Element)) return;
+		const trigger = event.target.closest<HTMLButtonElement>("[data-heatmap-trigger]");
+		if (trigger) {
+			const figure = trigger.closest<HTMLElement>("[data-heatmap]");
+			const willOpen = !figure?.classList.contains("is-open");
+			closeHeatmaps();
+			figure?.classList.toggle("is-open", willOpen);
+			trigger.setAttribute("aria-expanded", String(willOpen));
+		} else if (!event.target.closest("[data-heatmap]")) closeHeatmaps();
+	});
+	document.addEventListener("keydown", event => { if (event.key === "Escape") closeHeatmaps(true); });
+</script>

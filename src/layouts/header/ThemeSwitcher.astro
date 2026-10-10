@@ -24,7 +24,7 @@ import Icon from "$components/Icon.astro";
 	}
 </style>
 
-<button id="theme-toggle" aria-label="Toggle theme" class="size-11 sm:size-auto items-center justify-center">
+<button id="theme-toggle" hidden aria-label="Toggle theme" class="size-11 sm:size-auto items-center justify-center">
 	<span id="sun-icon"><Icon name="lucide--sun" /></span>
 	<span id="moon-icon"><Icon name="lucide--moon" /></span>
 </button>
@@ -88,6 +88,7 @@ import Icon from "$components/Icon.astro";
 
 	// Listen for user interactions (use property assignment to avoid duplicate handlers on script re-execution)
 	button.onclick = toggle;
+	button.hidden = false;
 
 	// Listen for system theme changes
 	mode.onchange = ({ matches }) => trigger(matches ? "dark" : "light");

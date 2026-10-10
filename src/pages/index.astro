@@ -74,7 +74,7 @@ const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestam
 								))}
 							</div>
 						</div>
-						<time datetime={latest.data.timestamp.toISOString()} class="text-remark font-mono text-xs">
+						<time datetime={latest.data.timestamp.toISOString()} title={Time.toString(latest.data.timestamp)} class="text-remark font-mono text-xs">
 							{Time.toString(latest.data.timestamp)}
 						</time>
 					</blockquote>

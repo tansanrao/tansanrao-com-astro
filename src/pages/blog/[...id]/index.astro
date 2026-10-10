@@ -8,6 +8,7 @@ import TOC from "$components/TOC.astro";
 import Position from "$components/Position.astro";
 import Sensitive from "$components/Sensitive.astro";
 import MarkdownAlert from "$components/MarkdownAlert.astro";
+import Prose from "$components/Prose.astro";
 import { isOlderThanYears } from "$lib/content-age";
 import { getReadingStats } from "$lib/reading";
 
@@ -62,7 +63,7 @@ const series = entry.data.series
 		<Sensitive back="/blog" sensitive={entry.data.sensitive}>
 			<div class="contents">
 				<div data-reading-body>
-					<section id="markdown-content" class="markdown min-w-0">
+					<Prose as="section" id="markdown-content" class="min-w-0">
 						{
 							showArchiveNotice && (
 								<MarkdownAlert>
@@ -71,7 +72,7 @@ const series = entry.data.series
 							)
 						}
 						<Content />
-					</section>
+					</Prose>
 					{hasSupplementaryNavigation && <TOC headings={entry.data.toc ? headings : undefined} {series} inlineFrom="reader" />}
 				</div>
 			</div>

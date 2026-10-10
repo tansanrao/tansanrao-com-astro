@@ -1,6 +1,7 @@
 ---
 import { getEntry, render } from "astro:content";
 import Base from "$layouts/Base.astro";
+import Prose from "$components/Prose.astro";
 
 const policy = await getEntry("information", "policy");
 const { Content } = policy ? await render(policy) : ({} as any);
@@ -11,9 +12,9 @@ const { Content } = policy ? await render(policy) : ({} as any);
 		<h1 class="sr-only">Policy</h1>
 		{
 			policy && (
-				<div class="markdown">
+				<Prose>
 					<Content />
-				</div>
+				</Prose>
 			)
 		}
 	</main>

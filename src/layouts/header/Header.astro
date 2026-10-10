@@ -53,7 +53,7 @@ const route = Astro.url.pathname;
 	<button id="sidebar-open" type="button" data-drawer-open="sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Open Sidebar" class="sm:hidden size-11 items-center justify-center"><Icon name="lucide--align-justify" /></button>
 	<div id="sidebar-overlay" data-drawer-overlay="sidebar" aria-hidden="true" class="sm:hidden fixed top-0 inset-s-0 w-screen h-screen transition-[background-color] z-110"></div>
 
-	<nav id="sidebar" data-drawer="sidebar" aria-hidden="true" aria-label="Primary" class="fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:static sm:inset-auto sm:w-auto sm:max-w-none sm:ml-auto sm:flex-row sm:items-center sm:justify-end sm:gap-7 sm:p-0 sm:h-auto overflow-y-auto sm:overflow-visible transition-transform z-120">
+	<nav id="sidebar" data-drawer="sidebar" aria-label="Primary" class="fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:static sm:inset-auto sm:w-auto sm:max-w-none sm:ml-auto sm:flex-row sm:items-center sm:justify-end sm:gap-7 sm:p-0 sm:h-auto overflow-y-auto sm:overflow-visible transition-transform z-120">
 		<header class="grid gap-5 text-secondary grid-rows-[repeat(5,1fr)] sm:flex sm:items-center sm:justify-end sm:gap-2">
 			<button id="sidebar-close" type="button" data-drawer-close="sidebar" aria-label="Close Sidebar" class="sm:hidden size-11 items-center justify-center -m-2 mb-0"><Icon name="lucide--x" /></button>
 			<Navigator {route} {routes} />
@@ -66,3 +66,18 @@ const route = Astro.url.pathname;
 		</footer>
 	</nav>
 </header>
+
+<script>
+	import "$lib/drawers";
+</script>
+
+<style>
+	@media (max-width: 639px) {
+		:global(html:not([data-drawers-ready])) .site-header { position: static; flex-wrap: wrap; }
+		:global(html:not([data-drawers-ready])) #sidebar {
+			position: static; transform: none; width: 100%; max-width: none; height: auto; padding: 0;
+		}
+		:global(html:not([data-drawers-ready])) #sidebar > header { display: flex; flex-wrap: wrap; gap: 12px; }
+		:global(html:not([data-drawers-ready])) #sidebar :global(a) { width: auto; }
+	}
+</style>

@@ -50,7 +50,7 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 	}
 </style>
 
-<figure data-position-controls data-inline-from={inlineFrom} class="fixed bottom-15 sm:bottom-30 flex flex-col gap-2 z-100 transition-opacity">
+<figure data-position-controls hidden data-inline-from={inlineFrom} class="fixed bottom-15 sm:bottom-30 flex flex-col gap-2 z-100 transition-opacity">
 	<button type="button" data-scroll-top aria-label="Scroll to Top" class="border-weak">
 		<Icon name="lucide--arrow-up-to-line" size={18} title="To Top" />
 		<svg class="absolute -top-0.5 -inset-s-0.5 w-[calc(100%+4px)] h-[calc(100%+4px)] -rotate-90 transform-origin-center pointer-events-none">
@@ -65,3 +65,29 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 		)
 	}
 </figure>
+
+<script>
+	const content = document.getElementById("markdown-content");
+	const circle = document.getElementById("progress-circle");
+	const controls = document.querySelector<HTMLElement>("[data-position-controls]");
+	const warning = content?.closest("details");
+	function update() {
+		if (!content || !circle || !controls) return;
+		controls.hidden = !!warning && !warning.open;
+		const contentHeight = content.scrollHeight;
+		const contentTop = content.getBoundingClientRect().top + scrollY;
+		const scrolled = innerHeight < contentHeight ? Math.max(0, scrollY - contentTop) : scrollY;
+		const scrollable = innerHeight < contentHeight ? contentHeight - innerHeight : Math.max(0, contentHeight + contentTop - innerHeight);
+		const progress = scrollable > 0 ? Math.min(1, scrolled / scrollable) : 1;
+		circle.style.strokeDashoffset = `${100 * (1 - progress)}`;
+	}
+	document.querySelector("[data-scroll-top]")?.addEventListener("click", () => {
+		document.scrollingElement?.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+	});
+	window.addEventListener("scroll", update, { passive: true });
+	window.addEventListener("resize", update);
+	warning?.addEventListener("toggle", update);
+	if (content) new ResizeObserver(update).observe(content);
+	document.fonts.ready.then(update);
+	update();
+</script>

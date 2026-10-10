@@ -37,7 +37,7 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.tim
 									{entry.data.tags?.map(tag => <a href={`?tag=${encodeURIComponent(tag)}`} data-tag-select={tag} class="max-sm:min-h-8 text-[0.875rem] text-remark sm:text-sm">#{tag}</a>)}
 								</span>
 							</div>
-							<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-[0.65rem] text-remark">{Time.toString(entry.data.timestamp)}</time>
+							<time datetime={entry.data.timestamp.toISOString()} title={Time.toString(entry.data.timestamp)} class="font-mono text-[0.65rem] text-remark">{Time.toString(entry.data.timestamp)}</time>
 						</>
 					) : (
 						<>

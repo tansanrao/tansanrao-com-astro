@@ -1,0 +1,42 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import "medium-zoom/dist/style.css";
+
+interface Props extends HTMLAttributes<"div"> {
+	as?: "div" | "section" | "article";
+}
+const { as: Tag = "div", class: className, ...attributes } = Astro.props;
+---
+
+<Tag {...attributes} data-prose class:list={["markdown", className]}><slot /></Tag>
+
+<style is:global>
+	[data-prose]:not([data-prose-ready]) .code-copy-button { display: none; }
+</style>
+
+<script>
+	import mediumZoom from "medium-zoom/dist/pure";
+
+	// Disclosed content is already in the DOM: bind once, including currently hidden prose.
+	mediumZoom("[data-prose] img:not([data-nozoom])", { background: "#00000044" });
+	document.querySelectorAll<HTMLButtonElement>("[data-prose] .code-copy-button").forEach(button => {
+		button.addEventListener("click", async () => {
+			const code = button.parentElement?.querySelector("pre code")?.textContent;
+			if (code === undefined) return;
+			button.classList.remove("code-copied", "code-copy-failed");
+			try {
+				await navigator.clipboard.writeText(code);
+				button.classList.add("code-copied");
+				button.ariaLabel = button.title = "Copied";
+			} catch {
+				button.classList.add("code-copy-failed");
+				button.ariaLabel = button.title = "Copy failed";
+			}
+			window.setTimeout(() => {
+				button.classList.remove("code-copied", "code-copy-failed");
+				button.ariaLabel = button.title = "Copy code";
+			}, 1500);
+		});
+	});
+	document.querySelectorAll<HTMLElement>("[data-prose]").forEach(prose => { prose.dataset.proseReady = "true"; });
+</script>

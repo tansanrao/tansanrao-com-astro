@@ -5,6 +5,7 @@ import ReadingLayout from "$layouts/ReadingLayout.astro";
 import ArticleHeader from "$components/ArticleHeader.astro";
 import Position from "$components/Position.astro";
 import Sensitive from "$components/Sensitive.astro";
+import Prose from "$components/Prose.astro";
 import { getReadingStats } from "$lib/reading";
 
 export async function getStaticPaths() {
@@ -22,7 +23,7 @@ const { words } = getReadingStats(entry.body);
 		<ArticleHeader slot="header" variant="notes" title={entry.data.title} timestamp={entry.data.timestamp} tags={entry.data.tags} {words} />
 
 		<Sensitive back="/notes" sensitive={entry.data.sensitive}>
-			<section id="markdown-content" data-reading-body class="markdown"><Content /></section>
+			<Prose as="section" id="markdown-content" data-reading-body><Content /></Prose>
 		</Sensitive>
 
 		<Position slot="controls" />

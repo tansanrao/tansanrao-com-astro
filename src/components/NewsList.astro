@@ -1,6 +1,7 @@
 ---
 import { render, type CollectionEntry } from "astro:content";
 import Time from "$lib/time";
+import Prose from "./Prose.astro";
 
 interface Props {
 	entries: CollectionEntry<"news">[];
@@ -14,12 +15,12 @@ const items = await Promise.all(entries.map(async entry => ({ ...entry, content:
 	{
 		items.map((entry, index) => (
 			<li class:list={["news-row grid items-start gap-3 py-5 md:gap-5", index > 0 && "border-t border-shadow/60"]}>
-				<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-sm text-secondary md:pt-1">
+				<time datetime={entry.data.timestamp.toISOString()} title={Time.toString(entry.data.timestamp)} class="font-mono text-sm text-secondary md:pt-1">
 					{Time.toLocaleDateString(entry.data.timestamp, "en")}
 				</time>
-				<article class="markdown news-body text-base leading-relaxed">
+				<Prose as="article" class="news-body text-base leading-relaxed">
 					<entry.content />
-				</article>
+				</Prose>
 			</li>
 		))
 	}
@@ -30,15 +31,15 @@ const items = await Promise.all(entries.map(async entry => ({ ...entry, content:
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.news-body > :first-child {
+	.news-row :global(.news-body > :first-child) {
 		margin-top: 0;
 	}
 
-	.news-body > :last-child {
+	.news-row :global(.news-body > :last-child) {
 		margin-bottom: 0;
 	}
 
-	.news-body p {
+	.news-row :global(.news-body p) {
 		margin: 0;
 	}
 

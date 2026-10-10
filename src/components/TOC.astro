@@ -47,6 +47,8 @@ for (const heading of headings ?? []) {
 	#toc.active {
 		transform: translateX(0);
 		visibility: visible;
+		/* Make the panel focusable immediately; only its position animates on opening. */
+		transition: transform 180ms ease;
 	}
 	#toc-close {
 		width: 44px;
@@ -177,6 +179,7 @@ for (const heading of headings ?? []) {
 	}
 	@media (prefers-reduced-motion: reduce) {
 		#toc,
+		#toc.active,
 		#toc-overlay {
 			transition: none;
 		}
@@ -184,7 +187,7 @@ for (const heading of headings ?? []) {
 </style>
 
 <div id="toc-overlay" data-drawer-overlay="toc" aria-hidden="true" data-inline-from={inlineFrom}></div>
-<aside id="toc" data-drawer="toc" data-drawer-inline-from={inlineFrom} aria-hidden="true" aria-label="Page navigation" inert>
+<aside id="toc" data-drawer="toc" data-drawer-inline-from={inlineFrom} aria-label="Page navigation">
 	<button id="toc-close" type="button" data-drawer-close="toc" aria-label="Close Table of Contents">
 		<Icon name="lucide--x" />
 	</button>
@@ -219,3 +222,22 @@ for (const heading of headings ?? []) {
 		}
 	</div>
 </aside>
+
+<style>
+	:global(html:not([data-drawers-ready])) #toc {
+		position: static; visibility: visible; transform: none; width: auto; height: auto; max-height: none; padding: 0;
+	}
+</style>
+
+<script>
+	import "$lib/drawers";
+	const indicators = new Map(Array.from(document.querySelectorAll("li[id^='indicator-']")).map(indicator => [indicator.id.replace(/^indicator-/, ""), indicator]));
+	const observer = new IntersectionObserver(entries => {
+		for (const { target, isIntersecting } of entries) {
+			const slug = target.getAttribute("aria-labelledby");
+			if (slug) indicators.get(slug)?.classList.toggle("indicate", isIntersecting);
+		}
+	});
+	// IntersectionObserver also reports when a closed content warning reveals these sections.
+	document.querySelector("#markdown-content")?.querySelectorAll("section[data-heading-rank]").forEach(section => observer.observe(section));
+</script>

@@ -100,7 +100,7 @@ const buildTimestamp = __BUILD_TIMESTAMP_UTC__;
 		<span>·</span>
 		<Icon name="lucide--activity" title={`Wrote ${totalWords} ${totalWords === 1 ? "word" : "words"}`} />
 		<span>·</span>
-		<time datetime={buildTimestamp}>last updated at: {Time.toString(buildTimestamp)}</time>
+		<time datetime={buildTimestamp} title={Time.toString(buildTimestamp)}>last updated at: {Time.toString(buildTimestamp)}</time>
 		<!-- {
 			policy && (
 				<>

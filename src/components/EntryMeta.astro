@@ -13,10 +13,10 @@ export interface Props {
 const { timestamp, updatedTimestamp, series, tags, words } = Astro.props;
 ---
 
-<time datetime={timestamp.toISOString()}><Icon name="lucide--calendar" />{Time.toString(timestamp)}</time>
+<time datetime={timestamp.toISOString()} title={Time.toString(timestamp)}><Icon name="lucide--calendar" />{Time.toString(timestamp)}</time>
 {
 	updatedTimestamp && (
-		<time datetime={updatedTimestamp.toISOString()}>
+		<time datetime={updatedTimestamp.toISOString()} title={Time.toString(updatedTimestamp)}>
 			<Icon name="lucide--refresh-cw" />
 			Updated {Time.toString(updatedTimestamp)}
 		</time>
