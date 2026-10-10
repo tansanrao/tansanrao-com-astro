@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
+import { fade } from "svelte/transition";
 
 let { sensitive = false, back, children }: { sensitive: boolean; back: string; children: Snippet } = $props();
 

@@ -75,11 +75,10 @@ const CANCEL_MESSAGE = "Operation cancelled";
 				.replace(/^-+|-+$/g, "");
 
 		// Prompt user to input content ID (filename)
-		let id: string | symbol = slugify(title);
-		id = await text({
+		const id = await text({
 			message: "Content ID (Filename)",
 			placeholder: "Enter content ID...",
-			initialValue: id,
+			initialValue: slugify(title),
 			validate: value =>
 				value && value === slugify(value)
 					? undefined

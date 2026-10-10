@@ -1,5 +1,6 @@
 <script lang="ts">
 import { untrack } from "svelte";
+import { flip } from "svelte/animate";
 import config from "$config";
 import Icon from "$components/Icon.svelte";
 import Pagination from "$components/Pagination.svelte";

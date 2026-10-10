@@ -286,7 +286,7 @@ function sectionize(children: readonly HastNode[]) {
 			properties: {
 				className: ["heading"],
 				dataHeadingRank: rank,
-				...(typeof id === "string" ? { ariaLabelledBy: id } : {})
+				...(typeof id === "string" ? { ariaLabelledBy: [id] } : {})
 			},
 			children: [child]
 		};
