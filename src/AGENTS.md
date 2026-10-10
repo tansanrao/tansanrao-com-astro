@@ -1,8 +1,9 @@
 # Design system
 
-`styles/tokens.css` owns the site's design values. The homepage, shared header,
-and footer are migrated; other pages are pending review. Do not migrate those
-pages merely to make them match while working on the homepage.
+`styles/tokens.css` owns the site's design values. The homepage, Writing index,
+shared header, and footer are migrated; other pages are pending review. Do not
+migrate other pages unless requested. Archive and Pagination retain legacy Notes
+styles until the Garden redesign.
 
 - Use complete `--type-*` roles through `font: var(--type-...)`. Do not set local
   font sizes, weights, line heights, letter spacing, or font families, including

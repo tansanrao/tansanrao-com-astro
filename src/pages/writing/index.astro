@@ -25,8 +25,13 @@ const tags = Array.from(new Set(writingEntries.flatMap(entry => entry.data.tags)
 ---
 
 <Base title="Writing">
-	<main class="flex flex-col grow">
-		<h1 class="sr-only">Writing</h1>
+	<main class="writing-page">
+		<h1>Writing</h1>
 		<Archive kind="writing" size={config.pagination?.writing || 15} entries={list} {series} {tags} />
 	</main>
 </Base>
+
+<style>
+	.writing-page { display: flex; flex-direction: column; gap: var(--section-gap); }
+	h1 { font: var(--type-page); }
+</style>

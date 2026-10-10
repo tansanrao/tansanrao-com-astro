@@ -2,11 +2,12 @@
 import Icon from "./Icon.astro";
 interface Props {
 	pages: number;
+	kind: "writing" | "notes";
 }
-const { pages } = Astro.props;
+const { pages, kind } = Astro.props;
 ---
 
-<nav aria-label="Pagination" data-pagination hidden class="sticky bottom-0 flex items-center justify-center gap-3 mt-auto pb-1 text-secondary bg-background font-mono">
+<nav aria-label="Pagination" data-pagination hidden class={kind === "writing" ? "writing-pagination" : "legacy-pagination sticky bottom-0 flex items-center justify-center gap-3 mt-auto pb-1 text-secondary bg-background font-mono"}>
 	<button type="button" data-page="previous" aria-label="Previous page"><Icon name="lucide--arrow-left" class="rtl:-scale-x-100" /></button>
 	{Array.from({ length: pages }, (_, i) => i + 1).map(page => <>
 		<button type="button" data-page={page} aria-label={`Page ${page}`}>{page}</button>
@@ -18,7 +19,10 @@ const { pages } = Astro.props;
 </nav>
 
 <style>
-	button {
+	.writing-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2); padding-block: var(--space-4); color: var(--secondary-color); }
+	.writing-pagination button { display: inline-flex; align-items: center; justify-content: center; min-width: var(--control-size); min-height: var(--control-size); padding: var(--space-2); border-bottom: var(--border-width) solid transparent; font: var(--type-label); }
+	.writing-pagination button:not(:disabled):hover, .writing-pagination button[aria-current] { color: var(--accent-color); border-color: var(--accent-color); }
+	.legacy-pagination button {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -29,6 +33,6 @@ const { pages } = Astro.props;
 		font-size: 0.875rem;
 		transition: color 0.15s ease-in-out;
 	}
-	button:not(:disabled):hover, button[aria-current] { color: var(--accent-color); }
-	@media (max-width: 639px) { button { width: 40px; height: 40px; } }
+	.legacy-pagination button:not(:disabled):hover, .legacy-pagination button[aria-current] { color: var(--accent-color); }
+	@media (max-width: 639px) { .legacy-pagination button { width: 40px; height: 40px; } }
 </style>
