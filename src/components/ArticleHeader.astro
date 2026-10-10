@@ -5,16 +5,16 @@ import EntryMeta, { type Props as EntryMetaProps } from "$components/EntryMeta.a
 interface Props extends EntryMetaProps {
 	title: string;
 	authors?: { name: string; url?: string }[];
-	variant?: "blog" | "notes";
+	variant?: "writing" | "notes";
 }
 
-const { title, authors, variant = "blog", ...metadata } = Astro.props;
+const { title, authors, variant = "writing", ...metadata } = Astro.props;
 ---
 
 <header data-reading-header class="flex flex-col gap-4">
 	<h1 class="select-text">{title}</h1>
 	{
-		variant === "blog" ? (
+		variant === "writing" ? (
 			<div class="flex flex-wrap gap-x-4 gap-y-2 text-[0.875rem] text-secondary">
 				{authors && (
 					<span class="flex items-center gap-1">

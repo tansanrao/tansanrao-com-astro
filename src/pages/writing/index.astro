@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import { writingEntryPath } from "$lib/paths";
+import Base from "$layouts/Base.astro";
+import Archive from "$components/Archive.astro";
+import config from "$config";
+
+const writingEntries = await getCollection("writing", entry => !entry.data.draft);
+
+const list = writingEntries.map(entry => ({
+	id: entry.id,
+	url: writingEntryPath(entry),
+	data: {
+		title: entry.data.title,
+		publishedAt: entry.data.publishedAt,
+		series: entry.data.series,
+		tags: entry.data.tags,
+		sensitive: entry.data.sensitive,
+		top: entry.data.top
+	}
+}));
+
+const series = Array.from(new Set(writingEntries.map(entry => entry.data.series).filter((series): series is string => Boolean(series)))).sort();
+const tags = Array.from(new Set(writingEntries.flatMap(entry => entry.data.tags).filter((tag): tag is string => Boolean(tag)))).sort();
+---
+
+<Base title="Writing">
+	<main class="flex flex-col grow">
+		<h1 class="sr-only">Writing</h1>
+		<Archive kind="writing" size={config.pagination?.writing || 15} entries={list} {series} {tags} />
+	</main>
+</Base>

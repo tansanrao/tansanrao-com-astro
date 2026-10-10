@@ -19,6 +19,120 @@ To create a production build:
 pnpm build
 ```
 
+## Content and routes
+
+Schemas live in `src/content.config.ts`. Use Markdown with YAML frontmatter in
+`src/content/<collection>/<id>.md` (or `<id>/index.md` with colocated images).
+IDs are stable filenames, not regenerated from titles. `draft: true` excludes an
+entry from pages, indexes, and feeds. Underscore-prefixed Markdown is not loaded.
+All calendar-only dates must be quoted `"YYYY-MM-DD"` strings; timestamps include
+an offset, e.g. `2026-10-10T12:00:00-04:00`.
+
+| Collection | Route | Required metadata beyond the body |
+| --- | --- | --- |
+| `writing` | `/writing/YYYY/MM/{id}` | `title`, `publishedAt` |
+| `projects` | `/building/{id}` | `title`, `description`, `status`, `publishedAt` |
+| `notes` | `/garden/notes/{id}` | `title`, `publishedAt` |
+| `links` | `/garden/links#{id}` | `title`, `url`, `savedAt`, `kind` (`resource` or `site`) |
+| `books` | `/garden/books/{id}` | `title`, `authors` array, `status`, `addedAt` |
+| `photos` | `/photography/photos/{id}` | `image`, `alt`, `publishedAt` |
+| `photoCollections` | `/photography/collections/{id}`; `365` uses `/photography/365` | `title`, `kind` (`album` or `daily`); daily collections also require `challenge` |
+| `equipment` | Metadata referenced by photos | YAML files with `name`, `kind` (`camera`, `lens`, or `film`) |
+
+`pnpm new` creates Writing, Notes, or News entries. New collections can be authored
+directly using these schemas. Writing preserves authors, tags, series, TOC,
+content warnings, pin priority, canonical URLs, and syndication. `publishedAt`
+replaces `timestamp`, and `updatedAt` replaces `updatedTimestamp`; News retains
+its existing `timestamp`. Year/month routes use UTC, as the old blog did.
+
+Projects accept `in-progress`, `maintained`, `completed`, or `archived`; optional
+fields include `startedOn`, `endedOn`, `cover: { image, alt }`, `links: [{ label,
+url }]`, `technologies`, `tags`, and `relatedWriting` (Writing IDs). Books accept
+`to-read`, `reading`, `read`, `paused`, or `abandoned`; optional metadata includes
+`cover: { image, alt }`, `isbn`, `publicationYear`, `url`, `tags`, and
+`readingSessions: [{ startedOn, finishedOn }]`. Their bodies hold project
+descriptions and reading notes respectively. Links use their body for annotations;
+the former linkroll is imported as `site` entries (their `savedAt` is the migration
+date, not a claim about when the sites were first discovered).
+
+### Photography authoring
+
+A photo's body is its caption/story; `alt` separately describes its visual content.
+`takenOn` is the local calendar date, independent of publication time. Omit it when
+unknown (e.g. a film scan); do not substitute the scan date. Optional `takenAt`
+must include a timezone offset and match `takenOn`. Equipment references use the
+YAML file ID and are checked for existence and correct kind during a build.
+
+Example `src/content/photos/evening/index.md` (replace the image and metadata):
+
+```yaml
+---
+image: ./photo.jpg
+alt: Golden light falling across a brick wall
+publishedAt: 2026-10-10T20:00:00-04:00
+takenOn: "2026-10-10"
+takenAt: "2026-10-10T18:15:00-04:00"
+camera: my-camera
+settings:
+  focalLengthMm: 35
+  aperture: 2
+  exposureSeconds: 0.004
+  iso: 400
+  exposureCompensationEv: 0
+draft: true
+---
+An optional caption goes here.
+```
+
+Example `src/content/equipment/my-camera.yaml`:
+
+```yaml
+kind: camera
+name: My camera
+```
+
+Create `src/content/photoCollections/365.md` when the start date is known:
+
+```yaml
+---
+title: 365 — one photo a day
+kind: daily
+challenge:
+  startsOn: "2026-10-10"
+  days: 365
+entries:
+  - photo: evening
+    day: "2026-10-10"
+cover: evening
+draft: true
+---
+An optional collection introduction goes here.
+```
+
+Daily dates must be unique and inside the challenge window; gaps are allowed.
+Day numbers and progress are derived, so late publication does not renumber days.
+Albums use `kind: album`, omit `challenge` and entry `day`, and retain the order
+of `entries`. A photo can belong to multiple collections but only once in each.
+Covers must belong to their collection. Public collections cannot reference draft
+photos. Publish the photos before publishing their collection.
+
+Optional photo metadata: `title`, `lens`, `film`, `location` (a public place name),
+and `tags`. Dates/EXIF are currently entered in frontmatter; there is no automatic
+EXIF importer. Gallery/detail images are re-encoded as WebP; no original-download
+link or public GPS field is exposed. Calendar/equipment browsing and a separate
+photography feed are not part of this structural pass.
+
+### Migration
+
+`public/_redirects` freezes the old blog URLs and graph-image URLs as Cloudflare
+Pages 301 redirects. Astro reads the same map for local redirects and static HTML
+fallbacks; other static hosts need equivalent HTTP redirect rules. Do not rebuild
+legacy aliases from edited article dates. Old Notes/Garden aliases are removed.
+`/cv` redirects to `/about`; existing résumé anchors remain available. About reads
+the introduction Markdown and `src/data/resume.json`. `/feed.xml` remains the
+Writing/Notes Atom feed with existing item IDs. Home retains News and recent
+writing while the visual redesign is pending.
+
 ## Presentation and browser behavior
 
 The site renders static HTML with Astro and Tailwind. Pages select content and
@@ -29,10 +143,10 @@ compose components; they do not own reusable presentation or browser controllers
 - `Base.astro` assembles the site shell. `ReadingLayout.astro` owns reading geometry
   through header, default-content, and controls slots, independently of article styling.
 - `ArticleHeader`, `EntryMeta`, `NewsList`, `Icon`, and `Prose` share presentation.
-  Linkroll data lives in `src/data/linkroll.ts` and content remains Markdown/YAML.
+  Garden Links are content entries; content remains Markdown/YAML.
 - `Archive.astro` renders all summaries, then enhances them with tag intersection,
   optional series selection, and pagination. URLs retain repeated `tag`, `series`
-  (blog only), and `page` parameters; changes replace the current history entry.
+  (Writing only), and `page` parameters; changes replace the current history entry.
   Without JavaScript the full archive is readable, without filter/pagination controls.
 - Scripts live in their owning Astro components: prose copy/zoom, reading progress,
   TOC highlighting, heatmap, theme, and the native content-warning disclosure.

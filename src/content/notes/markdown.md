@@ -1,6 +1,6 @@
 ---
 title: Markdown Extension Manual
-timestamp: 2025-11-24 00:00:00+00:00
+publishedAt: 2025-11-24 00:00:00+00:00
 tags: [Site-Docs]
 description: Guide to the Markdown features supported by the site.
 ---

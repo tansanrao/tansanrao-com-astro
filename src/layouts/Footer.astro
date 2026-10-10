@@ -61,14 +61,14 @@ if (copyright.type === "CC0 1.0") {
 	if (copyright.type.includes("ND")) ccIcons.push("fa6-brands--creative-commons-nd"); // No derivatives
 }
 
-// Fetch blog and notes collections to calculate total word count
+// Fetch writing and notes collections to calculate total word count
 
-const blogEntries = await getCollection("blog", entry => {
+const writingEntries = await getCollection("writing", entry => {
 	return !entry.data.draft;
 });
 
-// Calculate total word count across all blog entries
-const blogWords = blogEntries.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
+// Calculate total word count across all writing entries
+const writingWords = writingEntries.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
 
 const notes = await getCollection("notes", entry => {
 	return !entry.data.draft;
@@ -78,7 +78,7 @@ const notes = await getCollection("notes", entry => {
 const notesWords = notes.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
 
 // Aggregate total word count
-const totalWords = blogWords + notesWords;
+const totalWords = writingWords + notesWords;
 const buildTimestamp = __BUILD_TIMESTAMP_UTC__;
 ---
 

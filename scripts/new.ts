@@ -16,11 +16,11 @@ const CANCEL_MESSAGE = "Operation cancelled";
 	// Determine the base content directory path
 	let path = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "content");
 
-	// Select content type: Blog, Notes, or News
+	// Select content type: Writing, Notes, or News
 	const contentType = await select({
 		message: "Select content type",
 		options: [
-			{ label: "Blog", value: "blog", hint: "In-depth, carefully conceived long-form works" },
+			{ label: "Writing", value: "writing", hint: "In-depth, carefully conceived long-form works" },
 			{ label: "Notes", value: "notes", hint: "Brief insights, scattered thoughts or daily observations" },
 			{ label: "News", value: "news", hint: "Timestamped personal updates and site announcements" }
 		]
@@ -46,7 +46,7 @@ const CANCEL_MESSAGE = "Operation cancelled";
 		// Generate filename from timestamp (e.g., 1970-01-01-00-00-00.md)
 		path = join(path, `${timestamp.substring(0, 19).replace(/[\s:]/g, "-")}.md`);
 	} else {
-		// Blog and Notes require additional metadata
+		// Writing and Notes require additional metadata
 		content += "## Start Writing\n\nStart your content here...";
 
 		// Prompt user to input article title
@@ -60,7 +60,7 @@ const CANCEL_MESSAGE = "Operation cancelled";
 		isCancel(title) && (cancel(CANCEL_MESSAGE), process.exit(0));
 
 		information.title = title;
-		information.timestamp = timestamp;
+		information.publishedAt = timestamp;
 
 		// Slugify function: Convert title to URL-friendly slug
 		// Normalizes Unicode, removes special characters, converts to lowercase and hyphens
@@ -88,8 +88,8 @@ const CANCEL_MESSAGE = "Operation cancelled";
 		// Exit if user cancels the input
 		isCancel(id) && (cancel(CANCEL_MESSAGE), process.exit(0));
 
-		// If content type is Blog, allow user to specify a series
-		if (contentType === "blog") {
+		// Writing can belong to a series.
+		if (contentType === "writing") {
 			// Prompt user to input series name (optional)
 			const series = await text({
 				message: "Series name (optional)",
@@ -132,7 +132,7 @@ const CANCEL_MESSAGE = "Operation cancelled";
 			message: "Select additional options",
 			options: [
 				{ label: "Mark as draft", value: "draft" },
-				...(contentType === "blog" ? [{ label: "Show table of contents", value: "toc" }] : []),
+				...(contentType === "writing" ? [{ label: "Show table of contents", value: "toc" }] : []),
 				{ label: "Pin this content", value: "top" },
 				{ label: "Mark as sensitive content", value: "sensitive" }
 			],

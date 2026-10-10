@@ -1,16 +1,16 @@
-interface TimestampedEntry {
+interface PublishedEntry {
 	id: string;
 	data: {
-		timestamp: Date;
+		publishedAt: Date;
 	};
 }
 
-export function blogEntryPath(entry: TimestampedEntry) {
-	const year = entry.data.timestamp.getUTCFullYear();
-	const month = String(entry.data.timestamp.getUTCMonth() + 1).padStart(2, "0");
-	return `/blog/${year}/${month}/${entry.id}`;
+export function writingEntryPath(entry: PublishedEntry) {
+	const year = entry.data.publishedAt.getUTCFullYear();
+	const month = String(entry.data.publishedAt.getUTCMonth() + 1).padStart(2, "0");
+	return `/writing/${year}/${month}/${entry.id}`;
 }
 
-export function blogEntryRestParam(entry: TimestampedEntry) {
-	return blogEntryPath(entry).replace(/^\/blog\//, "");
+export function writingEntryRestParam(entry: PublishedEntry) {
+	return writingEntryPath(entry).replace(/^\/writing\//, "");
 }

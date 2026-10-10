@@ -1,0 +1,34 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import Base from "$layouts/Base.astro";
+
+const projects = (await getCollection("projects", entry => !entry.data.draft)).sort(
+	(a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
+---
+
+<Base title="Building" description="Side projects, experiments, and things I’m building.">
+	<main class="flex flex-col gap-8 grow">
+		<header class="flex flex-col gap-3"><h1>Building</h1><p class="text-secondary">Side projects, experiments, and things I’m building.</p></header>
+		{projects.length === 0 && <p>Project write-ups are on their way.</p>}
+		<div class="grid gap-8 sm:grid-cols-2">
+			{
+				projects.map(({ id, data }) => (
+					<article class="flex flex-col gap-3">
+						{data.cover && <Image src={data.cover.image} alt={data.cover.alt} width={640} class="w-full h-auto" />}
+						<h2>
+							<a class="link" href={`/building/${id}`}>
+								{data.title}
+							</a>
+						</h2>
+						<>
+							<p class="text-sm text-secondary">{data.status.replaceAll("-", " ")}</p>
+							<p>{data.description}</p>
+						</>
+					</article>
+				))
+			}
+		</div>
+	</main>
+</Base>

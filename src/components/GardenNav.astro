@@ -1,0 +1,18 @@
+---
+const routes = [
+	{ label: "Overview", path: "/garden" },
+	{ label: "Notes", path: "/garden/notes" },
+	{ label: "Links", path: "/garden/links" },
+	{ label: "Books", path: "/garden/books" }
+];
+---
+
+<nav aria-label="Garden" class="flex flex-wrap gap-x-6 gap-y-2 border-b border-weak pb-3">
+	{
+		routes.map(route => (
+			<a class="link py-2" href={route.path} aria-current={Astro.url.pathname === route.path ? "page" : undefined}>
+				{route.label}
+			</a>
+		))
+	}
+</nav>

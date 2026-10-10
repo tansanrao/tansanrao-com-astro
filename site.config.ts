@@ -16,7 +16,7 @@ const config = siteConfig({
 	},
 	timezone: "UTC",
 	pagination: {
-		blog: 15,
+		writing: 15,
 		notes: 24
 	},
 	heatmap: {

@@ -3,22 +3,22 @@ import Time from "$lib/time";
 import Icon from "$components/Icon.astro";
 
 export interface Props {
-	timestamp: Date;
-	updatedTimestamp?: Date;
+	publishedAt: Date;
+	updatedAt?: Date;
 	series?: string;
 	tags?: string[];
 	words: number;
 }
 
-const { timestamp, updatedTimestamp, series, tags, words } = Astro.props;
+const { publishedAt, updatedAt, series, tags, words } = Astro.props;
 ---
 
-<time datetime={timestamp.toISOString()} title={Time.toString(timestamp)}><Icon name="lucide--calendar" />{Time.toString(timestamp)}</time>
+<time datetime={publishedAt.toISOString()} title={Time.toString(publishedAt)}><Icon name="lucide--calendar" />{Time.toString(publishedAt)}</time>
 {
-	updatedTimestamp && (
-		<time datetime={updatedTimestamp.toISOString()} title={Time.toString(updatedTimestamp)}>
+	updatedAt && (
+		<time datetime={updatedAt.toISOString()} title={Time.toString(updatedAt)}>
 			<Icon name="lucide--refresh-cw" />
-			Updated {Time.toString(updatedTimestamp)}
+			Updated {Time.toString(updatedAt)}
 		</time>
 	)
 }

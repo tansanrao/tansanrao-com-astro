@@ -1,0 +1,15 @@
+---
+import Base from "$layouts/Base.astro";
+import PhotoCollection from "$components/PhotoCollection.astro";
+import { getPhotography } from "$lib/photography";
+
+export async function getStaticPaths() {
+	const { collections } = await getPhotography();
+	return collections.filter(entry => entry.id !== "365").map(entry => ({ params: { id: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+---
+
+<Base title={entry.data.title} description={entry.data.description}>
+	<PhotoCollection {entry} />
+</Base>

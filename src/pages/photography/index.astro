@@ -1,0 +1,50 @@
+---
+import { Image } from "astro:assets";
+import Base from "$layouts/Base.astro";
+import { getPhotography, photoCollectionPath } from "$lib/photography";
+
+const { collections, photoById } = await getPhotography();
+---
+
+<Base title="Photography" description="One photo a day, and collections from along the way.">
+	<main class="flex flex-col gap-8 grow">
+		<header class="flex flex-col gap-3"><h1>Photography</h1><p class="text-secondary">One photo a day, and collections from along the way.</p></header>
+		{
+			!collections.some(collection => collection.id === "365") && (
+				<section class="flex flex-col gap-3">
+					<>
+						<h2>
+							<a class="link" href="/photography/365">
+								365 — one photo a day
+							</a>
+						</h2>
+						<p>A daily photography practice. Photos coming soon.</p>
+					</>
+				</section>
+			)
+		}
+		<div class="grid gap-8 sm:grid-cols-2">
+			{
+				collections.map(collection => {
+					const cover = photoById.get(collection.data.cover?.id ?? collection.data.entries[0]?.photo.id);
+					return (
+						<article class="flex flex-col gap-3">
+							{cover && (
+								<a href={photoCollectionPath(collection.id)}>
+									<Image src={cover.data.image} alt={cover.data.alt} width={640} format="webp" class="w-full h-auto" />
+								</a>
+							)}
+							<h2>
+								<a class="link" href={photoCollectionPath(collection.id)}>
+									{collection.data.title}
+								</a>
+							</h2>
+							<p class="text-secondary">{collection.data.entries.length} photos</p>
+							{collection.data.description && <p>{collection.data.description}</p>}
+						</article>
+					);
+				})
+			}
+		</div>
+	</main>
+</Base>

@@ -1,4 +1,5 @@
 // @ts-check
+import { readFileSync } from "node:fs";
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
 import sitemap from "@astrojs/sitemap";
@@ -9,10 +10,22 @@ import { flexokiDarkTheme, flexokiLightTheme } from "./src/styles/shiki/flexoki"
 
 const buildTimestampUtc = new Date().toISOString();
 
+// Use the checked-in migration snapshot, never the current content dates.
+// Astro normalizes trailing slashes; Cloudflare's explicit slash aliases stay in _redirects.
+const legacyRedirects = Object.fromEntries(
+	readFileSync(new URL("./public/_redirects", import.meta.url), "utf8")
+		.split("\n")
+		.filter(line => line.startsWith("/"))
+		.map(line => line.trim().split(/\s+/))
+		.filter(([source]) => !source.endsWith("/"))
+		.map(([source, destination]) => [source, { destination, status: 301 as const }])
+);
+
 // https://astro.build/config
 export default defineConfig({
 	site: "https://tansanrao.com",
 	trailingSlash: "never",
+	redirects: legacyRedirects,
 	markdown: {
 		processor: satteri({
 			mdastPlugins: markdownMdastPlugins,
@@ -40,7 +53,7 @@ export default defineConfig({
 		},
 		plugins: [tailwindcss()]
 	},
-	integrations: [sitemap()],
+	integrations: [sitemap({ filter: url => !/^\/(?:blog|cv)(?:\/|$)/.test(new URL(url).pathname) })],
 	fonts: [
 		{
 			name: "Source Serif 4",

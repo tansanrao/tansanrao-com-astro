@@ -1,0 +1,49 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "$layouts/Base.astro";
+import GardenNav from "$components/GardenNav.astro";
+import Prose from "$components/Prose.astro";
+import Time from "$lib/time";
+
+const links = await Promise.all(
+	(await getCollection("links", entry => !entry.data.draft))
+		.sort((a, b) => b.data.savedAt.getTime() - a.data.savedAt.getTime() || a.data.title.localeCompare(b.data.title))
+		.map(async entry => ({ ...entry, ...(await render(entry)) }))
+);
+---
+
+<Base title="Links">
+	<main class="flex flex-col gap-8 grow">
+		<h1>Links</h1>
+		<GardenNav />
+		{
+			(["resource", "site"] as const).map(kind => (
+				<section class="flex flex-col gap-6">
+					<h2>{kind === "site" ? "People and sites I follow" : "Saved resources"}</h2>
+					{!links.some(entry => entry.data.kind === kind) && <p class="text-secondary">Nothing here yet.</p>}
+					{links
+						.filter(entry => entry.data.kind === kind)
+						.map(({ id, data, Content }) => (
+							<article id={id} class="flex flex-col gap-2 border-b border-weak pb-4">
+								<h3>
+									<a class="link" href={data.url} rel="noopener noreferrer">
+										{data.title}
+									</a>
+								</h3>
+								<p class="text-sm text-secondary">
+									{data.author && `${data.author} · `}
+									<a href={`#${id}`} aria-label={`Permalink to ${data.title}`}>
+										<time datetime={data.savedAt.toISOString()}>Added {Time.toString(data.savedAt)}</time>
+									</a>
+								</p>
+								<Prose>
+									<Content />
+								</Prose>
+								{data.tags.length > 0 && <p class="text-sm text-secondary">{data.tags.map(tag => `#${tag}`).join(" · ")}</p>}
+							</article>
+						))}
+				</section>
+			))
+		}
+	</main>
+</Base>

@@ -4,27 +4,27 @@ import Pagination from "./Pagination.astro";
 import Time from "$lib/time";
 
 interface Props {
-	kind: "blog" | "notes";
+	kind: "writing" | "notes";
 	size: number;
 	entries: {
 		id: string;
 		url: string;
-		data: { title: string; timestamp: Date; series?: string; tags?: string[]; sensitive: boolean; top: number };
+		data: { title: string; publishedAt: Date; series?: string; tags?: string[]; sensitive: boolean; top: number };
 	}[];
 	series?: string[];
 	tags: string[];
 }
 
 const { kind, size, entries, series = [], tags } = Astro.props;
-const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.timestamp.getTime() - a.data.timestamp.getTime());
+const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 ---
 
 <archive-list data-kind={kind} data-size={size} class="flex flex-col-reverse sm:flex-row gap-10 grow">
-	<article class:list={["flex flex-col grow", { "gap-4": kind === "blog" }]}>
-		<div class:list={[kind === "blog" ? "flex flex-col gap-4" : "grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5"]}>
+	<article class:list={["flex flex-col grow", { "gap-4": kind === "writing" }]}>
+		<div class:list={[kind === "writing" ? "flex flex-col gap-4" : "grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5"]}>
 			{sorted.map(entry => (
 				<section data-entry data-tags={JSON.stringify(entry.data.tags ?? [])} data-series={entry.data.series} class:list={["flex flex-col", { "justify-center border-b border-dashed border-b-weak pb-1": kind === "notes" }]}>
-					{kind === "blog" ? (
+					{kind === "writing" ? (
 						<>
 							<div class="flex max-sm:flex-col">
 								<div class="leading-[1.55] *:inline *:align-middle">
@@ -37,7 +37,7 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.tim
 									{entry.data.tags?.map(tag => <a href={`?tag=${encodeURIComponent(tag)}`} data-tag-select={tag} class="max-sm:min-h-8 text-[0.875rem] text-remark sm:text-sm">#{tag}</a>)}
 								</span>
 							</div>
-							<time datetime={entry.data.timestamp.toISOString()} title={Time.toString(entry.data.timestamp)} class="font-mono text-[0.65rem] text-remark">{Time.toString(entry.data.timestamp)}</time>
+							<time datetime={entry.data.publishedAt.toISOString()} title={Time.toString(entry.data.publishedAt)} class="font-mono text-[0.65rem] text-remark">{Time.toString(entry.data.publishedAt)}</time>
 						</>
 					) : (
 						<>
@@ -53,14 +53,14 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.tim
 					)}
 				</section>
 			))}
-			<div data-empty hidden={sorted.length > 0} class="pt-[10vh] text-center text-secondary font-bold text-xl">No {kind === "blog" ? "blog posts" : "notes"} available</div>
+			<div data-empty hidden={sorted.length > 0} class="pt-[10vh] text-center text-secondary font-bold text-xl">No {kind === "writing" ? "articles" : "notes"} available</div>
 		</div>
 		<Pagination pages={Math.ceil(sorted.length / size)} />
 		<p data-status role="status" class="sr-only"></p>
 		<noscript><p class="text-sm text-secondary">Showing all entries. Filtering and pagination require JavaScript.</p></noscript>
 	</article>
 	<aside data-filters hidden class="sm:basis-50 shrink-0 flex flex-col gap-5">
-		{kind === "blog" && <section><h4>Series</h4><p>{series.map(item => <button type="button" data-series-toggle={item} aria-pressed="false">{item}</button>)}</p></section>}
+		{kind === "writing" && <section><h4>Series</h4><p>{series.map(item => <button type="button" data-series-toggle={item} aria-pressed="false">{item}</button>)}</p></section>}
 		<section><h4>Tag</h4><p>{tags.map(tag => <button type="button" data-tag-toggle={tag} aria-pressed="false">{tag}</button>)}</p></section>
 	</aside>
 </archive-list>
@@ -98,7 +98,7 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.tim
 	class ArchiveList extends HTMLElement {
 		connectedCallback() {
 			const size = Number(this.dataset.size);
-			const blog = this.dataset.kind === "blog";
+			const writing = this.dataset.kind === "writing";
 			const entries = Array.from(this.querySelectorAll<HTMLElement>("[data-entry]")).map(element => ({
 				element, tags: JSON.parse(element.dataset.tags!) as string[], series: element.dataset.series
 			}));
@@ -106,7 +106,7 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.tim
 			let pageParam = url.searchParams.has("page");
 			let page = Number(url.searchParams.get("page")) || 1;
 			let tags = url.searchParams.getAll("tag");
-			let series = blog ? url.searchParams.get("series") : null;
+			let series = writing ? url.searchParams.get("series") : null;
 			const render = () => {
 				const matching = entries.filter(entry => (!series || entry.series === series) && tags.every(tag => entry.tags.includes(tag)));
 				const pages = Math.ceil(matching.length / size);
@@ -136,11 +136,11 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.tim
 				// Move the trailing ellipsis before the current last page, without rebuilding buttons or losing focus.
 				const last = this.querySelector(`[data-page="${pages}"]`);
 				if (last) last.before(this.querySelector("[data-ellipsis-end]")!);
-				this.querySelector<HTMLElement>("[data-status]")!.textContent = `${matching.length} ${blog ? "posts" : "notes"}. Page ${page} of ${Math.max(1, pages)}.`;
+				this.querySelector<HTMLElement>("[data-status]")!.textContent = `${matching.length} ${writing ? "posts" : "notes"}. Page ${page} of ${Math.max(1, pages)}.`;
 				const url = new URL(location.href);
 				url.searchParams.delete("tag");
 				url.searchParams.delete("page");
-				if (blog) { url.searchParams.delete("series"); if (series) url.searchParams.set("series", series); }
+				if (writing) { url.searchParams.delete("series"); if (series) url.searchParams.set("series", series); }
 				for (const tag of tags) url.searchParams.append("tag", tag);
 				if (pageParam) url.searchParams.set("page", String(page));
 				history.replaceState(history.state, "", url);

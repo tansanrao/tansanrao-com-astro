@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { blogEntryPath } from "$lib/paths";
+import { writingEntryPath } from "$lib/paths";
 import config from "$config";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
@@ -9,26 +9,26 @@ import NewsList from "$components/NewsList.astro";
 import Logo from "$icons/site-logo.svg";
 
 const news = (await getCollection("news")).sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime());
-const blogEntries = await getCollection("blog", entry => !entry.data.draft);
+const writingEntries = await getCollection("writing", entry => !entry.data.draft);
 const notes = await getCollection("notes", entry => !entry.data.draft);
 const latestNews = news.slice(0, 3);
 
-let items: { id: string; type?: string; data: { timestamp: Date; tags?: string[]; [key: string]: any } }[] = [];
+let items: { id: string; type?: string; data: { publishedAt: Date; tags?: string[]; [key: string]: any } }[] = [];
 const sections = config.latest || "*";
 
-blogEntries.forEach(entry => {
-	Reflect.set(entry, "type", "blog");
-	Reflect.set(entry, "url", blogEntryPath(entry));
+writingEntries.forEach(entry => {
+	Reflect.set(entry, "type", "writing");
+	Reflect.set(entry, "url", writingEntryPath(entry));
 });
 notes.forEach(entry => {
 	Reflect.set(entry, "type", "notes");
-	Reflect.set(entry, "url", `/notes/${entry.id}`);
+	Reflect.set(entry, "url", `/garden/notes/${entry.id}`);
 });
 
-if (sections === "*" || sections.includes("blog")) items = items.concat(blogEntries);
+if (sections === "*" || sections.includes("writing")) items = items.concat(writingEntries);
 if (sections === "*" || sections.includes("notes")) items = items.concat(notes);
 
-const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime())[0];
+const latest = items.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())[0];
 ---
 
 <Base title="Home">
@@ -59,7 +59,7 @@ const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestam
 		{
 			latest && (
 				<footer class="flex items-center justify-center flex-wrap-reverse gap-10">
-					<Heatmap blogEntries={blogEntries} {notes} />
+					<Heatmap writingEntries={writingEntries} {notes} />
 
 					<blockquote class="grow flex flex-col">
 						<h4>Latest</h4>
@@ -70,12 +70,12 @@ const latest = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestam
 							</a>
 							<div class="flex gap-1">
 								{latest.data.tags?.map(tag => (
-									<a href={`/${latest.type}?tag=${encodeURIComponent(tag)}`} class="text-remark text-sm link">#{tag}</a>
+									<a href={`${latest.type === "notes" ? "/garden/notes" : "/writing"}?tag=${encodeURIComponent(tag)}`} class="text-remark text-sm link">#{tag}</a>
 								))}
 							</div>
 						</div>
-						<time datetime={latest.data.timestamp.toISOString()} title={Time.toString(latest.data.timestamp)} class="text-remark font-mono text-xs">
-							{Time.toString(latest.data.timestamp)}
+						<time datetime={latest.data.publishedAt.toISOString()} title={Time.toString(latest.data.publishedAt)} class="text-remark font-mono text-xs">
+							{Time.toString(latest.data.publishedAt)}
 						</time>
 					</blockquote>
 				</footer>

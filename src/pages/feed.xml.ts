@@ -3,7 +3,7 @@ import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection, render } from "astro:content";
 import { Feed } from "feed";
 import config from "$config";
-import { blogEntryPath } from "$lib/paths";
+import { writingEntryPath } from "$lib/paths";
 
 export const GET: APIRoute = async ({ site }) => {
 	const feed = new Feed({
@@ -24,23 +24,23 @@ export const GET: APIRoute = async ({ site }) => {
 	let items = [];
 	const sections = config.feed?.section || "*";
 
-	if (sections === "*" || sections.includes("blog")) {
-		const blogEntries = await getCollection("blog", entry => !entry.data.draft);
-		blogEntries.forEach(entry => {
-			Reflect.set(entry, "link", new URL(blogEntryPath(entry), site).toString());
+	if (sections === "*" || sections.includes("writing")) {
+		const writingEntries = await getCollection("writing", entry => !entry.data.draft);
+		writingEntries.forEach(entry => {
+			Reflect.set(entry, "link", new URL(writingEntryPath(entry), site).toString());
 		});
-		items.push(...blogEntries);
+		items.push(...writingEntries);
 	}
 
 	if (sections === "*" || sections.includes("notes")) {
 		const notes = await getCollection("notes", entry => !entry.data.draft);
 		notes.forEach(entry => {
-			Reflect.set(entry, "link", new URL(`/notes/${entry.id}`, site).toString());
+			Reflect.set(entry, "link", new URL(`/garden/notes/${entry.id}`, site).toString());
 		});
 		items.push(...notes);
 	}
 
-	items = items.sort((a, b) => b.data.timestamp.getTime() - a.data.timestamp.getTime()).slice(0, config.feed?.limit || items.length);
+	items = items.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()).slice(0, config.feed?.limit || items.length);
 
 	const container = await AstroContainer.create();
 	await Promise.all(
@@ -57,7 +57,7 @@ export const GET: APIRoute = async ({ site }) => {
 			id: item.id,
 			title: item.data.title,
 			link: (<any>item).link,
-			date: item.data.timestamp,
+			date: item.data.publishedAt,
 			content: item.data.sensitive
 				? `<p>This content may contain explicit, violent, bloody, or emotionally triggering material.</p><p>To read, please visit the <a href="${(<any>item).link}">original link</a>.</p>`
 				: item.rendered?.html,

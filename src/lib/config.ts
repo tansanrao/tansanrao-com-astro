@@ -6,7 +6,7 @@ type CCLicenseType = "CC0 1.0" | "CC BY 4.0" | "CC BY-SA 4.0" | "CC BY-NC 4.0" |
 /**
  * Content Section Type
  */
-export type Section = "blog" | "notes";
+export type Section = "writing" | "notes";
 
 interface SiteConfigOptions {
 	/** Site Title */

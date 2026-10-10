@@ -1,0 +1,36 @@
+import { getCollection } from "astro:content";
+
+/** Resolve the public photography graph and reject broken or mistyped references at build time. */
+export async function getPhotography() {
+	const [allPhotos, allCollections, equipment] = await Promise.all([
+		getCollection("photos"),
+		getCollection("photoCollections"),
+		getCollection("equipment")
+	]);
+	const photoById = new Map(allPhotos.map(photo => [photo.id, photo]));
+	const equipmentById = new Map(equipment.map(item => [item.id, item]));
+	for (const photo of allPhotos) {
+		for (const kind of ["camera", "lens", "film"] as const) {
+			const ref = photo.data[kind];
+			if (ref && equipmentById.get(ref.id)?.data.kind !== kind) {
+				throw new Error(`Photo ${photo.id}: ${kind} must reference existing ${kind} equipment (${ref.id})`);
+			}
+		}
+	}
+	for (const collection of allCollections) {
+		for (const entry of collection.data.entries) {
+			const photo = photoById.get(entry.photo.id);
+			if (!photo) throw new Error(`Collection ${collection.id}: missing photo ${entry.photo.id}`);
+			if (!collection.data.draft && photo.data.draft) {
+				throw new Error(`Collection ${collection.id}: publish photo ${photo.id} before including it in a public collection`);
+			}
+		}
+	}
+	const photos = allPhotos.filter(photo => !photo.data.draft);
+	const collections = allCollections.filter(collection => !collection.data.draft);
+	return { photos, collections, photoById, equipmentById };
+}
+
+export function photoCollectionPath(id: string) {
+	return id === "365" ? "/photography/365" : `/photography/collections/${id}`;
+}

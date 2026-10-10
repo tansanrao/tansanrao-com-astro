@@ -22,7 +22,7 @@ const { route, routes } = Astro.props;
 function active(path: string, extra?: string[]) {
 	if (extra?.some(item => item === route)) return true;
 	if (path === routes[0].path) return path === route;
-	return route.startsWith(path);
+	return route === path || route.startsWith(`${path}/`);
 }
 ---
 

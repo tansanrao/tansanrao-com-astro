@@ -2,7 +2,7 @@
 import { Temporal } from "temporal-polyfill";
 import config from "$config";
 import type { Section } from "$lib/config";
-import { blogEntryPath } from "$lib/paths";
+import { writingEntryPath } from "$lib/paths";
 import Time from "$lib/time";
 
 /**
@@ -12,7 +12,7 @@ interface ContentItem {
 	id: string;
 	data: {
 		title: string;
-		timestamp: Date;
+		publishedAt: Date;
 	};
 }
 
@@ -20,11 +20,11 @@ interface ContentItem {
  * Heatmap component props
  */
 interface Props {
-	blogEntries: ContentItem[];
+	writingEntries: ContentItem[];
 	notes: ContentItem[];
 }
 
-let { blogEntries, notes } = Astro.props;
+let { writingEntries, notes } = Astro.props;
 
 // Temporary storage for processed content and heatmap cells
 const contents: { section: Section; title: string; date: Temporal.PlainDate; link: string }[] = [];
@@ -34,13 +34,13 @@ const cells: { target: string; contents: typeof contents }[] = [];
 const frequency = config.heatmap?.unit || "day";
 const now = Time().toPlainDate();
 
-// Normalize blog entries and add to contents list
-blogEntries.forEach(entry => {
+// Normalize writing entries and add to contents list
+writingEntries.forEach(entry => {
 	contents.push({
-		section: "blog",
+		section: "writing",
 		title: entry.data.title,
-		date: Time(entry.data.timestamp.toISOString()).toPlainDate(),
-		link: blogEntryPath(entry)
+		date: Time(entry.data.publishedAt.toISOString()).toPlainDate(),
+		link: writingEntryPath(entry)
 	});
 });
 
@@ -49,8 +49,8 @@ notes.forEach(entry => {
 	contents.push({
 		section: "notes",
 		title: entry.data.title,
-		date: Time(entry.data.timestamp.toISOString()).toPlainDate(),
-		link: `/notes/${entry.id}`
+		date: Time(entry.data.publishedAt.toISOString()).toPlainDate(),
+		link: `/garden/notes/${entry.id}`
 	});
 });
 
@@ -124,17 +124,17 @@ if (frequency === "month") {
 
 			// Generate details for the popup based on cell content
 			if (count) {
-				const blogEntries = cell.contents.filter(content => content.section === "blog");
+				const writingEntries = cell.contents.filter(content => content.section === "writing");
 				const notes = cell.contents.filter(content => content.section === "notes");
 
-				if (blogEntries.length) {
+				if (writingEntries.length) {
 					if (frequency === "month") {
-						details.push(<p>{blogEntries.length} {blogEntries.length === 1 ? "blog post" : "blog posts"}</p>);
+						details.push(<p>{writingEntries.length} {writingEntries.length === 1 ? "article" : "articles"}</p>);
 					} else {
 						details.push(
-							<p class="my-1">{blogEntries.length} {blogEntries.length === 1 ? "blog post" : "blog posts"}:</p>,
+							<p class="my-1">{writingEntries.length} {writingEntries.length === 1 ? "article" : "articles"}:</p>,
 							<ul class="flex flex-col gap-0.5">
-								{blogEntries.map(entry => (
+								{writingEntries.map(entry => (
 									<li>
 										<a href={entry.link} aria-label={entry.title} class="ms-1 link">
 											{entry.title}
