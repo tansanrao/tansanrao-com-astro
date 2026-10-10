@@ -8,7 +8,6 @@
 		"astro",
 		"theme",
 		"blog",
-		"svelte",
 		"typescript"
 	],
 	"license": "GPL-3.0",
@@ -21,7 +20,7 @@
 	},
 	"packageManager": "pnpm@12.11.2",
 	"scripts": {
-		"new": "tsx --loader esm-loader-yaml scripts/new.ts",
+		"new": "tsx scripts/new.ts",
 		"dev": "astro dev --host",
 		"check": "astro check",
 		"test": "vitest run",
@@ -34,14 +33,11 @@
 	},
 	"dependencies": {
 		"@astrojs/markdown-satteri": "0.4.3",
-		"@astrojs/mdx": "8.0.3",
 		"@astrojs/sitemap": "^3.7.4",
-		"@astrojs/svelte": "^9.0.1",
 		"@iconify-json/fa6-brands": "^1.2.6",
 		"@iconify-json/lucide": "^1.2.142",
 		"@iconify-json/simple-icons": "^1.2.99",
 		"@iconify/tailwind4": "^1.2.3",
-		"@swup/astro": "^1.8.0",
 		"@tailwindcss/vite": "^4.3.3",
 		"astro": "^7.3.8",
 		"feed": "^5.2.1",
@@ -49,7 +45,6 @@
 		"medium-zoom": "^1.1.0",
 		"reading-time": "^1.5.0",
 		"satteri": "^0.10.5",
-		"svelte": "^5.57.2",
 		"tailwindcss": "^4.3.3",
 		"temporal-polyfill": "^0.3.2",
 		"typescript": "^5.9.3"
@@ -58,22 +53,17 @@
 		"@astrojs/check": "^0.9.10",
 		"@biomejs/biome": "2.4.4",
 		"@clack/prompts": "^1.8.1",
-		"@types/css-tree": "^2.3.11",
-		"css-tree": "^3.2.1",
-		"esm-loader-yaml": "^1.0.2",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
 		"prettier": "3.8.1",
 		"prettier-plugin-astro": "0.14.1",
-		"prettier-plugin-svelte": "^3.5.2",
 		"satori": "^0.19.3",
 		"sharp": "^0.34.5",
 		"tsx": "^4.23.15",
-		"unifont": "^0.7.5",
 		"vitest": "^4.1.11"
 	},
 	"lint-staged": {
-		"*.{js,ts,json,jsonc,css,svelte,astro}": [
+		"*.{js,ts,json,jsonc,css,astro}": [
 			"biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
 		]
 	}

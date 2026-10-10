@@ -1,11 +1,4 @@
 {
-	"recommendations": [
-		"astro-build.astro-vscode",
-		"bradlc.vscode-tailwindcss",
-		"svelte.svelte-vscode",
-		"unifiedjs.vscode-mdx",
-		"yzhang.markdown-all-in-one",
-		"biomejs.biome"
-	],
+	"recommendations": ["astro-build.astro-vscode", "bradlc.vscode-tailwindcss", "yzhang.markdown-all-in-one", "biomejs.biome"],
 	"unwantedRecommendations": []
 }

@@ -1,9 +1,7 @@
 // @ts-check
 import { defineConfig, fontProviders } from "astro/config";
 import { satteri } from "@astrojs/markdown-satteri";
-import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 
 import { markdownHastPlugins, markdownMdastPlugins } from "./src/lib/markdown/plugins";
@@ -42,7 +40,7 @@ export default defineConfig({
 		},
 		plugins: [tailwindcss()]
 	},
-	integrations: [svelte(), mdx(), sitemap()],
+	integrations: [sitemap()],
 	fonts: [
 		{
 			name: "Source Serif 4",

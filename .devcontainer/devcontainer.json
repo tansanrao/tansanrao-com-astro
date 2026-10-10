@@ -13,14 +13,7 @@
 	},
 	"customizations": {
 		"vscode": {
-			"extensions": [
-				"astro-build.astro-vscode",
-				"bradlc.vscode-tailwindcss",
-				"svelte.svelte-vscode",
-				"unifiedjs.vscode-mdx",
-				"yzhang.markdown-all-in-one",
-				"biomejs.biome"
-			]
+			"extensions": ["astro-build.astro-vscode", "bradlc.vscode-tailwindcss", "yzhang.markdown-all-in-one", "biomejs.biome"]
 		}
 	},
 	"postCreateCommand": "corepack enable && corepack prepare pnpm@10.32.1 --activate && corepack pnpm install"

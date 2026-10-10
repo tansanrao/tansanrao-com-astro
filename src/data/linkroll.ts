@@ -1,33 +1,29 @@
-import Linkroll from "$components/Linkroll.astro";
-
 export const links = [
 	{
 		title: "Egor Lukiyanov",
 		url: "https://egor.lukiyanov.name",
 		image: "https://egor.lukiyanov.name/favicon.svg",
-		description: "Personal Blog",
+		description: "Personal Blog"
 	},
 	{
 		title: "Eric Schneider",
 		url: "https://eric-unc.tech",
-		description: "Personal Blog",
+		description: "Personal Blog"
 	},
 	{
 		title: "Kavya Shekar",
 		url: "https://avyask.com",
 		image: "https://avyask.com/favicon.svg",
-		description: "Personal Blog",
+		description: "Personal Blog"
 	},
 	{
 		title: "Milo Craun",
 		url: "https://milocraun.com",
-		description: "Personal Blog",
+		description: "Personal Blog"
 	},
 	{
 		title: "Siddharth Chintamaneni",
 		url: "https://sidchintamaneni.com",
-		description: "Personal Blog",
+		description: "Personal Blog"
 	}
 ];
-
-<Linkroll links={links} />

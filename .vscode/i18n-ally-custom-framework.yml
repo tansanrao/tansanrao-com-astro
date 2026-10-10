@@ -6,7 +6,6 @@ languageIds:
   - javascript
   - typescript
   - astro
-  - svelte
 
 # An array of RegExes to find the key usage. **The key should be captured in the first match group**.
 # You should unescape RegEx strings in order to fit in the YAML file

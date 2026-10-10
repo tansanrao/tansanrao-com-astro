@@ -69,7 +69,7 @@ const news = defineCollection({
  */
 const information = defineCollection({
 	// Load both markdown and YAML files for mixed content types
-	loader: glob({ pattern: "**/*.{md,mdx,yaml}", base: "./src/content/information" })
+	loader: glob({ pattern: "**/*.{md,yaml}", base: "./src/content/information" })
 });
 
 export const collections = { blog, notes, news, information };
