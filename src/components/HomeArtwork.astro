@@ -1,0 +1,79 @@
+---
+interface Props {
+	kind: "project" | "tablet" | "notes" | "books" | "links" | "landscape" | "architecture" | "botanical";
+}
+const { kind } = Astro.props;
+const scene = ["landscape", "architecture", "botanical"].includes(kind);
+---
+
+<svg viewBox="0 0 240 160" preserveAspectRatio={scene ? "xMidYMid slice" : "xMidYMid meet"} aria-hidden="true" focusable="false" class="home-artwork">
+	{kind === "project" && <g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+		<g transform="rotate(-7 85 80)">
+			<rect x="12" y="22" width="137" height="116" rx="3" fill="var(--background-color)" />
+			<circle cx="26" cy="35" r="3" fill="var(--accent-color)" stroke="none" />
+			<circle cx="36" cy="35" r="3" fill="var(--weak-color)" stroke="none" />
+			<circle cx="46" cy="35" r="3" fill="var(--shadow-color)" stroke="none" />
+			{[57, 78, 99, 120].map(y => <><circle cx="28" cy={y} r="4" /><path d={`M42 ${y - 3}h74 M42 ${y + 3}h48`} stroke="var(--weak-color)" /></>)}
+		</g>
+		<g transform="rotate(3 174 96)">
+			<rect x="117" y="48" width="108" height="103" rx="3" fill="var(--background-color)" />
+			<path d="M132 63h22 M132 80h69 M132 88h58 M132 102h74 M132 110h61 M132 118h68 M132 126h44" stroke="var(--weak-color)" />
+			<circle cx="199" cy="64" r="2" /><circle cx="209" cy="64" r="2" />
+		</g>
+	</g>}
+	{kind === "tablet" && <g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+		<g transform="rotate(-5 108 82)">
+			<rect x="22" y="13" width="170" height="136" rx="5" fill="var(--background-color)" />
+			<rect x="29" y="20" width="156" height="122" rx="2" />
+			<path d="M109 27v108" stroke="var(--shadow-color)" />
+			{[38, 45, 52, 59, 66, 73, 80, 87, 94, 101, 108, 115, 122].map(y => <path d={`M42 ${y}h54 M122 ${y}h48`} stroke="var(--weak-color)" />)}
+			<rect x="122" y="62" width="48" height="30" fill="var(--shadow-color)" stroke="none" />
+		</g>
+		<path d="m193 135 24-91q3-7 9-3l-24 94-11 14z M217 48l7 2 M193 135l9 0" fill="var(--background-color)" />
+	</g>}
+	{kind === "notes" && <g stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+		<path d="m25 39 64-8 32 6 61-7 9 94-64 6-34-7-60 7z" fill="var(--background-color)" />
+		<path d="m89 31 4 92 M121 37l6 93 M32 43l7 78 M46 52l31-4 M47 64l32-4 M49 76l32-4 M50 88l32-4 M52 100l30-4 M134 51l33-4 M135 64l33-4 M136 77l33-4 M137 90l33-4" stroke="var(--weak-color)" />
+		<path d="m153 100 52 7-7 44-53-8z" fill="var(--block-color)" />
+		<path d="m161 112 31 4 M159 123l29 4 M157 134l19 3" stroke="var(--weak-color)" />
+		<path d="m170 107 38-80q4-5 8 1l-36 80-13 10z M170 107l10 1 M206 32l7 3" fill="var(--background-color)" />
+	</g>}
+	{kind === "books" && <g stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+		<path d="m28 101 111-15 71 18-17 37-107 8-59-20q-9-12 1-28z" fill="var(--background-color)" />
+		<path d="m31 106 55 20 110-13 M86 126v23 M38 113l39 14 M37 120l39 14 M101 133l78-8" stroke="var(--weak-color)" />
+		<path d="m46 60 99-10 62 17-7 31-108 13-55-16q-8-20 9-35z" fill="var(--background-color)" />
+		<path d="m46 66 51 15 102-11 M97 81l-5 30 M49 76l35 10 M48 85l34 10 M110 88l77-10" stroke="var(--weak-color)" />
+		<path d="m39 31 112-17 52 14-15 29-104 8-50-16q-5-10 5-18z" fill="var(--background-color)" />
+		<path d="m39 35 51 16 105-18 M90 51l-6 14 M44 43l29 10 M105 56l68-8" stroke="var(--weak-color)" />
+		<path d="m161 118 15-2-2 29-8-7-7 8z" fill="var(--accent-color)" />
+	</g>}
+	{kind === "links" && <g stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+		<path d="m51 38 117-10 19 107-121 14z" fill="var(--background-color)" />
+		<path d="m101 39 96 10-11 100-101-9z" fill="var(--block-color)" />
+		<path d="M78 24h99v117H78z" fill="var(--background-color)" />
+		<path d="M91 44h36 M91 57h69 M91 68h58 M91 79h65 M91 90h60 M91 101h66 M91 112h54 M91 123h33" stroke="var(--weak-color)" />
+		<path d="m154 40 4-23q2-11 10-9 8 2 5 12l-6 32q-3 9-10 7-7-2-5-11l6-31q1-4 4-3 3 0 2 5l-5 28" stroke="var(--accent-color)" stroke-width="3" />
+	</g>}
+	{kind === "landscape" && <>
+		<path fill="var(--shadow-color)" d="M0 0h240v160H0z" />
+		<circle cx="93" cy="42" r="16" fill="var(--background-color)" />
+		<path d="m0 97 40-24 70 35 48-16 82 19v49H0z" fill="var(--weak-color)" opacity=".55" />
+		<path d="M0 133q54-4 85-24t65-6 90-15v72H0z" fill="var(--secondary-color)" opacity=".22" />
+	</>}
+	{kind === "architecture" && <>
+		<path fill="var(--shadow-color)" d="M0 0h240v160H0z" />
+		<path fill="var(--weak-color)" opacity=".35" d="m0 33 151 81v46H0z" />
+		<path fill="var(--block-color)" d="m0 137 240-93v116H0z" />
+		<path stroke="var(--weak-color)" opacity=".3" d="m16 143 180-70 M47 154l168-64 M100 154l126-48" />
+	</>}
+	{kind === "botanical" && <>
+		<path fill="var(--block-color)" d="M0 0h240v160H0z" />
+		<path fill="var(--shadow-color)" d="M0 0h208L0 157z" />
+		<path d="m103 165 12-83 10-31 M113 106l-16-17 M116 86l19-18 M109 135l-22-15 M112 118l19-11" stroke="var(--secondary-color)" stroke-width="2" />
+		<g fill="var(--secondary-color)"><ellipse cx="96" cy="86" rx="3" ry="7" transform="rotate(-30 96 86)" /><ellipse cx="136" cy="67" rx="3" ry="6" transform="rotate(30 136 67)" /><ellipse cx="125" cy="50" rx="3" ry="6" /><ellipse cx="86" cy="118" rx="3" ry="7" transform="rotate(-40 86 118)" /><ellipse cx="133" cy="105" rx="3" ry="6" transform="rotate(45 133 105)" /></g>
+	</>}
+</svg>
+
+<style>
+	.home-artwork { display: block; width: 100%; height: 100%; fill: none; color: var(--secondary-color); }
+</style>

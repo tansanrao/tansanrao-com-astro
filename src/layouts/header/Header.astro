@@ -7,11 +7,10 @@ const { title } = Astro.props;
 
 /** Define navigation routes configuration */
 const routes: { path: string; extra?: string[]; label: string }[] = [
-	{ label: "Home", path: "/", extra: ["/news"] },
-	{ label: "Writing", path: "/writing" },
 	{ label: "Building", path: "/building" },
-	{ label: "Photography", path: "/photography" },
+	{ label: "Writing", path: "/writing" },
 	{ label: "Garden", path: "/garden" },
+	{ label: "Photography", path: "/photography" },
 	{ label: "About", path: "/about" }
 ];
 
@@ -19,80 +18,91 @@ const route = Astro.url.pathname;
 ---
 
 <style>
-	#sidebar {
-		transform: translateX(100%);
+	@reference "../../styles/global.css";
 
-		&:is([dir="rtl"] *) {
-			transform: translateX(-100%);
-		}
-
-		&.active {
-			transform: translateX(0);
-		}
+	.site-header {
+		display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); padding-block: var(--space-4); margin-bottom: var(--space-8); background: var(--background-color);
+		@variant sm { padding-block: var(--space-6); margin-bottom: var(--space-12); }
+	}
+	.site-name { font: var(--type-body-strong); }
+	#primary-navigation {
+		width: 100%; display: flex; flex-direction: column; gap: var(--space-4);
+		padding-block: var(--space-4); border-block: var(--border-width) solid var(--shadow-color);
+		@variant sm { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-6); padding: 0; border: 0; }
+		@variant md { width: auto; margin-inline-start: auto; }
 	}
 
-	@media (min-width: 640px) {
-		#sidebar {
-			transform: none;
-		}
+	.navigation-links {
+		display: flex; flex-direction: column; gap: var(--space-2);
+		@variant sm { flex-direction: row; flex-wrap: wrap; align-items: center; }
+	}
+	.navigation-actions {
+		display: flex; align-items: center; gap: var(--space-2);
+		@variant sm { border-inline-start: var(--border-width) solid var(--shadow-color); padding-inline-start: var(--space-2); }
 	}
 
-	#sidebar-overlay {
-		pointer-events: none;
-		background-color: transparent;
-
-		&.active {
-			pointer-events: auto;
-			background-color: var(--overlay-color);
-		}
-	}
-
-	@media (min-width: 640px) and (max-width: 1099px) {
-		.site-header { flex-wrap: wrap; gap: 1rem; }
-		#sidebar { width: 100%; justify-content: space-between; gap: 1rem; }
-		#sidebar > header { flex-wrap: wrap; }
-		#sidebar > footer { flex-shrink: 0; gap: 1rem; }
-	}
-
-	@media (min-width: 1100px) {
-		.site-header { gap: 1rem; }
-		#sidebar { gap: 1rem; }
-		#sidebar > header { gap: 0; }
-		#sidebar > footer { gap: 1rem; flex-shrink: 0; }
-	}
+	#menu-toggle [data-menu-open] { display: contents; }
+	#menu-toggle [data-menu-close],
+	#menu-toggle[aria-expanded="true"] [data-menu-open] { display: none; }
+	#menu-toggle[aria-expanded="true"] [data-menu-close] { display: contents; }
 </style>
 
-<header class="site-header sticky top-0 flex items-center justify-between mb-4 bg-background z-100 sm:static sm:pt-3 sm:pb-1 sm:mb-12">
-	<a href="/" class="select-text text-lg sm:text-2xl font-bold">{title}</a>
+<header class="site-header relative z-100">
+	<a href="/" aria-current={route === "/" ? "page" : undefined} class="site-name">{title}</a>
 
-	<button id="sidebar-open" type="button" data-drawer-open="sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Open Sidebar" class="sm:hidden size-11 items-center justify-center"><Icon name="lucide--align-justify" /></button>
-	<div id="sidebar-overlay" data-drawer-overlay="sidebar" aria-hidden="true" class="sm:hidden fixed top-0 inset-s-0 w-screen h-screen transition-[background-color] z-110"></div>
+	<button id="menu-toggle" type="button" hidden aria-controls="primary-navigation" aria-expanded="false" aria-label="Open menu" class="icon-control">
+		<span data-menu-open><Icon name="lucide--align-justify" /></span>
+		<span data-menu-close><Icon name="lucide--x" /></span>
+	</button>
 
-	<nav id="sidebar" data-drawer="sidebar" aria-label="Primary" class="fixed top-0 inset-e-0 w-64 max-w-[85vw] flex flex-col justify-between items-start gap-5 p-5 bg-background h-full sm:static sm:inset-auto sm:w-auto sm:max-w-none sm:ml-auto sm:flex-row sm:items-center sm:justify-end sm:gap-7 sm:p-0 sm:h-auto overflow-y-auto sm:overflow-visible transition-transform z-120">
-		<header class="grid gap-5 text-secondary sm:flex sm:items-center sm:justify-end sm:gap-2">
-			<button id="sidebar-close" type="button" data-drawer-close="sidebar" aria-label="Close Sidebar" class="sm:hidden size-11 items-center justify-center -m-2 mb-0"><Icon name="lucide--x" /></button>
+	<nav id="primary-navigation" aria-label="Primary">
+		<div class="navigation-links">
 			<Navigator {route} {routes} />
-		</header>
+		</div>
 
-		<footer class="flex flex-col items-start gap-2 sm:flex-row sm:gap-7">
+		<div class="navigation-actions">
 			<ThemeSwitcher />
 
-			<a href="/feed.xml" target="_blank" rel="noopener noreferrer" aria-label="Subscription" class="inline-flex size-11 sm:size-auto items-center justify-center"><Icon name="lucide--rss" /></a>
-		</footer>
+			<a href="/feed.xml" target="_blank" rel="noopener noreferrer" aria-label="Subscription" class="icon-control"><Icon name="lucide--rss" /></a>
+		</div>
 	</nav>
 </header>
 
 <script>
-	import "$lib/drawers";
-</script>
+	const toggle = document.getElementById("menu-toggle")!;
+	const navigation = document.getElementById("primary-navigation")!;
+	const header = toggle.closest("header")!;
+	// Keep this threshold in sync with the shared sm breakpoint.
+	const desktop = matchMedia("(min-width: 640px)");
 
-<style>
-	@media (max-width: 639px) {
-		:global(html:not([data-drawers-ready])) .site-header { position: static; flex-wrap: wrap; }
-		:global(html:not([data-drawers-ready])) #sidebar {
-			position: static; transform: none; width: 100%; max-width: none; height: auto; padding: 0;
-		}
-		:global(html:not([data-drawers-ready])) #sidebar > header { display: flex; flex-wrap: wrap; gap: 12px; }
-		:global(html:not([data-drawers-ready])) #sidebar :global(a) { width: auto; }
+	function setExpanded(expanded: boolean) {
+		toggle.setAttribute("aria-expanded", String(expanded));
+		toggle.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
+		navigation.hidden = !desktop.matches && !expanded;
 	}
-</style>
+
+	function synchronize() {
+		const focusInNavigation = navigation.contains(document.activeElement);
+		const focusOnToggle = document.activeElement === toggle;
+		toggle.hidden = desktop.matches;
+		setExpanded(false);
+		if (!desktop.matches && focusInNavigation) toggle.focus();
+		if (desktop.matches && focusOnToggle) navigation.querySelector("a")?.focus();
+	}
+
+	toggle.addEventListener("click", () => setExpanded(toggle.getAttribute("aria-expanded") !== "true"));
+	header.addEventListener("keydown", event => {
+		if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+			setExpanded(false);
+			toggle.focus();
+		}
+	});
+	navigation.addEventListener("click", event => {
+		if (!desktop.matches && event.target instanceof Element && event.target.closest("a")) {
+			setExpanded(false);
+			toggle.focus();
+		}
+	});
+	desktop.addEventListener("change", synchronize);
+	synchronize();
+</script>

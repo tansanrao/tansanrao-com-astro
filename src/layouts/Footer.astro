@@ -1,8 +1,6 @@
 ---
-import { getCollection } from "astro:content";
 import Icon from "$components/Icon.astro";
 import Time from "$lib/time";
-import { getWordCount } from "$lib/reading";
 
 let { author, copyright } = Astro.props;
 
@@ -47,77 +45,32 @@ switch (copyright.type) {
 		break;
 }
 
-// Build array of Creative Commons icons based on license type
-// Start with base CC icon, then add specific license component icons
-const ccIcons: `${string}--${string}`[] = ["fa6-brands--creative-commons"];
-if (copyright.type === "CC0 1.0") {
-	// CC0 uses a special "zero" icon
-	ccIcons.push("fa6-brands--creative-commons-zero");
-} else {
-	// For other licenses, add icons based on license components
-	if (copyright.type.includes("BY")) ccIcons.push("fa6-brands--creative-commons-by"); // Attribution required
-	if (copyright.type.includes("NC")) ccIcons.push("fa6-brands--creative-commons-nc"); // Non-commercial
-	if (copyright.type.includes("SA")) ccIcons.push("fa6-brands--creative-commons-sa"); // Share-alike
-	if (copyright.type.includes("ND")) ccIcons.push("fa6-brands--creative-commons-nd"); // No derivatives
-}
-
-// Fetch writing and notes collections to calculate total word count
-
-const writingEntries = await getCollection("writing", entry => {
-	return !entry.data.draft;
-});
-
-// Calculate total word count across all writing entries
-const writingWords = writingEntries.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
-
-const notes = await getCollection("notes", entry => {
-	return !entry.data.draft;
-});
-
-// Calculate total word count across all notes
-const notesWords = notes.reduce((summary, entry) => summary + getWordCount(entry.body), 0);
-
-// Aggregate total word count
-const totalWords = writingWords + notesWords;
 const buildTimestamp = __BUILD_TIMESTAMP_UTC__;
 ---
 
-<footer class="flex flex-col sm:flex-row items-center justify-between gap-2 mt-32 mb-5 sm:mb-3 text-sm font-mono">
-	<div class="flex flex-wrap items-center gap-2">
-		{
-			copyright.type != "CC0 1.0" && (
-				<>
-					<Icon name="lucide--copyright" />
-					<span>{copyright.year}</span>
-				</>
-			)
-		}
-		<a href={author.link} target="_blank" rel="noopener noreferrer">{author.name}</a>
-		<span>|</span>
-		<a target="_blank" href={ccURL} aria-label={ccLabel} class="flex items-center gap-1">
-			{ccIcons.map(icon => <Icon name={icon} />)}
-		</a>
-		<span>·</span>
-		<Icon name="lucide--activity" title={`Wrote ${totalWords} ${totalWords === 1 ? "word" : "words"}`} />
-		<span>·</span>
-		<time datetime={buildTimestamp} title={Time.toString(buildTimestamp)}>last updated at: {Time.toString(buildTimestamp)}</time>
-		<!-- {
-			policy && (
-				<>
-					<span>·</span>
-					<a href="/policy" aria-label="Policy" class="inline-flex">
-						<Icon name="lucide--scale" title="Policy" />
-					</a>
-				</>
-			)
-		} -->
+<footer class="site-footer">
+	<div class="footer-meta">
+		<div class="copyright">
+			<span>{copyright.type !== "CC0 1.0" && `© ${copyright.year} `}<a href={author.link}>{author.name}</a></span>
+			<a href={ccURL} aria-label={ccLabel} class="footer-link">{copyright.type}</a>
+		</div>
+		<time datetime={buildTimestamp}>Last updated: {Time.toString(buildTimestamp)}</time>
 	</div>
-	<code class="flex items-center gap-2">
-		<p>Powered by</p>
-		<a href="https://astro.build/" aria-label="Astro" target="_blank" class="inline-flex"><Icon name="simple-icons--astro" title="Astro" /></a>
-		<span>·</span>
-		<a href="https://cloudflare.com/pages" aria-label="Cloudflare Pages" target="_blank" class="inline-flex"><Icon name="simple-icons--cloudflare" title="Cloudflare Pages" /></a>
-		<span>·</span>
-		<a href="https://github.com/tansanrao/tansanrao-com-astro" aria-label="Theme" target="_blank" class="inline-flex"><Icon name="simple-icons--github" title="Theme" /></a>
-	</code>
+	<div class="footer-credits">
+		<span>Powered by</span>
+		<a href="https://astro.build/" aria-label="Astro" title="Astro" class="icon-control"><Icon name="simple-icons--astro" /></a>
+		<a href="https://cloudflare.com/pages" aria-label="Cloudflare Pages" title="Cloudflare Pages" class="icon-control"><Icon name="simple-icons--cloudflare" /></a>
+		<a href="https://github.com/tansanrao/tansanrao-com-astro" aria-label="Theme on GitHub" title="Theme on GitHub" class="icon-control"><Icon name="simple-icons--github" /></a>
+	</div>
 </footer>
+
+<style>
+	.site-footer { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-6) var(--space-8); margin-block: var(--section-gap) var(--space-6); font: var(--type-caption); overflow-wrap: anywhere; }
+	.footer-meta { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+	.copyright, .footer-credits { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+	.copyright { column-gap: var(--space-6); }
+	.copyright a { display: inline-flex; align-items: center; min-height: var(--control-size); }
+	time, .footer-link { color: var(--secondary-color); }
+	.footer-link { text-decoration: underline; text-underline-offset: var(--link-offset); }
+	a:hover { color: var(--accent-color); }
+</style>

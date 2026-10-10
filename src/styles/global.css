@@ -86,19 +86,12 @@
 	}
 
 	body {
-		font-size: var(--text-body);
-		font-family: var(--font-sans);
+		font: var(--type-body);
 		color: var(--primary-color);
 		background-color: var(--background-color);
 		overflow-x: clip;
 		-webkit-user-select: text;
 		user-select: text;
-	}
-
-	@media screen and (max-width: 640px) {
-		body {
-			font-size: var(--text-body-compact);
-		}
 	}
 
 	h1,
@@ -111,15 +104,15 @@
 	}
 
 	h1 {
-		font-size: var(--text-heading-1);
+		font: var(--type-page);
 	}
 
 	h2 {
-		font-size: var(--text-heading-2);
+		font: var(--type-section);
 	}
 
 	h3 {
-		font-size: var(--text-heading-3);
+		font: var(--type-item);
 	}
 
 	h4 {
@@ -187,21 +180,17 @@ html:not([data-drawers-ready]) :is([data-drawer-open], [data-drawer-close], [dat
 	z-index: 1000;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-	animation: none;
-	mix-blend-mode: normal;
-}
-
-::view-transition-old(root) {
-	z-index: 10000;
-}
-
-::view-transition-new(root) {
-	z-index: 9999;
-}
-
 @layer components {
+	/* Shared controls keep visual icon size independent of the hit target. */
+	.icon-control {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		inline-size: var(--control-size);
+		block-size: var(--control-size);
+	}
+
 	.link {
 		color: var(--accent-color);
 		@apply underline decoration-transparent decoration-[0.05em] underline-offset-[0.15em] transition-[text-decoration-color] hover:decoration-current;
@@ -231,9 +220,4 @@ html:not([data-drawers-ready]) :is([data-drawer-open], [data-drawer-close], [dat
 /* Shared usable width, with gutters outside the content shell. */
 .site-shell {
 	width: min(100% - 2 * var(--page-gutter), var(--site-width));
-}
-@media (max-width: 639px) {
-	.site-shell {
-		width: calc(100% - 2 * var(--page-gutter-compact));
-	}
 }

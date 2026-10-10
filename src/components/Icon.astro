@@ -13,7 +13,7 @@ interface Props {
 	class?: string;
 }
 
-const { name, size, title, class: className } = Astro.props;
+const { name, size = "var(--icon-size)", title, class: className } = Astro.props;
 
 const value = size !== undefined ? (typeof size === "number" ? `${size}px` : size) : undefined;
 const dimensions = value ? `width: ${value}; height: ${value}` : "";
