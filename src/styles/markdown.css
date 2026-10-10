@@ -1,5 +1,5 @@
 @layer components {
-	.markdown {
+	.markdown:not(.writing-prose) {
 		line-height: 1.75;
 		word-wrap: break-word;
 		user-select: text;

@@ -48,7 +48,7 @@ const series = entry.data.series
 		authors: authorNames
 	}}
 >
-	<ReadingLayout sidebar={hasSupplementaryNavigation}>
+	<ReadingLayout sidebar={hasSupplementaryNavigation} variant="writing">
 		<ArticleHeader
 			slot="header"
 			title={entry.data.title}
@@ -60,24 +60,24 @@ const series = entry.data.series
 			{words}
 		/>
 
-		<Sensitive back="/writing" sensitive={entry.data.sensitive}>
+		<Sensitive back="/writing" sensitive={entry.data.sensitive} variant="writing">
 			<div class="contents">
 				<div data-reading-body>
-					<Prose as="section" id="markdown-content" class="min-w-0">
+					<Prose as="section" id="markdown-content" class="min-w-0" variant="writing">
 						{
 							showArchiveNotice && (
-								<MarkdownAlert>
+								<MarkdownAlert title="Archive note">
 									<p>This post is over 2 years old and the information contained could be outdated or now irrelevant.</p>
 								</MarkdownAlert>
 							)
 						}
 						<Content />
 					</Prose>
-					{hasSupplementaryNavigation && <TOC headings={entry.data.toc ? headings : undefined} {series} inlineFrom="reader" />}
+					{hasSupplementaryNavigation && <TOC headings={entry.data.toc ? headings : undefined} {series} inlineFrom="reader" variant="writing" />}
 				</div>
 			</div>
 		</Sensitive>
 
-		<Position slot="controls" toc={entry.data.toc} series={!!entry.data.series} inlineFrom="reader" />
+		<Position slot="controls" toc={entry.data.toc} series={!!entry.data.series} inlineFrom="reader" variant="writing" />
 	</ReadingLayout>
 </Base>

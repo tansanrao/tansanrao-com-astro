@@ -1,15 +1,16 @@
 # Design system
 
-`styles/tokens.css` owns the site's design values. The homepage, Writing index,
-shared header, and footer are migrated; other pages are pending review. Do not
-migrate other pages unless requested. Archive and Pagination retain legacy Notes
-styles until the Garden redesign.
+`styles/tokens.css` owns the site's design values. The homepage, Writing index
+and posts, shared header, and footer are migrated; other pages are pending review.
+Do not migrate other pages unless requested. Shared reader/prose components use
+the Writing variant to keep legacy consumers unchanged until their redesign.
 
 - Use complete `--type-*` roles through `font: var(--type-...)`. Do not set local
   font sizes, weights, line heights, letter spacing, or font families, including
   arbitrary Tailwind typography classes. Display and lead are editorial roles;
   body is prose; label is navigation/actions; meta is dates/statuses; caption is
-  supplementary information. Keep heading semantics independent of visual roles.
+  supplementary information; code is inline/fenced code. Keep heading semantics
+  independent of visual roles.
 - Use `--space-*` or relationship tokens (`--section-gap`, `--grid-gap`,
   `--card-padding`, `--row-padding`) for nonzero padding, margin, and gaps.
 - Use shared shell, control, icon, border, and radius tokens. Use `.icon-control`

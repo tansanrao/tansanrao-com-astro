@@ -7,9 +7,10 @@ interface Props {
 	headings?: MarkdownHeading[];
 	series?: { title: string; url: string; current: boolean }[];
 	inlineFrom?: "sm" | "reader";
+	variant?: "writing";
 }
 
-const { headings, series, inlineFrom = "sm" } = Astro.props;
+const { headings, series, inlineFrom = "sm", variant } = Astro.props;
 const nodes: TOCNode[] = [];
 const stack: TOCNode[] = [];
 for (const heading of headings ?? []) {
@@ -22,6 +23,8 @@ for (const heading of headings ?? []) {
 ---
 
 <style is:global>
+	@reference "../styles/global.css";
+
 	#toc {
 		--toc-link-min-height: 44px;
 		position: fixed;
@@ -184,10 +187,26 @@ for (const heading of headings ?? []) {
 			transition: none;
 		}
 	}
+
+	#toc.writing-toc {
+		gap: var(--space-4); width: min(var(--drawer-width), calc(100% - 2 * var(--page-gutter)));
+		padding: var(--space-6);
+		@variant lg { width: 100%; padding: 0; }
+	}
+	#toc.writing-toc #toc-close { width: var(--control-size); height: var(--control-size); }
+	#toc.writing-toc .toc-scroll { gap: var(--space-8); padding: var(--space-1); }
+	#toc.writing-toc h4 { font: var(--type-body-strong); margin-bottom: var(--space-3); }
+	#toc.writing-toc .toc-list { font: var(--type-meta); }
+	#toc.writing-toc .toc-list > li + li { margin-top: var(--space-2); }
+	#toc.writing-toc .toc-list-nested { padding-inline-start: var(--space-4); margin-top: var(--space-1); }
+	#toc.writing-toc .toc-list-nested > li + li { margin-top: var(--space-1); }
+	#toc.writing-toc .toc-list a { font: var(--type-meta); grid-template-columns: var(--space-2) minmax(0, 1fr); gap: var(--space-2); min-height: var(--control-size); padding-block: var(--space-1); }
+	#toc-overlay[data-style="writing"] { background: var(--overlay-color); opacity: 0; transition: none; }
+	#toc-overlay[data-style="writing"].active { opacity: 1; }
 </style>
 
-<div id="toc-overlay" data-drawer-overlay="toc" aria-hidden="true" data-inline-from={inlineFrom}></div>
-<aside id="toc" data-drawer="toc" data-drawer-inline-from={inlineFrom} aria-label="Page navigation">
+<div id="toc-overlay" data-drawer-overlay="toc" aria-hidden="true" data-inline-from={inlineFrom} data-style={variant}></div>
+<aside id="toc" data-drawer="toc" data-drawer-inline-from={inlineFrom} aria-label="Page navigation" class:list={{ "writing-toc": variant === "writing" }}>
 	<button id="toc-close" type="button" data-drawer-close="toc" aria-label="Close Table of Contents">
 		<Icon name="lucide--x" />
 	</button>

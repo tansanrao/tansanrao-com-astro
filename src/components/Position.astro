@@ -5,12 +5,15 @@ export interface Props {
 	toc?: boolean;
 	series?: boolean;
 	inlineFrom?: "sm" | "reader";
+	variant?: "writing";
 }
 
-const { toc, series, inlineFrom = "sm" } = Astro.props;
+const { toc, series, inlineFrom = "sm", variant } = Astro.props;
 ---
 
 <style>
+	@reference "../styles/global.css";
+
 	figure {
 		inset-inline-end: var(--page-gutter-compact);
 	}
@@ -48,11 +51,16 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 			0 4px 6px -1px var(--drop-shadow-color),
 			0 2px 4px -2px var(--drop-shadow-color);
 	}
+
+	.writing-position[data-inline-from="reader"] { inset-inline-end: var(--page-gutter); inset-block-end: var(--space-6); gap: var(--space-2); }
+	.writing-position button { width: var(--control-size); height: var(--control-size); padding: var(--space-2); border-width: var(--border-width); border-color: var(--shadow-color); border-radius: var(--radius-pill); box-shadow: none; }
+	.writing-position button:hover { color: var(--accent-color); }
+	.writing-position svg { inset: 0; width: 100%; height: 100%; color: var(--accent-color); }
 </style>
 
-<figure data-position-controls hidden data-inline-from={inlineFrom} class="fixed bottom-15 sm:bottom-30 flex flex-col gap-2 z-100 transition-opacity">
+<figure data-position-controls hidden data-inline-from={inlineFrom} class:list={["fixed bottom-15 sm:bottom-30 flex flex-col gap-2 z-100 transition-opacity", { "writing-position": variant === "writing" }]}>
 	<button type="button" data-scroll-top aria-label="Scroll to Top" class="border-weak">
-		<Icon name="lucide--arrow-up-to-line" size={18} title="To Top" />
+		<Icon name="lucide--arrow-up-to-line" size={variant === "writing" ? "var(--icon-size)" : 18} title={variant === "writing" ? undefined : "To Top"} />
 		<svg class="absolute -top-0.5 -inset-s-0.5 w-[calc(100%+4px)] h-[calc(100%+4px)] -rotate-90 transform-origin-center pointer-events-none">
 			<circle id="progress-circle" cx="50%" cy="50%" r="calc(50% - 1px)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"></circle>
 		</svg>
@@ -60,7 +68,7 @@ const { toc, series, inlineFrom = "sm" } = Astro.props;
 	{
 		(toc || series) && (
 			<button type="button" data-drawer-open="toc" aria-controls="toc" aria-expanded="false" aria-label="Open Table of Contents" data-toc-trigger>
-				<Icon name="lucide--list" size={15} title="Contents" />
+				<Icon name="lucide--list" size={variant === "writing" ? "var(--icon-size)" : 15} title={variant === "writing" ? undefined : "Contents"} />
 			</button>
 		)
 	}

@@ -1,6 +1,7 @@
 ---
 import Icon from "$components/Icon.astro";
 import EntryMeta, { type Props as EntryMetaProps } from "$components/EntryMeta.astro";
+import Time from "$lib/time";
 
 interface Props extends EntryMetaProps {
 	title: string;
@@ -11,39 +12,41 @@ interface Props extends EntryMetaProps {
 const { title, authors, variant = "writing", ...metadata } = Astro.props;
 ---
 
-<header data-reading-header class="flex flex-col gap-4">
+<header data-reading-header class={variant === "writing" ? "post-header" : "flex flex-col gap-4"}>
+	{variant === "writing" && <a href="/writing" class="back-link"><Icon name="lucide--arrow-left" /> All writing</a>}
 	<h1 class="select-text">{title}</h1>
 	{
 		variant === "writing" ? (
-			<div class="flex flex-wrap gap-x-4 gap-y-2 text-[0.875rem] text-secondary">
-				{authors && (
-					<span class="flex items-center gap-1">
-						<Icon name="lucide--user-round" />
-						<span class="flex flex-wrap items-center gap-1">
-							{authors.map((author, index) => (
-								<>
-									{author.url ? (
-										<a href={author.url} target="_blank" rel="noopener noreferrer" class="link">
-											{author.name}
-										</a>
-									) : (
-										<span>{author.name}</span>
-									)}
-									{index < authors.length - 1 && <span aria-hidden="true">,</span>}
-								</>
-							))}
-						</span>
-					</span>
-				)}
-				<div class="flex flex-wrap gap-x-4 gap-y-2 *:flex *:items-center *:gap-1">
-					<EntryMeta {...metadata} />
+			<>
+				<div class="post-meta">
+					{!!authors?.length && <span class="post-authors">By {authors.map((author, index) => <>
+						{index > 0 && ", "}{author.url ? <a href={author.url} target="_blank" rel="noopener noreferrer">{author.name}</a> : author.name}
+					</>)}</span>}
+					<time datetime={metadata.publishedAt.toISOString()} title={Time.toString(metadata.publishedAt)}>{Time.toLocaleDateString(metadata.publishedAt, "en-US")}</time>
+					{metadata.updatedAt && <time datetime={metadata.updatedAt.toISOString()} title={Time.toString(metadata.updatedAt)}>Updated {Time.toLocaleDateString(metadata.updatedAt, "en-US")}</time>}
+					<span>{metadata.words.toLocaleString("en-US")} {metadata.words === 1 ? "word" : "words"}</span>
 				</div>
-			</div>
+				{(metadata.series || !!metadata.tags?.length) && <div class="post-taxonomy">
+					{metadata.series && <a href={`/writing?series=${encodeURIComponent(metadata.series)}`}>{metadata.series}</a>}
+					{metadata.tags?.map(tag => <a href={`/writing?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}
+				</div>}
+			</>
 		) : (
 			<div class="flex flex-col gap-3 sm:flex-row *:flex *:items-center *:gap-1 *:text-[0.875rem] *:text-secondary">
 				<EntryMeta {...metadata} />
 			</div>
 		)
 	}
-	<hr class="border-b border-weak" />
+	{variant === "notes" && <hr class="border-b border-weak" />}
 </header>
+
+<style>
+	.post-header { display: flex; flex-direction: column; gap: var(--space-4); padding-bottom: var(--space-6); border-bottom: var(--border-width) solid var(--shadow-color); overflow-wrap: anywhere; }
+	.post-header h1 { font: var(--type-page); text-wrap: balance; }
+	.back-link { display: inline-flex; align-items: center; align-self: flex-start; gap: var(--space-2); min-height: var(--control-size); font: var(--type-label); color: var(--accent-color); }
+	.post-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-6); font: var(--type-meta); color: var(--secondary-color); }
+	.post-meta a, .back-link, .post-taxonomy a { text-decoration: underline; text-underline-offset: var(--link-offset); }
+	.post-taxonomy { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); font: var(--type-meta); color: var(--accent-color); }
+	.post-taxonomy a { display: inline-flex; align-items: center; min-height: var(--control-size); }
+	.post-header a:hover { color: var(--primary-color); }
+</style>

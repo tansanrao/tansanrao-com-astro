@@ -2,18 +2,21 @@
 interface Props {
 	sidebar?: boolean;
 	fullWidth?: boolean;
+	variant?: "writing";
 }
 
-const { sidebar = false, fullWidth = false } = Astro.props;
+const { sidebar = false, fullWidth = false, variant } = Astro.props;
 ---
 
-<main class:list={["reader flex flex-col gap-6", { "with-aside": sidebar, "full-width": fullWidth }]}>
+<main class:list={["reader", variant === "writing" ? "writing-reader" : "flex flex-col gap-6", { "with-aside": sidebar, "full-width": fullWidth }]}>
 	<slot name="header" />
 	<slot />
 	<slot name="controls" />
 </main>
 
 <style>
+	@reference "../styles/global.css";
+
 	/* These slot boundaries keep geometry independent of metadata and content rendering.
 	   The body can remain inside a content-warning gate without adding layout wrappers. */
 	.reader :global([data-reading-header]),
@@ -41,5 +44,16 @@ const { sidebar = false, fullWidth = false } = Astro.props;
 			gap: var(--reading-gap);
 			max-inline-size: var(--site-width);
 		}
+	}
+
+	.writing-reader { display: flex; flex-direction: column; gap: var(--space-8); min-width: 0; }
+	.writing-reader.with-aside :global([data-reading-header]) {
+		@variant lg { margin-inline: 0; max-inline-size: calc(100% - min(30%, var(--reading-aside-width)) - var(--reading-gap)); }
+	}
+	.writing-reader.with-aside :global([data-reading-header] > :not(hr)) {
+		@variant lg { max-inline-size: none; }
+	}
+	.writing-reader.with-aside :global([data-reading-body]) {
+		@variant lg { grid-template-columns: minmax(0, 1fr) min(30%, var(--reading-aside-width)); }
 	}
 </style>

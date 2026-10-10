@@ -2,12 +2,13 @@
 interface Props {
 	sensitive: boolean;
 	back: string;
+	variant?: "writing";
 }
-const { sensitive = false, back } = Astro.props;
+const { sensitive = false, back, variant } = Astro.props;
 ---
 
 {sensitive ? (
-	<details data-content-warning>
+	<details data-content-warning class:list={{ "writing-warning": variant === "writing" }}>
 		<summary class="list-none cursor-pointer">
 			<div class="flex flex-col items-center justify-end gap-6">
 				<h2>Content Warning</h2>
@@ -28,6 +29,11 @@ const { sensitive = false, back } = Astro.props;
 <style>
 	summary::-webkit-details-marker { display: none; }
 	details[open] > summary { display: none; }
+	.writing-warning > summary { max-width: var(--reading-width); margin-inline: auto; padding: var(--card-padding); border: var(--border-width) solid var(--shadow-color); border-radius: var(--radius-card); background: var(--block-color); font: var(--type-body); }
+	.writing-warning > summary > div { align-items: flex-start; gap: var(--space-6); }
+	.writing-warning h2 { font: var(--type-section); }
+	.writing-warning > summary > div > div { align-items: flex-start; flex-wrap: wrap; gap: var(--space-3); }
+	.writing-warning > summary > div > div:last-child > * { font: var(--type-label); min-height: var(--control-size); padding: var(--space-2) var(--space-3); border: var(--border-width) solid var(--accent-color); border-radius: var(--radius-card); color: var(--accent-color); background: var(--background-color); }
 </style>
 
 <script>
