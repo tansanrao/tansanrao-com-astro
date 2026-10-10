@@ -1,7 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "$layouts/Base.astro";
-import Notes from "$components/Notes.svelte";
+import Archive from "$components/Archive.astro";
+import config from "$config";
 
 const notes = await getCollection("notes", entry => !entry.data.draft);
 
@@ -23,6 +24,6 @@ const tags = Array.from(new Set(notes.flatMap(entry => entry.data.tags).filter((
 <Base title="Notes">
 	<main class="flex flex-col grow">
 		<h1 class="sr-only">Notes</h1>
-		<Notes client:load entries={list} {tags} />
+		<Archive kind="notes" size={config.pagination?.notes || 24} entries={list} {tags} />
 	</main>
 </Base>

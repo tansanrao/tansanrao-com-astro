@@ -1,0 +1,42 @@
+---
+interface Props {
+	sensitive: boolean;
+	back: string;
+}
+const { sensitive = false, back } = Astro.props;
+---
+
+{sensitive ? (
+	<details data-content-warning>
+		<summary class="list-none cursor-pointer">
+			<div class="flex flex-col items-center justify-end gap-6">
+				<h2>Content Warning</h2>
+				<div class="flex flex-col items-center justify-end gap-3">
+					<p>This content may contain explicit, violent, bloody, or emotionally triggering material.</p>
+					<p>If this content might affect your mental health, please leave immediately!</p>
+				</div>
+				<div class="flex gap-3">
+					<span class="flex items-center min-h-11 font-bold text-background bg-red-500 py-1 px-2 rounded-md">I understand, continue reading</span>
+					<a href={back} class="flex min-h-11 items-center font-bold text-background bg-secondary py-1 px-2 rounded-md">Return to list</a>
+				</div>
+			</div>
+		</summary>
+		<slot />
+	</details>
+) : <div><slot /></div>}
+
+<style>
+	summary::-webkit-details-marker { display: none; }
+	details[open] > summary { display: none; }
+</style>
+
+<script>
+	document.querySelectorAll<HTMLDetailsElement>("[data-content-warning]").forEach(details => {
+		details.addEventListener("toggle", () => {
+			if (!details.open) return;
+			const content = details.querySelector<HTMLElement>("#markdown-content");
+			content?.setAttribute("tabindex", "-1");
+			content?.focus({ preventScroll: true });
+		});
+	});
+</script>

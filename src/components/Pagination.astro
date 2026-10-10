@@ -1,0 +1,34 @@
+---
+import Icon from "./Icon.astro";
+interface Props {
+	pages: number;
+}
+const { pages } = Astro.props;
+---
+
+<nav aria-label="Pagination" data-pagination hidden class="sticky bottom-0 flex items-center justify-center gap-3 mt-auto pb-1 text-weak bg-background font-mono">
+	<button type="button" data-page="previous" aria-label="Previous page"><Icon name="lucide--arrow-left" class="rtl:-scale-x-100" /></button>
+	{Array.from({ length: pages }, (_, i) => i + 1).map(page => <>
+		<button type="button" data-page={page} aria-label={`Page ${page}`}>{page}</button>
+		{page === 1 && <span data-ellipsis-start hidden><Icon name="lucide--ellipsis" /></span>}
+	</>)}
+	{pages === 0 && <span data-ellipsis-start hidden></span>}
+	<span data-ellipsis-end hidden><Icon name="lucide--ellipsis" /></span>
+	<button type="button" data-page="next" aria-label="Next page"><Icon name="lucide--arrow-right" class="rtl:-scale-x-100" /></button>
+</nav>
+
+<style>
+	button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+		height: 30px;
+		border-bottom: 2px solid;
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		transition: color 0.15s ease-in-out;
+	}
+	button:hover, button[aria-current] { color: var(--primary-color); }
+	@media (max-width: 639px) { button { width: 40px; height: 40px; } }
+</style>

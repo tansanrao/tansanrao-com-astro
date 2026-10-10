@@ -2,7 +2,8 @@
 import { getCollection } from "astro:content";
 import { blogEntryPath } from "$lib/paths";
 import Base from "$layouts/Base.astro";
-import Blog from "$components/Blog.svelte";
+import Archive from "$components/Archive.astro";
+import config from "$config";
 
 const blogEntries = await getCollection("blog", entry => !entry.data.draft);
 
@@ -26,6 +27,6 @@ const tags = Array.from(new Set(blogEntries.flatMap(entry => entry.data.tags).fi
 <Base title="Blog">
 	<main class="flex flex-col grow">
 		<h1 class="sr-only">Blog</h1>
-		<Blog client:load entries={list} {series} {tags} />
+		<Archive kind="blog" size={config.pagination?.blog || 15} entries={list} {series} {tags} />
 	</main>
 </Base>

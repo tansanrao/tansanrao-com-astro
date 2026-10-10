@@ -6,7 +6,7 @@ import ReadingLayout from "$layouts/ReadingLayout.astro";
 import ArticleHeader from "$components/ArticleHeader.astro";
 import TOC from "$components/TOC.astro";
 import Position from "$components/Position.astro";
-import Sensitive from "$components/Sensitive.svelte";
+import Sensitive from "$components/Sensitive.astro";
 import MarkdownAlert from "$components/MarkdownAlert.astro";
 import { isOlderThanYears } from "$lib/content-age";
 import { getReadingStats } from "$lib/reading";
@@ -59,7 +59,7 @@ const series = entry.data.series
 			{words}
 		/>
 
-		<Sensitive back="/blog" sensitive={entry.data.sensitive} client:load>
+		<Sensitive back="/blog" sensitive={entry.data.sensitive}>
 			<div class="contents">
 				<div data-reading-body>
 					<section id="markdown-content" class="markdown min-w-0">

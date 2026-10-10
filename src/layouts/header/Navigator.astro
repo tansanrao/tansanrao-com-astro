@@ -1,0 +1,40 @@
+---
+type RouteItem = {
+	path: string;
+	extra?: string[];
+	label: string;
+};
+
+interface Props {
+	route: string;
+	routes: RouteItem[];
+}
+const { route, routes } = Astro.props;
+
+/**
+ * Check if a route is currently active based on the current route path
+ * @param route - The current route path
+ * @param home - The home route path
+ * @param path - The navigation item path to check against
+ * @param extra - Optional array of additional paths that should be considered active
+ * @returns True if the route is active, false otherwise
+ */
+function active(path: string, extra?: string[]) {
+	if (extra?.some(item => item === route)) return true;
+	if (path === routes[0].path) return path === route;
+	return route.startsWith(path);
+}
+---
+
+{routes.map(item => {
+	const isActive = active(item.path, item.extra);
+	return (
+	<a
+		href={item.path}
+		aria-current={isActive ? "page" : undefined}
+		class:list={["inline-flex items-center w-full min-h-11 sm:min-h-0 sm:w-auto sm:px-2.5 sm:py-1 sm:border-b-2 transition-colors duration-150 ease-linear", isActive ? "max-sm:font-bold text-primary border-primary" : "text-secondary border-transparent"]}
+	>
+		{item.label}
+	</a>
+	);
+})}

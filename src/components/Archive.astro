@@ -1,0 +1,176 @@
+---
+import Icon from "./Icon.astro";
+import Pagination from "./Pagination.astro";
+import Time from "$lib/time";
+
+interface Props {
+	kind: "blog" | "notes";
+	size: number;
+	entries: {
+		id: string;
+		url: string;
+		data: { title: string; timestamp: Date; series?: string; tags?: string[]; sensitive: boolean; top: number };
+	}[];
+	series?: string[];
+	tags: string[];
+}
+
+const { kind, size, entries, series = [], tags } = Astro.props;
+const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.timestamp.getTime() - a.data.timestamp.getTime());
+---
+
+<archive-list data-kind={kind} data-size={size} class="flex flex-col-reverse sm:flex-row gap-10 grow">
+	<article class:list={["flex flex-col grow", { "gap-4": kind === "blog" }]}>
+		<div class:list={[kind === "blog" ? "flex flex-col gap-4" : "grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5"]}>
+			{sorted.map(entry => (
+				<section data-entry data-tags={JSON.stringify(entry.data.tags ?? [])} data-series={entry.data.series} class:list={["flex flex-col", { "justify-center border-b border-dashed border-b-weak pb-1": kind === "notes" }]}>
+					{kind === "blog" ? (
+						<>
+							<div class="flex max-sm:flex-col">
+								<div class="leading-[1.55] *:inline *:align-middle">
+									{entry.data.top > 0 && <Icon name="lucide--flag-triangle-right" class="rtl:-scale-x-100" />}
+									{entry.data.sensitive && <Icon name="lucide--siren" title="Contains sensitive content" />}
+									{entry.data.series && <><a href={`?series=${encodeURIComponent(entry.data.series)}`} data-series-select={entry.data.series} class="max-sm:min-h-8">{entry.data.series}</a><span aria-hidden="true"> | </span></>}
+									<a href={entry.url} class="link">{entry.data.title}</a>
+								</div>
+								<span class="inline-flex items-center sm:justify-end gap-1 flex-wrap content-start sm:ms-auto">
+									{entry.data.tags?.map(tag => <a href={`?tag=${encodeURIComponent(tag)}`} data-tag-select={tag} class="max-sm:min-h-8 text-[0.875rem] text-remark sm:text-sm">#{tag}</a>)}
+								</span>
+							</div>
+							<time datetime={entry.data.timestamp.toISOString()} class="font-mono text-[0.65rem] text-remark">{Time.toString(entry.data.timestamp)}</time>
+						</>
+					) : (
+						<>
+							<span class="flex items-center gap-1">
+								{entry.data.top > 0 && <Icon name="lucide--flag-triangle-right" class="rtl:-scale-x-100" />}
+								{entry.data.sensitive && <Icon name="lucide--siren" title="Contains sensitive content" />}
+								<a href={entry.url} class="leading-normal text-primary font-semibold link truncate">{entry.data.title}</a>
+							</span>
+							<span class="flex gap-1">
+								{entry.data.tags?.map(tag => <a href={`?tag=${encodeURIComponent(tag)}`} data-tag-select={tag} class="max-sm:min-h-8 text-[0.825rem] text-remark">#{tag}</a>)}
+							</span>
+						</>
+					)}
+				</section>
+			))}
+			<div data-empty hidden={sorted.length > 0} class="pt-[10vh] text-center text-secondary font-bold text-xl">No {kind === "blog" ? "blog posts" : "notes"} available</div>
+		</div>
+		<Pagination pages={Math.ceil(sorted.length / size)} />
+		<p data-status role="status" class="sr-only"></p>
+		<noscript><p class="text-sm text-secondary">Showing all entries. Filtering and pagination require JavaScript.</p></noscript>
+	</article>
+	<aside data-filters hidden class="sm:basis-50 shrink-0 flex flex-col gap-5">
+		{kind === "blog" && <section><h4>Series</h4><p>{series.map(item => <button type="button" data-series-toggle={item} aria-pressed="false">{item}</button>)}</p></section>}
+		<section><h4>Tag</h4><p>{tags.map(tag => <button type="button" data-tag-toggle={tag} aria-pressed="false">{tag}</button>)}</p></section>
+	</aside>
+</archive-list>
+
+<style>
+	aside section {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+	aside p {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 5px;
+	}
+	aside button {
+		border-bottom: 1px solid var(--primary-color);
+		padding: 0 0.35rem;
+		font-size: 0.9rem;
+		transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out;
+	}
+	aside button[aria-pressed="true"] {
+		color: var(--background-color);
+		background-color: var(--primary-color);
+	}
+	@media (max-width: 639px) {
+		aside button { min-height: 2.25rem; padding-inline: 0.5rem; }
+	}
+	@media (min-width: 640px) {
+		aside button:hover { color: var(--background-color); background-color: var(--primary-color); }
+	}
+</style>
+
+<script>
+	class ArchiveList extends HTMLElement {
+		connectedCallback() {
+			const size = Number(this.dataset.size);
+			const blog = this.dataset.kind === "blog";
+			const entries = Array.from(this.querySelectorAll<HTMLElement>("[data-entry]")).map(element => ({
+				element, tags: JSON.parse(element.dataset.tags!) as string[], series: element.dataset.series
+			}));
+			const url = new URL(location.href);
+			let pageParam = url.searchParams.has("page");
+			let page = Number(url.searchParams.get("page")) || 1;
+			let tags = url.searchParams.getAll("tag");
+			let series = blog ? url.searchParams.get("series") : null;
+			const render = () => {
+				const matching = entries.filter(entry => (!series || entry.series === series) && tags.every(tag => entry.tags.includes(tag)));
+				const pages = Math.ceil(matching.length / size);
+				page = Math.max(1, Math.min(Math.floor(page), pages));
+				const visible = new Set(matching.slice((page - 1) * size, page * size));
+				for (const entry of entries) entry.element.hidden = !visible.has(entry);
+				this.querySelector<HTMLElement>("[data-empty]")!.hidden = matching.length > 0;
+				this.querySelector<HTMLElement>("[data-filters]")!.hidden = false;
+				this.querySelector<HTMLElement>("[data-pagination]")!.hidden = pages <= 1;
+				this.querySelectorAll<HTMLButtonElement>("[data-tag-toggle], [data-series-toggle]").forEach(button => {
+					button.setAttribute("aria-pressed", String(button.dataset.tagToggle !== undefined ? tags.includes(button.dataset.tagToggle) : series === button.dataset.seriesToggle));
+				});
+				this.querySelectorAll<HTMLButtonElement>("[data-page]").forEach(button => {
+					const value = button.dataset.page!;
+					const number = Number(value);
+					if (value === "previous" || value === "next") {
+						button.disabled = value === "previous" ? page <= 1 : page >= pages;
+					} else {
+						const start = Math.max(2, Math.min(pages - 5, page - 2));
+						button.hidden = number > pages || !(number === 1 || number === pages || (number >= start && number < start + 5));
+						if (number === page) button.setAttribute("aria-current", "page");
+						else button.removeAttribute("aria-current");
+					}
+				});
+				this.querySelector<HTMLElement>("[data-ellipsis-start]")!.hidden = !(pages > 7 && page > 4);
+				this.querySelector<HTMLElement>("[data-ellipsis-end]")!.hidden = !(pages > 7 && page < pages - 3);
+				// Move the trailing ellipsis before the current last page, without rebuilding buttons or losing focus.
+				const last = this.querySelector(`[data-page="${pages}"]`);
+				if (last) last.before(this.querySelector("[data-ellipsis-end]")!);
+				this.querySelector<HTMLElement>("[data-status]")!.textContent = `${matching.length} ${blog ? "posts" : "notes"}. Page ${page} of ${Math.max(1, pages)}.`;
+				const url = new URL(location.href);
+				url.searchParams.delete("tag");
+				url.searchParams.delete("page");
+				if (blog) { url.searchParams.delete("series"); if (series) url.searchParams.set("series", series); }
+				for (const tag of tags) url.searchParams.append("tag", tag);
+				if (pageParam) url.searchParams.set("page", String(page));
+				history.replaceState(history.state, "", url);
+			};
+			this.addEventListener("click", event => {
+				if (!(event.target instanceof Element) || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+				const control = event.target.closest<HTMLElement>("[data-tag-toggle], [data-tag-select], [data-series-toggle], [data-series-select], [data-page]");
+				if (!control) return;
+				event.preventDefault();
+				const data = control.dataset;
+				if (data.page) {
+					page = data.page === "next" ? page + 1 : data.page === "previous" ? page - 1 : Number(data.page);
+					pageParam = true;
+				} else {
+					const tag = data.tagToggle ?? data.tagSelect;
+					const choice = data.seriesToggle ?? data.seriesSelect;
+					if (tag !== undefined) tags = data.tagToggle !== undefined && tags.includes(tag) ? tags.filter(item => item !== tag) : [...new Set([...tags, tag])];
+					if (choice !== undefined) series = data.seriesToggle !== undefined && series === choice ? null : choice;
+					page = 1;
+					pageParam = false;
+				}
+				render();
+			});
+			// Enhanced in-place selectors use button semantics; their hrefs remain useful before enhancement.
+			this.querySelectorAll<HTMLAnchorElement>("[data-tag-select], [data-series-select]").forEach(link => {
+				link.setAttribute("role", "button");
+				link.addEventListener("keydown", event => { if (event.key === " ") { event.preventDefault(); link.click(); } });
+			});
+			render();
+		}
+	}
+	customElements.define("archive-list", ArchiveList);
+</script>

@@ -5,6 +5,11 @@
 	prefixes: lucide, simple-icons, fa6-brands;
 }
 
+/* Visibility is state, independent of a component's flex/grid presentation. */
+[hidden] {
+	display: none !important;
+}
+
 /*
   Z-index scale:
   < 0: Below
