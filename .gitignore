@@ -7,6 +7,7 @@ dist/
 .astro/
 .vscode/count
 /worker-configuration.d.ts
+.amp/portals/
 
 # dependencies
 node_modules/

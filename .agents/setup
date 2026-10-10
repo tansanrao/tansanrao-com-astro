@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+SECONDS=0
+
+toolchain="$HOME/.local/share/tansanrao-orb"
+node_version="$(tr -d 'v[:space:]' < .nvmrc)"
+case "$(uname -m)" in
+  x86_64) arch=x64 ;;
+  aarch64) arch=arm64 ;;
+  *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+esac
+
+echo "[setup] Preparing Node $node_version"
+if [[ ! -x "$toolchain/bin/node" ]] || [[ "$("$toolchain/bin/node" --version)" != "v$node_version" ]]; then
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' EXIT
+  archive="node-v$node_version-linux-$arch.tar.xz"
+  curl --fail --silent --show-error --location --retry 3 \
+    "https://nodejs.org/dist/v$node_version/$archive" -o "$tmp/$archive"
+  curl --fail --silent --show-error --location --retry 3 \
+    "https://nodejs.org/dist/v$node_version/SHASUMS256.txt" -o "$tmp/SHASUMS256.txt"
+  (cd "$tmp"; grep " $archive\$" SHASUMS256.txt | sha256sum --check)
+  mkdir -p "$toolchain"
+  tar -xJf "$tmp/$archive" -C "$toolchain" --strip-components=1
+fi
+export PATH="$toolchain/bin:$PATH"
+
+# Amp and supervised services start in separate login shells.
+profile_marker="# tansanrao-com-astro orb toolchain"
+if ! grep -Fqx "$profile_marker" "$HOME/.bash_profile" 2>/dev/null; then
+  cat >> "$HOME/.bash_profile" <<EOF
+
+$profile_marker
+if [[ "\$PWD" == "$repo_root" || "\$PWD" == "$repo_root/"* ]]; then
+  case "\$PATH" in
+    "$toolchain/bin"|"$toolchain/bin":*) ;;
+    *) export PATH="$toolchain/bin:\$PATH" ;;
+  esac
+fi
+EOF
+fi
+
+package_manager="$(node -p "require('./package.json').packageManager")"
+pnpm_version="${package_manager#pnpm@}"
+echo "[setup] Preparing $package_manager (${SECONDS}s elapsed)"
+if [[ ! -x "$toolchain/bin/pnpm" ]] || [[ "$("$toolchain/bin/pnpm" --version)" != "$pnpm_version" ]]; then
+  npm install --global --prefix "$toolchain" "$package_manager" --no-audit --no-fund
+fi
+
+echo "[setup] Installing locked dependencies (${SECONDS}s elapsed)"
+CI=true pnpm install --frozen-lockfile
+echo "[setup] Ready: Node $(node --version), pnpm $(pnpm --version) (${SECONDS}s total)"

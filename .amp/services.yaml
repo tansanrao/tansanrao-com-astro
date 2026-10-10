@@ -1,0 +1,6 @@
+services:
+  web:
+    command: pnpm dev --port "$PORT"
+    health: /
+    portal:
+      title: Astro dev server
