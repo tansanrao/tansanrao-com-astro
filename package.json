@@ -17,9 +17,9 @@
 		"url": "https://github.com/tansanrao"
 	},
 	"engines": {
-		"node": ">=22.12.0"
+		"node": ">=24.21.0"
 	},
-	"packageManager": "pnpm@10.32.1",
+	"packageManager": "pnpm@12.11.2",
 	"scripts": {
 		"new": "tsx --loader esm-loader-yaml scripts/new.ts",
 		"dev": "astro dev --host",
@@ -33,44 +33,44 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@astrojs/markdown-satteri": "^0.3.5",
-		"@astrojs/mdx": "^7.0.5",
-		"@astrojs/sitemap": "^3.7.3",
+		"@astrojs/markdown-satteri": "0.4.3",
+		"@astrojs/mdx": "8.0.3",
+		"@astrojs/sitemap": "^3.7.4",
 		"@astrojs/svelte": "^9.0.1",
 		"@iconify-json/fa6-brands": "^1.2.6",
-		"@iconify-json/lucide": "^1.2.92",
-		"@iconify-json/simple-icons": "^1.2.71",
-		"@iconify/tailwind4": "^1.2.1",
+		"@iconify-json/lucide": "^1.2.142",
+		"@iconify-json/simple-icons": "^1.2.99",
+		"@iconify/tailwind4": "^1.2.3",
 		"@swup/astro": "^1.8.0",
 		"@tailwindcss/vite": "^4.3.3",
-		"astro": "^7.1.6",
-		"feed": "^5.2.0",
+		"astro": "^7.3.8",
+		"feed": "^5.2.1",
 		"github-slugger": "^2.0.0",
 		"medium-zoom": "^1.1.0",
 		"reading-time": "^1.5.0",
 		"satteri": "^0.9.5",
-		"svelte": "^5.53.1",
+		"svelte": "^5.57.2",
 		"tailwindcss": "^4.3.3",
-		"temporal-polyfill": "^0.3.0",
+		"temporal-polyfill": "^0.3.2",
 		"typescript": "^5.9.3"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.10",
 		"@biomejs/biome": "2.4.4",
-		"@clack/prompts": "^1.0.1",
+		"@clack/prompts": "^1.8.1",
 		"@types/css-tree": "^2.3.11",
-		"css-tree": "^3.1.0",
+		"css-tree": "^3.2.1",
 		"esm-loader-yaml": "^1.0.2",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.2.7",
+		"lint-staged": "^16.4.0",
 		"prettier": "3.8.1",
 		"prettier-plugin-astro": "0.14.1",
-		"prettier-plugin-svelte": "^3.5.0",
-		"satori": "^0.19.2",
+		"prettier-plugin-svelte": "^3.5.2",
+		"satori": "^0.19.3",
 		"sharp": "^0.34.5",
-		"tsx": "^4.21.0",
-		"unifont": "^0.7.4",
-		"vitest": "^4.1.10"
+		"tsx": "^4.23.15",
+		"unifont": "^0.7.5",
+		"vitest": "^4.1.11"
 	},
 	"lint-staged": {
 		"*.{js,ts,json,jsonc,css,svelte,astro}": [
