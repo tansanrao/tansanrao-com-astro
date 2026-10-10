@@ -69,7 +69,7 @@ export const flexokiLightTheme = {
 			name: "types",
 			scope: ["entity.name.type", "entity.name.class", "entity.name.struct", "entity.name.enum", "support.type", "support.class"],
 			settings: {
-				foreground: "#DA702C"
+				foreground: "#BC5215"
 			}
 		},
 		{
@@ -83,7 +83,7 @@ export const flexokiLightTheme = {
 			name: "parameters",
 			scope: ["variable.parameter"],
 			settings: {
-				foreground: "#4385BE"
+				foreground: "#205EA6"
 			}
 		},
 		{
@@ -104,14 +104,14 @@ export const flexokiLightTheme = {
 			name: "operators and punctuation",
 			scope: ["keyword.operator", "punctuation", "meta.brace", "meta.delimiter"],
 			settings: {
-				foreground: "#575653"
+				foreground: "#6F6E69"
 			}
 		},
 		{
 			name: "invalid",
 			scope: ["invalid", "invalid.illegal"],
 			settings: {
-				foreground: "#D14D41"
+				foreground: "#AF3029"
 			}
 		}
 	]
@@ -202,7 +202,7 @@ export const flexokiDarkTheme = {
 			name: "parameters",
 			scope: ["variable.parameter"],
 			settings: {
-				foreground: "#66A0C8"
+				foreground: "#4385BE"
 			}
 		},
 		{
@@ -223,7 +223,7 @@ export const flexokiDarkTheme = {
 			name: "operators and punctuation",
 			scope: ["keyword.operator", "punctuation", "meta.brace", "meta.delimiter"],
 			settings: {
-				foreground: "#B7B5AC"
+				foreground: "#878580"
 			}
 		},
 		{

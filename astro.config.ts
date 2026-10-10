@@ -56,14 +56,6 @@ export default defineConfig({
 	integrations: [sitemap({ filter: url => !/^\/(?:blog|cv)(?:\/|$)/.test(new URL(url).pathname) })],
 	fonts: [
 		{
-			name: "Source Serif 4",
-			provider: fontProviders.google(),
-			weights: [400, 600, 700],
-			styles: ["normal", "italic"],
-			optimizedFallbacks: false,
-			cssVariable: "--font-source-serif-4"
-		},
-		{
 			name: "IBM Plex Mono",
 			provider: fontProviders.google(),
 			weights: [400, 500, 700],

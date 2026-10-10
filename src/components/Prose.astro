@@ -18,7 +18,7 @@ const { as: Tag = "div", class: className, ...attributes } = Astro.props;
 	import mediumZoom from "medium-zoom/dist/pure";
 
 	// Disclosed content is already in the DOM: bind once, including currently hidden prose.
-	mediumZoom("[data-prose] img:not([data-nozoom])", { background: "#00000044" });
+	mediumZoom("[data-prose] img:not([data-nozoom])", { background: "var(--overlay-color)" });
 	document.querySelectorAll<HTMLButtonElement>("[data-prose] .code-copy-button").forEach(button => {
 		button.addEventListener("click", async () => {
 			const code = button.parentElement?.querySelector("pre code")?.textContent;

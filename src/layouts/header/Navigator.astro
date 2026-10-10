@@ -32,7 +32,7 @@ function active(path: string, extra?: string[]) {
 	<a
 		href={item.path}
 		aria-current={isActive ? "page" : undefined}
-		class:list={["inline-flex items-center w-full min-h-11 sm:min-h-0 sm:w-auto sm:px-2.5 sm:py-1 sm:border-b-2 transition-colors duration-150 ease-linear", isActive ? "max-sm:font-bold text-primary border-primary" : "text-secondary border-transparent"]}
+		class:list={["inline-flex items-center w-full min-h-11 sm:min-h-0 sm:w-auto sm:px-2.5 sm:py-1 sm:border-b-2 hover:text-accent transition-colors duration-150 ease-linear", isActive ? "max-sm:font-bold text-accent border-accent" : "text-secondary border-transparent"]}
 	>
 		{item.label}
 	</a>

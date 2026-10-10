@@ -4,11 +4,11 @@ import icon from "$public/favicon.svg?raw";
 import { loadFont } from ".";
 
 /*
-<div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.5rem", background: "#fffffd" }}>
+<div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.5rem", background: "#fffcf0" }}>
 	<img src={`data:image/svg+xml;base64,${Buffer.from(icon).toString("base64")}`} alt="LOGO" width={120} height={120} />
-	<span style={{ fontSize: "4rem", fontWeight: 900, color: "#1a1a1a", textAlign: "center" }}>{title}</span>
-	<span style={{ fontSize: "1.75rem", color: "#888888", textAlign: "center", maxWidth: "75%" }}>{description}</span>
-	<span style={{ marginTop: "3rem", borderBottom: "2px solid", padding: "0 0.5rem", fontSize: "1.5rem", color: "#666666" }}>{author}</span>
+	<span style={{ fontSize: "4rem", fontWeight: 700, color: "#100f0f", textAlign: "center" }}>{title}</span>
+	<span style={{ fontSize: "1.75rem", color: "#6f6e69", textAlign: "center", maxWidth: "75%" }}>{description}</span>
+	<span style={{ marginTop: "3rem", borderBottom: "2px solid", padding: "0 0.5rem", fontSize: "1.5rem", color: "#bc5215" }}>{author}</span>
 </div>
 */
 
@@ -25,7 +25,9 @@ export default async ({ title, description, author }: { title: string; descripti
 					alignItems: "center",
 					justifyContent: "center",
 					gap: "1.5rem",
-					background: "#fffffd"
+					background: "#fffcf0",
+					fontFamily: "HK Grotesk",
+					fontWeight: 700
 				},
 				children: [
 					{
@@ -42,8 +44,8 @@ export default async ({ title, description, author }: { title: string; descripti
 						props: {
 							style: {
 								fontSize: "4rem",
-								fontWeight: 900,
-								color: "#1a1a1a",
+								fontWeight: 700,
+								color: "#100f0f",
 								textAlign: "center"
 							},
 							children: title
@@ -54,7 +56,7 @@ export default async ({ title, description, author }: { title: string; descripti
 						props: {
 							style: {
 								fontSize: "1.75rem",
-								color: "#888888",
+								color: "#6f6e69",
 								textAlign: "center",
 								maxWidth: "75%"
 							},
@@ -69,7 +71,7 @@ export default async ({ title, description, author }: { title: string; descripti
 								borderBottom: "2px solid",
 								padding: "0 0.5rem",
 								fontSize: "1.5rem",
-								color: "#666666"
+								color: "#bc5215"
 							},
 							children: author
 						}
@@ -82,7 +84,9 @@ export default async ({ title, description, author }: { title: string; descripti
 			height: 630,
 			fonts: [
 				{
-					name: "Serif",
+					name: "HK Grotesk",
+					weight: 700,
+					style: "normal",
 					data: await loadFont()
 				}
 			]

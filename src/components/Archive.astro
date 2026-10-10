@@ -84,13 +84,14 @@ const sorted = [...entries].sort((a, b) => b.data.top - a.data.top || b.data.pub
 	}
 	aside button[aria-pressed="true"] {
 		color: var(--background-color);
-		background-color: var(--primary-color);
+		background-color: var(--accent-color);
+		border-color: var(--accent-color);
 	}
 	@media (max-width: 639px) {
 		aside button { min-height: 2.25rem; padding-inline: 0.5rem; }
 	}
 	@media (min-width: 640px) {
-		aside button:hover { color: var(--background-color); background-color: var(--primary-color); }
+		aside button:hover { color: var(--background-color); background-color: var(--accent-color); border-color: var(--accent-color); }
 	}
 </style>
 

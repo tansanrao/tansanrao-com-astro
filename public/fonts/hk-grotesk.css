@@ -1,0 +1,50 @@
+/* HK Grotesk by Alfredo Marco Pradil. See HKGrotesk-OFL.txt. */
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-Regular.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-Italic.woff2") format("woff2");
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-Medium.woff2") format("woff2");
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-SemiBold.woff2") format("woff2");
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-SemiBoldItalic.woff2") format("woff2");
+	font-weight: 600;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-Bold.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "HK Grotesk";
+	src: url("./HKGrotesk-BoldItalic.woff2") format("woff2");
+	font-weight: 700;
+	font-style: italic;
+	font-display: swap;
+}

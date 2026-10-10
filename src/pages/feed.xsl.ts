@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
+import { fontData } from "astro:assets";
 
 export const GET: APIRoute = () => {
+	const mono = fontData["--font-ibm-plex-mono"].find(font => font.weight === "400" && font.style === "normal" && font.subset === "latin")!;
 	const text = `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:atom="http://www.w3.org/2005/Atom">
   <xsl:output method="html" encoding="UTF-8" omit-xml-declaration="yes" />
@@ -13,6 +15,10 @@ export const GET: APIRoute = () => {
       <title>Subscription | <xsl:value-of select="atom:feed/atom:title" /></title>
       <link rel="stylesheet" href="/feed.css" />
       <link rel="icon" type="image/x-icon" href="{atom:feed/atom:icon}" />
+      <style>
+        @font-face { font-family: "IBM Plex Mono"; src: ${mono.src.map(src => `url("${src.url}")`).join(", ")}; font-weight: 400; font-style: normal; font-display: swap; }
+        code { font-family: "IBM Plex Mono", monospace; }
+      </style>
     </head>
 
     <body>

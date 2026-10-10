@@ -1,20 +1,25 @@
+@import url("/fonts/hk-grotesk.css");
+
+/* Flexoki by Steph Ango: https://stephango.com/flexoki */
 :root {
 	--primary-color: #100f0f;
 	--remark-color: #6f6e69;
 	--background-color: #fffcf0;
 	--block-color: #f2f0e5;
-	--shadow-color: #cecdc3;
-	--selection-color: rgba(67, 133, 190, 0.28);
+	--shadow-color: #e6e4d9;
+	--accent-color: #bc5215;
+	--selection-color: #fed3af;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
 		--primary-color: #cecdc3;
-		--remark-color: #9f9d96;
+		--remark-color: #878580;
 		--background-color: #100f0f;
 		--block-color: #1c1b1a;
-		--shadow-color: #403e3c;
-		--selection-color: rgba(32, 94, 166, 0.34);
+		--shadow-color: #282726;
+		--accent-color: #da702c;
+		--selection-color: #71320d;
 	}
 }
 
@@ -26,17 +31,18 @@
 }
 
 ::selection {
+	color: var(--primary-color);
 	background-color: var(--selection-color);
 }
 
 a {
-	color: inherit;
+	color: var(--accent-color);
 	text-decoration: none;
 }
 
 html {
 	color: var(--primary-color);
-	font-family: serif;
+	font-family: "HK Grotesk", sans-serif;
 	line-height: 1.15;
 
 	background-color: var(--background-color);

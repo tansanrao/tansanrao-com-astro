@@ -30,6 +30,7 @@
 		}
 
 		a {
+			color: var(--accent-color);
 			text-decoration: underline transparent 0.05em;
 			text-underline-offset: 0.15em;
 			transition: text-decoration-color 0.15s ease-in-out;
@@ -73,6 +74,7 @@
 			}
 
 			&[id] a {
+				color: inherit;
 				text-decoration: none;
 
 				&::after {
@@ -214,7 +216,7 @@
 				}
 
 				&.code-copy-failed {
-					color: #d14d41;
+					color: var(--error-color);
 					opacity: 1;
 					visibility: visible;
 				}
@@ -295,7 +297,10 @@
 
 			&:hover {
 				color: var(--background-color);
-				background-color: var(--secondary-color);
+				background-color: var(--accent-color);
+				a {
+					color: inherit;
+				}
 			}
 
 			a {
@@ -343,7 +348,7 @@
 
 						&:hover {
 							color: var(--background-color);
-							background-color: var(--secondary-color);
+							background-color: var(--accent-color);
 						}
 					}
 				}
@@ -352,23 +357,23 @@
 
 		/* GitHub-style alerts */
 		.markdown-alert-note {
-			--alert-color: var(--secondary-color);
+			--alert-color: var(--info-color);
 		}
 
 		.markdown-alert-tip {
-			--alert-color: #48a131;
+			--alert-color: var(--success-color);
 		}
 
 		.markdown-alert-important {
-			--alert-color: #3366cc;
+			--alert-color: var(--important-color);
 		}
 
 		.markdown-alert-warning {
-			--alert-color: #bf8700;
+			--alert-color: var(--accent-color);
 		}
 
 		.markdown-alert-caution {
-			--alert-color: #ee3838;
+			--alert-color: var(--error-color);
 		}
 
 		.markdown-alert-note,

@@ -4,9 +4,9 @@ import icon from "$public/favicon.svg?raw";
 import { loadFont } from ".";
 
 /*
-<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "3rem", width: "100%", height: "100%", background: "#fffffd" }}>
+<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "3rem", width: "100%", height: "100%", background: "#fffcf0", color: "#100f0f" }}>
 	<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flexGrow: 1 }}>
-		<span style={{ alignSelf: "flex-start", borderLeft: "0.5rem solid black", padding: "0.25rem 1rem 0.75rem", fontSize: "1.5rem" }}>
+		<span style={{ alignSelf: "flex-start", borderLeft: "0.5rem solid #bc5215", padding: "0.25rem 1rem 0.75rem", fontSize: "1.5rem" }}>
 			{contentType}
 			{series && (
 				<span>
@@ -16,7 +16,7 @@ import { loadFont } from ".";
 			)}
 		</span>
 		<span style={{ fontSize: "4rem" }}>{title}</span>
-		<div style={{ display: "flex", gap: "1rem", alignItems: "center", fontSize: "1.25rem", color: "#555555" }}>
+		<div style={{ display: "flex", gap: "1rem", alignItems: "center", fontSize: "1.25rem", color: "#6f6e69" }}>
 			<time>{time}</time>
 			{!!tags?.length && [
 				<span key="separator" style={{ height: "100%", borderLeft: "0.125rem solid" }} />,
@@ -24,7 +24,7 @@ import { loadFont } from ".";
 			]}
 		</div>
 	</div>
-	<hr style={{ margin: "2.5rem 0 2rem", borderTop: "0.25rem solid black" }} />
+	<hr style={{ margin: "2.5rem 0 2rem", borderTop: "0.25rem solid #e6e4d9" }} />
 	<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 		<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
 			<img src={`data:image/svg+xml;base64,${Buffer.from(icon).toString("base64")}`} alt="LOGO" height={48} />
@@ -63,7 +63,10 @@ export default async ({
 					padding: "3rem",
 					width: "100%",
 					height: "100%",
-					background: "#fffffd"
+					background: "#fffcf0",
+					color: "#100f0f",
+					fontFamily: "HK Grotesk",
+					fontWeight: 700
 				},
 				children: [
 					{
@@ -81,7 +84,7 @@ export default async ({
 									props: {
 										style: {
 											alignSelf: "flex-start",
-											borderLeft: "0.5rem solid black",
+											borderLeft: "0.5rem solid #bc5215",
 											padding: "0.25rem 1rem 0.75rem",
 											fontSize: "1.5rem"
 										},
@@ -122,7 +125,7 @@ export default async ({
 											gap: "1rem",
 											alignItems: "center",
 											fontSize: "1.25rem",
-											color: "#555555"
+											color: "#6f6e69"
 										},
 										children: [
 											{
@@ -159,7 +162,7 @@ export default async ({
 						props: {
 							style: {
 								margin: "2.5rem 0 2rem",
-								borderTop: "0.25rem solid black"
+								borderTop: "0.25rem solid #e6e4d9"
 							}
 						}
 					},
@@ -217,7 +220,9 @@ export default async ({
 			height: 630,
 			fonts: [
 				{
-					name: "Serif",
+					name: "HK Grotesk",
+					weight: 700,
+					style: "normal",
 					data: await loadFont()
 				}
 			]

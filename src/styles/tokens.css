@@ -1,30 +1,43 @@
-/* Theme values live here; component styling and layout rules consume them. */
+/* Flexoki by Steph Ango: https://stephango.com/flexoki (MIT).
+   Base mappings follow bg/bg-2, tx/tx-2/tx-3 and ui.
+   Orange uses 600 in light mode and 400 in dark mode. */
 :root,
 [data-theme="light"] {
 	--primary-color: #100f0f;
-	--secondary-color: #575653;
+	--secondary-color: #6f6e69;
 	--remark-color: #6f6e69;
-	--weak-color: #9f9d96;
+	--weak-color: #b7b5ac;
 	--background-color: #fffcf0;
 	--block-color: #f2f0e5;
-	--shadow-color: #cecdc3;
-	--selection-color: rgba(67, 133, 190, 0.28);
+	--shadow-color: #e6e4d9;
+	--accent-color: #bc5215;
+	--selection-color: #fed3af;
+	--error-color: #af3029;
+	--success-color: #66800b;
+	--info-color: #205ea6;
+	--important-color: #5e409d;
 	--overlay-color: rgba(16, 15, 15, 0.38);
 }
 
 [data-theme="dark"] {
 	--primary-color: #cecdc3;
-	--secondary-color: #b7b5ac;
-	--remark-color: #9f9d96;
-	--weak-color: #6f6e69;
+	--secondary-color: #878580;
+	--remark-color: #878580;
+	--weak-color: #575653;
 	--background-color: #100f0f;
 	--block-color: #1c1b1a;
-	--shadow-color: #403e3c;
-	--selection-color: rgba(32, 94, 166, 0.34);
+	--shadow-color: #282726;
+	--accent-color: #da702c;
+	--selection-color: #71320d;
+	--error-color: #d14d41;
+	--success-color: #879a39;
+	--info-color: #4385be;
+	--important-color: #8b7ec8;
 	--overlay-color: rgba(16, 15, 15, 0.72);
 }
 
 :root {
+	--drop-shadow-color: rgba(16, 15, 15, 0.1);
 	--site-width: 1088px;
 	--page-gutter: 24px;
 	--page-gutter-compact: 16px;
@@ -35,6 +48,7 @@
 }
 
 @theme {
+	--color-*: initial;
 	--color-primary: var(--primary-color);
 	--color-secondary: var(--secondary-color);
 	--color-remark: var(--remark-color);
@@ -44,9 +58,13 @@
 	--color-shadow: var(--shadow-color);
 	--color-selection: var(--selection-color);
 	--color-overlay: var(--overlay-color);
+	--color-accent: var(--accent-color);
+	--color-error: var(--error-color);
 
-	--font-serif: var(--font-source-serif-4);
+	--font-*: initial;
+	--font-sans: "HK Grotesk", sans-serif;
 	--font-mono: var(--font-ibm-plex-mono);
+	--shadow-sm: 0 1px 3px 0 var(--drop-shadow-color), 0 1px 2px -1px var(--drop-shadow-color);
 
 	--text-body: 1.0625rem;
 	--text-body-compact: 1rem;
