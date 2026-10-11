@@ -1,6 +1,6 @@
 ---
 import Icon from "$components/Icon.astro";
-import EntryMeta, { type Props as EntryMetaProps } from "$components/EntryMeta.astro";
+import type { Props as EntryMetaProps } from "$components/EntryMeta.astro";
 import Time from "$lib/time";
 
 interface Props extends EntryMetaProps {
@@ -12,8 +12,8 @@ interface Props extends EntryMetaProps {
 const { title, authors, variant = "writing", ...metadata } = Astro.props;
 ---
 
-<header data-reading-header class={variant === "writing" ? "post-header" : "flex flex-col gap-4"}>
-	{variant === "writing" && <a href="/writing" class="back-link"><Icon name="lucide--arrow-left" /> All writing</a>}
+<header data-reading-header class="post-header">
+	<a href={variant === "writing" ? "/writing" : "/garden/notes"} class="back-link"><Icon name="lucide--arrow-left" /> {variant === "writing" ? "All writing" : "All notes"}</a>
 	<h1 class="select-text">{title}</h1>
 	{
 		variant === "writing" ? (
@@ -32,12 +32,15 @@ const { title, authors, variant = "writing", ...metadata } = Astro.props;
 				</div>}
 			</>
 		) : (
-			<div class="flex flex-col gap-3 sm:flex-row *:flex *:items-center *:gap-1 *:text-[0.875rem] *:text-secondary">
-				<EntryMeta {...metadata} />
-			</div>
+			<>
+				<div class="post-meta">
+					<time datetime={metadata.publishedAt.toISOString()}>Created {Time.toLocaleDateString(metadata.publishedAt, "en-US")}</time>
+					{metadata.updatedAt && <time datetime={metadata.updatedAt.toISOString()}>Updated {Time.toLocaleDateString(metadata.updatedAt, "en-US")}</time>}
+				</div>
+				{!!metadata.tags?.length && <div class="post-taxonomy">{metadata.tags.map(tag => <a href={`/garden/notes?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}</div>}
+			</>
 		)
 	}
-	{variant === "notes" && <hr class="border-b border-weak" />}
 </header>
 
 <style>

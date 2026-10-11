@@ -1,37 +1,43 @@
 ---
 import { getCollection } from "astro:content";
-import { Image } from "astro:assets";
 import Base from "$layouts/Base.astro";
-import GardenNav from "$components/GardenNav.astro";
+import GardenLayout from "$layouts/GardenLayout.astro";
+import BookCard from "$components/BookCard.astro";
+import BookShelf from "$components/BookShelf.astro";
+import { bookStatus, getBookShelves } from "$lib/books";
 
 const books = (await getCollection("books", entry => !entry.data.draft)).sort((a, b) => b.data.addedAt.getTime() - a.data.addedAt.getTime());
+const reading = books.filter(book => book.data.status === "reading");
+const shelves = getBookShelves(books);
 ---
 
 <Base title="Books">
-	<main class="flex flex-col gap-8 grow">
-		<h1>Books</h1>
-		<GardenNav />
-		<p class="text-secondary">Books I’m reading, have read, or want to return to.</p>
-		{books.length === 0 && <p>No books added yet.</p>}
-		<div class="grid gap-8 sm:grid-cols-2">
-			{
-				books.map(({ id, data }) => (
-					<article class="flex gap-5">
-						{data.cover && <Image src={data.cover.image} alt={data.cover.alt} width={160} class="w-24 h-auto self-start" />}
-						<div class="flex flex-col gap-2">
-							<>
-								<h2>
-									<a class="link" href={`/garden/books/${id}`}>
-										{data.title}
-									</a>
-								</h2>
-								<p>{data.authors.join(", ")}</p>
-								<p class="text-secondary">{data.status.replaceAll("-", " ")}</p>
-							</>
-						</div>
-					</article>
-				))
-			}
-		</div>
-	</main>
+	<GardenLayout title="Books">
+		{books.length === 0 && <p class="garden-empty">The shelf is waiting for its first book.</p>}
+		{reading.length > 0 && <section class="garden-section" aria-labelledby="reading-now">
+			<h2 id="reading-now">Reading now</h2>
+			<div class="garden-grid">{reading.map(book => <BookCard {book} />)}</div>
+		</section>}
+		{shelves.length > 0 && <div class="book-browser">
+			<fieldset class="view-options"><legend class="sr-only">Book display</legend><label><input type="radio" name="book-view" value="shelf" checked /> Shelf</label><label><input type="radio" name="book-view" value="list" /> List</label></fieldset>
+			{ shelves.map(({ label, reads }) => <section class="garden-section">
+				<h2>{label}</h2>
+				<div class="shelf-view"><BookShelf {reads} /></div>
+				<div class="list-view garden-grid">{reads.map(({ book, finishedOn }) => <BookCard {book} {finishedOn} />)}</div>
+			</section>)}
+		</div>}
+		{(["to-read", "paused", "abandoned"] as const).map(status => {
+			const entries = books.filter(book => book.data.status === status);
+			return entries.length > 0 && <section class="garden-section"><h2>{bookStatus[status]}</h2><div class="garden-grid">{entries.map(book => <BookCard {book} />)}</div></section>;
+		})}
+	</GardenLayout>
 </Base>
+
+<style>
+	.book-browser { display: flex; flex-direction: column; gap: var(--space-8); min-width: 0; }
+	.view-options { display: flex; flex-wrap: wrap; gap: var(--space-2); align-self: flex-end; }
+	.view-options label { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); min-height: var(--control-size); border: var(--border-width) solid var(--shadow-color); border-radius: var(--radius-card); font: var(--type-label); cursor: pointer; }
+	.view-options label:has(:checked) { border-color: var(--accent-color); color: var(--accent-color); }
+	input { accent-color: var(--accent-color); }
+	.book-browser:not(:has([value="list"]:checked)) .list-view, .book-browser:has([value="list"]:checked) .shelf-view { display: none; }
+</style>

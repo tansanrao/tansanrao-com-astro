@@ -1,31 +1,21 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "$layouts/Base.astro";
-import Archive from "$components/Archive.astro";
-import GardenNav from "$components/GardenNav.astro";
+import GardenLayout from "$layouts/GardenLayout.astro";
+import GardenIndex from "$components/GardenIndex.astro";
+import NoteCard from "$components/NoteCard.astro";
 import config from "$config";
 
-const notes = await getCollection("notes", entry => !entry.data.draft);
-
-const list = notes.map(entry => ({
-	id: entry.id,
-	url: `/garden/notes/${entry.id}`,
-	data: {
-		title: entry.data.title,
-		publishedAt: entry.data.publishedAt,
-		tags: entry.data.tags,
-		sensitive: entry.data.sensitive,
-		top: entry.data.top
-	}
-}));
-
-const tags = Array.from(new Set(notes.flatMap(entry => entry.data.tags).filter((tag): tag is string => Boolean(tag)))).sort();
+const notes = (await getCollection("notes", entry => !entry.data.draft)).sort(
+	(a, b) => b.data.top - a.data.top || (b.data.updatedAt ?? b.data.publishedAt).getTime() - (a.data.updatedAt ?? a.data.publishedAt).getTime()
+);
+const tags = [...new Set(notes.flatMap(entry => entry.data.tags))].sort();
 ---
 
 <Base title="Notes">
-	<main class="flex flex-col gap-8 grow">
-		<h1>Notes</h1>
-		<GardenNav />
-		<Archive kind="notes" size={config.pagination?.notes || 24} entries={list} {tags} />
-	</main>
+	<GardenLayout title="Notes">
+		<GardenIndex kind="notes" {tags} count={notes.length} size={config.pagination?.notes || 24}>
+			{notes.map(entry => <NoteCard {entry} />)}
+		</GardenIndex>
+	</GardenLayout>
 </Base>

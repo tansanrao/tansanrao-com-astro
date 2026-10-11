@@ -75,15 +75,17 @@ const projects = defineCollection({
 
 const links = defineCollection({
 	loader: markdown("links"),
-	schema: z.object({
-		title: text,
-		url: z.url(),
-		savedAt: datetime,
-		kind: z.enum(["resource", "site"]),
-		author: text.optional(),
-		tags,
-		draft: z.boolean().default(false)
-	})
+	schema: ({ image }) =>
+		z.object({
+			title: text,
+			url: z.url(),
+			savedAt: datetime,
+			kind: z.enum(["resource", "site"]),
+			author: text.optional(),
+			preview: z.object({ image: image(), alt: z.string() }).optional(),
+			tags,
+			draft: z.boolean().default(false)
+		})
 });
 
 const books = defineCollection({
@@ -97,6 +99,8 @@ const books = defineCollection({
 			cover: z.object({ image: image(), alt: text }).optional(),
 			isbn: text.optional(),
 			publicationYear: z.number().int().optional(),
+			pages: z.number().int().positive().optional(),
+			rating: z.number().min(0).max(5).multipleOf(0.5).optional(),
 			url: z.url().optional(),
 			tags,
 			readingSessions: z

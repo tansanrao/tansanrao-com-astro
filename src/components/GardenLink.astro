@@ -1,0 +1,28 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import Time from "$lib/time";
+import Prose from "./Prose.astro";
+interface Props {
+	entry: CollectionEntry<"links">;
+	heading?: "h2" | "h3";
+}
+const { entry, heading: Heading = "h2" } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+---
+
+<article id={entry.id} class="garden-link" data-garden-entry data-tags={JSON.stringify(data.tags)} data-kind={data.kind}>
+	<div class="garden-link-heading">
+		<Heading><a href={data.url} rel="noopener noreferrer">{data.title} <span aria-hidden="true">↗</span></a></Heading>
+		<a href={`/garden/links#${entry.id}`} aria-label={`Permalink to ${data.title}`}><time datetime={data.savedAt.toISOString()}>{Time.toLocaleDateString(data.savedAt, "en-US")}</time></a>
+	</div>
+	<p class="garden-source">{new URL(data.url).hostname.replace(/^www\./, "")}</p>
+	{data.author && <p class="garden-meta">By {data.author}</p>}
+	{entry.body?.trim() && <Prose variant="garden"><Content /></Prose>}
+	{data.preview && <details class="garden-preview">
+		<summary><span class="preview-show">Show preview</span><span class="preview-hide">Hide preview</span></summary>
+		<Image src={data.preview.image} alt={data.preview.alt} width={640} loading="lazy" />
+	</details>}
+	{!!data.tags.length && <div class="garden-tags">{data.tags.map(tag => <a href={`/garden/links?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}</div>}
+</article>

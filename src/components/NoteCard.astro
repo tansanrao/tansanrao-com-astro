@@ -1,0 +1,19 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Time from "$lib/time";
+interface Props {
+	entry: CollectionEntry<"notes">;
+	heading?: "h2" | "h3";
+}
+const { entry, heading: Heading = "h2" } = Astro.props;
+const { data } = entry;
+const date = data.updatedAt ?? data.publishedAt;
+---
+
+<article class="note-card" data-garden-entry data-tags={JSON.stringify(data.tags)} data-published={data.publishedAt.getTime()} data-updated={date.getTime()} data-priority={data.top}>
+	<Heading><a href={`/garden/notes/${entry.id}`}>{data.title}</a></Heading>
+	<p class="garden-meta"><time datetime={date.toISOString()}>{data.updatedAt ? "Updated" : "Created"} {Time.toLocaleDateString(date, "en-US")}</time></p>
+	{data.sensitive ? <p class="garden-muted">Sensitive content</p> : data.description && <p>{data.description}</p>}
+	{data.top > 0 && <p class="garden-meta">Pinned</p>}
+	<div class="garden-tags">{data.tags.map(tag => <a href={`/garden/notes?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}</div>
+</article>

@@ -1,0 +1,42 @@
+---
+import type { BookRead } from "$lib/books";
+import BookCover from "./BookCover.astro";
+interface Props {
+	reads: BookRead[];
+}
+const { reads } = Astro.props;
+---
+
+<div class="book-shelf" tabindex="0" role="region" aria-label="Book shelf, scroll horizontally to browse">
+	{reads.map(({ book, finishedOn }) => <details name="garden-shelf" class:list={["shelf-book", { "thick-book": (book.data.pages ?? 0) > 400 }]}>
+		<summary aria-label={`${book.data.title} by ${book.data.authors.join(", ")}`}>
+			<span class="book-spine" aria-hidden="true">{book.data.title}</span>
+			<span class="selected-cover" aria-hidden="true"><BookCover {book} /></span>
+		</summary>
+		<div class="shelf-detail">
+			<h3>{book.data.title}</h3>
+			<p class="garden-meta">{book.data.authors.join(", ")}</p>
+			{book.data.pages !== undefined && <p class="garden-meta">{book.data.pages.toLocaleString("en-US")} pages</p>}
+			{book.data.rating !== undefined && <p class="garden-meta">{book.data.rating} / 5</p>}
+			{finishedOn && <p class="garden-meta">Finished <time datetime={finishedOn}>{finishedOn}</time></p>}
+			<a class="garden-action" href={`/garden/books/${book.id}`}>{book.body?.trim() ? "Read my notes" : "Book details"}</a>
+		</div>
+	</details>)}
+</div>
+
+<style>
+	.book-shelf { display: flex; align-items: flex-start; gap: var(--space-2); max-width: 100%; overflow-x: auto; padding: var(--space-2); border-block-end: var(--border-width) solid var(--shadow-color); }
+	.shelf-book { flex: 0 0 auto; width: var(--space-12); }
+	.shelf-book.thick-book { width: var(--space-16); }
+	summary { display: flex; align-items: stretch; justify-content: center; width: 100%; min-height: var(--media-preview-height); cursor: pointer; list-style: none; }
+	summary::-webkit-details-marker { display: none; }
+	.book-spine { display: block; width: 100%; height: var(--media-preview-height); writing-mode: vertical-rl; padding: var(--space-4) var(--space-3); font: var(--type-label); background: var(--block-color); border: var(--border-width) solid var(--shadow-color); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+	summary:hover .book-spine { color: var(--accent-color); border-color: var(--accent-color); }
+	.selected-cover { display: none; width: var(--label-width); }
+	.shelf-book[open] { width: min(var(--card-min-width), calc(100vw - 4 * var(--page-gutter))); }
+	.shelf-book[open] summary { width: var(--label-width); max-width: 100%; }
+	.shelf-book[open] .selected-cover { display: block; }
+	.shelf-book[open] .book-spine { display: none; }
+	.shelf-detail { display: flex; flex-direction: column; gap: var(--space-2); padding-block: var(--space-4); }
+	.shelf-detail h3 { font: var(--type-item); }
+</style>

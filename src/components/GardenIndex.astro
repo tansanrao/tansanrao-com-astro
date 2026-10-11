@@ -1,0 +1,129 @@
+---
+interface Props {
+	kind: "notes" | "links";
+	tags: string[];
+	count: number;
+	size?: number;
+}
+const { kind, tags, count, size = 24 } = Astro.props;
+---
+
+<garden-index data-kind={kind} data-size={size}>
+	<div class="garden-tools" data-tools hidden>
+		{kind === "links" && <div class="kind-options" role="group" aria-label="Link type">
+			{[["", "All"], ["resource", "Resources"], ["site", "People & sites"]].map(([value, label]) => <button type="button" data-kind-filter={value} aria-pressed={value === "" ? "true" : "false"}>{label}</button>)}
+		</div>}
+		<div class="filter-row">
+			<details class="topic-filter">
+				<summary>Filter {kind}</summary>
+				<p class="garden-meta">Match all selected tags.</p>
+				<div class="topic-options">{tags.map(tag => <button type="button" data-tag-filter={tag} aria-pressed="false">{tag}</button>)}</div>
+				{tags.length === 0 && <p class="garden-meta">No tags added yet.</p>}
+			</details>
+			{kind === "notes" && <label class="sort-control">Sort <select data-sort><option value="updated">Recently updated</option><option value="published">Newest first</option><option value="oldest">Oldest first</option></select></label>}
+			<button type="button" data-clear hidden>Clear filters</button>
+		</div>
+	</div>
+	<div data-items class={kind === "notes" ? "garden-grid" : "garden-link-list"}><slot /></div>
+	<p class="garden-empty" data-empty hidden={count > 0}>{count ? "Nothing matches these filters. Try clearing them." : `No ${kind} added yet.`}</p>
+	<nav aria-label={`${kind === "notes" ? "Notes" : "Links"} pages`} class="garden-paging" hidden>
+		<button type="button" data-page="previous">Previous</button>
+		<span data-page-label class="garden-meta"></span>
+		<button type="button" data-page="next">Next</button>
+	</nav>
+	<p role="status" class="sr-only" data-status></p>
+	<noscript><p class="garden-meta">All {kind} are shown. Filtering and sorting require JavaScript.</p></noscript>
+</garden-index>
+
+<style>
+	garden-index, .garden-tools { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
+	.filter-row, .kind-options, .topic-options, .garden-paging { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-4); }
+	.filter-row { justify-content: space-between; }
+	button, summary, select { min-height: var(--control-size); font: var(--type-label); }
+	button, select { border: var(--border-width) solid var(--shadow-color); border-radius: var(--radius-card); padding: var(--space-2) var(--space-3); max-width: 100%; text-align: start; color: var(--secondary-color); }
+	button:hover, button[aria-pressed="true"] { color: var(--accent-color); border-color: var(--accent-color); }
+	button[aria-pressed="true"] { background: var(--selection-color); color: var(--primary-color); }
+	summary { cursor: pointer; padding-block: var(--space-2); }
+	.topic-filter { flex: 1 1 var(--label-width); }
+	.topic-options { margin-block: var(--space-3); }
+	.sort-control { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font: var(--type-meta); color: var(--secondary-color); }
+	select { background: var(--background-color); }
+	.garden-paging { justify-content: center; }
+	[data-clear] { color: var(--accent-color); }
+</style>
+
+<script>
+	class GardenIndex extends HTMLElement {
+		connectedCallback() {
+			const size = Number(this.dataset.size);
+			const notes = this.dataset.kind === "notes";
+			const container = this.querySelector<HTMLElement>("[data-items]")!;
+			const entries = Array.from(this.querySelectorAll<HTMLElement>("[data-garden-entry]")).map(element => ({ element, tags: JSON.parse(element.dataset.tags!) as string[] }));
+			const sort = this.querySelector<HTMLSelectElement>("[data-sort]");
+			const filter = this.querySelector<HTMLDetailsElement>(".topic-filter")!;
+			let tags: string[] = [], kind = "", order = "updated", page = 1;
+			const readURL = () => {
+				const params = new URL(location.href).searchParams;
+				tags = params.getAll("tag");
+				kind = notes ? "" : params.get("kind") ?? "";
+				order = ["published", "oldest"].includes(params.get("sort") ?? "") ? params.get("sort")! : "updated";
+				const requestedPage = Number(params.get("page"));
+				page = Number.isFinite(requestedPage) ? Math.max(1, Math.floor(requestedPage)) : 1;
+			};
+			const render = (writeURL = false) => {
+				const sorted = [...entries];
+				if (notes) sorted.sort((a, b) => Number(b.element.dataset.priority) - Number(a.element.dataset.priority) || (order === "oldest" ? 1 : -1) * (Number(a.element.dataset[order === "updated" ? "updated" : "published"]) - Number(b.element.dataset[order === "updated" ? "updated" : "published"])));
+				const matching = sorted.filter(entry => (!kind || entry.element.dataset.kind === kind) && tags.every(tag => entry.tags.includes(tag)));
+				const pages = Math.max(1, Math.ceil(matching.length / size));
+				page = Math.min(page, pages);
+				// A permalink must reveal its entry, even when it lives beyond the first page.
+				const anchor = location.hash.slice(1);
+				const target = !writeURL && anchor ? matching.find(entry => encodeURIComponent(entry.element.id) === anchor || entry.element.id === anchor) : undefined;
+				if (target) page = Math.floor(matching.indexOf(target) / size) + 1;
+				const visible = new Set(matching.slice((page - 1) * size, page * size));
+				for (const entry of sorted) { entry.element.hidden = !visible.has(entry); container.append(entry.element); }
+				if (target) requestAnimationFrame(() => target.element.scrollIntoView());
+				this.querySelector<HTMLElement>("[data-tools]")!.hidden = false;
+				this.querySelector<HTMLElement>("[data-empty]")!.hidden = matching.length > 0;
+				this.querySelector<HTMLElement>(".garden-paging")!.hidden = pages <= 1;
+				this.querySelector<HTMLElement>("[data-page-label]")!.textContent = `${page} / ${pages}`;
+				this.querySelector<HTMLButtonElement>('[data-page="previous"]')!.disabled = page <= 1;
+				this.querySelector<HTMLButtonElement>('[data-page="next"]')!.disabled = page >= pages;
+				this.querySelector<HTMLElement>("[data-status]")!.textContent = `${matching.length} ${this.dataset.kind}. Page ${page} of ${pages}.`;
+				this.querySelector<HTMLElement>("[data-clear]")!.hidden = !kind && tags.length === 0;
+				this.querySelectorAll<HTMLElement>("[data-tag-filter]").forEach(button => button.setAttribute("aria-pressed", String(tags.includes(button.dataset.tagFilter!))));
+				this.querySelectorAll<HTMLElement>("[data-kind-filter]").forEach(button => button.setAttribute("aria-pressed", String(kind === button.dataset.kindFilter)));
+				if (sort) sort.value = order;
+				if (writeURL) {
+					const url = new URL(location.href);
+					for (const key of ["tag", "kind", "sort", "page"]) url.searchParams.delete(key);
+					for (const tag of tags) url.searchParams.append("tag", tag);
+					if (kind) url.searchParams.set("kind", kind);
+					if (notes && order !== "updated") url.searchParams.set("sort", order);
+					if (page > 1) url.searchParams.set("page", String(page));
+					url.hash = "";
+					history.replaceState(history.state, "", url);
+				}
+			};
+			this.addEventListener("click", event => {
+				if (!(event.target instanceof Element)) return;
+				const button = event.target.closest<HTMLButtonElement>("button");
+				if (!button) return;
+				const data = button.dataset;
+				if (data.tagFilter !== undefined) tags = tags.includes(data.tagFilter) ? tags.filter(tag => tag !== data.tagFilter) : [...tags, data.tagFilter];
+				else if (data.kindFilter !== undefined) kind = data.kindFilter;
+				else if (data.clear !== undefined) { tags = []; kind = ""; filter.querySelector("summary")!.focus(); }
+				else if (data.page === undefined) return;
+				page = data.page ? page + (data.page === "next" ? 1 : -1) : 1;
+				render(true);
+			});
+			sort?.addEventListener("change", () => { order = sort.value; page = 1; render(true); });
+			window.addEventListener("popstate", () => { readURL(); render(); });
+			window.addEventListener("hashchange", () => render());
+			readURL();
+			filter.open = tags.length > 0;
+			render();
+		}
+	}
+	customElements.define("garden-index", GardenIndex);
+</script>

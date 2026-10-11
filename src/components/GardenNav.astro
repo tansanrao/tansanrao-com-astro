@@ -5,14 +5,21 @@ const routes = [
 	{ label: "Links", path: "/garden/links" },
 	{ label: "Books", path: "/garden/books" }
 ];
+const pathname = Astro.url.pathname.replace(/\/$/, "");
 ---
 
-<nav aria-label="Garden" class="flex flex-wrap gap-x-6 gap-y-2 border-b border-weak pb-3">
+<nav aria-label="Garden" class="garden-nav">
 	{
 		routes.map(route => (
-			<a class="link py-2" href={route.path} aria-current={Astro.url.pathname === route.path ? "page" : undefined}>
+			<a href={route.path} aria-current={pathname === route.path ? "page" : route.path !== "/garden" && pathname.startsWith(`${route.path}/`) ? "location" : undefined}>
 				{route.label}
 			</a>
 		))
 	}
 </nav>
+
+<style>
+	.garden-nav { display: flex; flex-wrap: wrap; gap: 0 var(--space-6); border-bottom: var(--border-width) solid var(--shadow-color); }
+	a { display: inline-flex; align-items: center; min-height: var(--control-size); padding-block: var(--space-3); font: var(--type-label); color: var(--secondary-color); border-bottom: var(--border-width) solid transparent; }
+	a[aria-current], a:hover { color: var(--accent-color); border-color: var(--accent-color); }
+</style>

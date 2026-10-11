@@ -4,12 +4,12 @@ import "medium-zoom/dist/style.css";
 
 interface Props extends HTMLAttributes<"div"> {
 	as?: "div" | "section" | "article";
-	variant?: "writing";
+	variant?: "writing" | "garden";
 }
 const { as: Tag = "div", class: className, variant, ...attributes } = Astro.props;
 ---
 
-<Tag {...attributes} data-prose class:list={["markdown", className, { "writing-prose": variant === "writing" }]}><slot /></Tag>
+<Tag {...attributes} data-prose class:list={["markdown", className, { "writing-prose": !!variant }]}><slot /></Tag>
 
 <style is:global>
 	[data-prose]:not([data-prose-ready]) .code-copy-button { display: none; }

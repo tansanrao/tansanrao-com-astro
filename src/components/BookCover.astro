@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+interface Props {
+	book: CollectionEntry<"books">;
+}
+const {
+	book: { data }
+} = Astro.props;
+---
+
+<span class="book-cover">
+	{data.cover ? <Image src={data.cover.image} alt={data.cover.alt} width={320} loading="lazy" /> : <span class="cover-fallback" aria-hidden="true"><span>{data.title}</span><span>{data.authors.join(", ")}</span></span>}
+</span>
+
+<style>
+	.book-cover { display: grid; width: 100%; max-width: var(--label-width); aspect-ratio: 2 / 3; flex-shrink: 0; }
+	img { width: 100%; height: 100%; object-fit: contain; object-position: bottom left; }
+	.cover-fallback { display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-3); min-width: 0; padding: var(--space-3); background: var(--block-color); border: var(--border-width) solid var(--shadow-color); color: var(--primary-color); overflow-wrap: anywhere; }
+	.cover-fallback > :first-child { font: var(--type-label); }
+	.cover-fallback > :last-child { font: var(--type-caption); color: var(--secondary-color); }
+</style>

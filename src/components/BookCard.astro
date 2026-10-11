@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BookCover from "./BookCover.astro";
+import { bookStatus } from "$lib/books";
+interface Props {
+	book: CollectionEntry<"books">;
+	finishedOn?: string;
+	heading?: "h2" | "h3";
+}
+const { book, finishedOn, heading: Heading = "h3" } = Astro.props;
+---
+
+<article class="book-card">
+	<a href={`/garden/books/${book.id}`} aria-label={book.data.title}><BookCover {book} /></a>
+	<div class="book-copy">
+		<Heading><a href={`/garden/books/${book.id}`}>{book.data.title}</a></Heading>
+		<p class="garden-meta">{book.data.authors.join(", ")}</p>
+		{finishedOn ? <p class="garden-meta">Finished <time datetime={finishedOn}>{finishedOn}</time></p> : <p class="garden-meta">{bookStatus[book.data.status]}</p>}
+		{book.data.pages !== undefined && <p class="garden-meta">{book.data.pages.toLocaleString("en-US")} pages</p>}
+		{book.data.rating !== undefined && <p class="garden-meta">{book.data.rating} / 5</p>}
+	</div>
+</article>

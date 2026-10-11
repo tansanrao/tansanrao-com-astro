@@ -1,0 +1,16 @@
+---
+import GardenNav from "$components/GardenNav.astro";
+import "$styles/garden.css";
+interface Props {
+	title?: string;
+}
+const { title } = Astro.props;
+---
+
+<main class="garden-page">
+	<header class="garden-heading">
+		{title && <h1>{title}</h1>}
+		<GardenNav />
+	</header>
+	<slot />
+</main>

@@ -49,11 +49,65 @@ Projects accept `in-progress`, `maintained`, `completed`, or `archived`; optiona
 fields include `startedOn`, `endedOn`, `cover: { image, alt }`, `links: [{ label,
 url }]`, `technologies`, `tags`, and `relatedWriting` (Writing IDs). Books accept
 `to-read`, `reading`, `read`, `paused`, or `abandoned`; optional metadata includes
-`cover: { image, alt }`, `isbn`, `publicationYear`, `url`, `tags`, and
+`cover: { image, alt }`, `isbn`, `publicationYear`, `pages`, `rating`, `url`, `tags`, and
 `readingSessions: [{ startedOn, finishedOn }]`. Their bodies hold project
 descriptions and reading notes respectively. Links use their body for annotations;
 the former linkroll is imported as `site` entries (their `savedAt` is the migration
 date, not a claim about when the sites were first discovered).
+
+### Garden authoring
+
+The Garden overview shows recently edited notes, saved links, and current reading
+(or recently added books when nothing is in progress). Notes use `description` for
+their card summary and `updatedAt` for meaningful revisions; neither is required.
+Tags filter Notes and Links through repeated `?tag=` values (all selected tags must
+match). Links also support `?kind=resource` or `?kind=site`; Notes support
+`?sort=published` or `?sort=oldest`. The default is recently updated, with pinned
+notes first. Without JavaScript, all entries remain readable.
+
+Example `src/content/books/example.md` (replace the sample metadata):
+
+```yaml
+---
+title: Example book
+authors: [Example author]
+status: read
+addedAt: 2026-10-10T12:00:00Z
+pages: 224
+rating: 4.5
+tags: [design]
+readingSessions:
+  - startedOn: "2026-09-01"
+    finishedOn: "2026-10-03"
+draft: true
+---
+My reflections on this book.
+```
+
+`pages` is a positive integer; `rating` is your current overall assessment from
+0–5, in half-point increments. Omit unknown values. Shelf years come from each
+session's `finishedOn`, never `addedAt`; rereads appear in each completion year.
+Finished books without a known completion date get an undated shelf. An unfinished
+session may contain only `startedOn`. Shelf selection and the List alternative work
+without JavaScript. Covers are optional; a neutral title/author cover is the fallback.
+
+Example `src/content/links/example/index.md`:
+
+```yaml
+---
+title: A useful reference
+url: https://example.com/article
+savedAt: 2026-10-10T12:00:00Z
+kind: resource
+tags: [design]
+draft: true
+---
+Why I saved this, and what I want to return to.
+```
+
+Optionally add `preview: { image: ./preview.jpg, alt: "Description of the preview" }`
+with a colocated image. Previews use an explicit disclosure, not a hover-only popup.
+No external metadata service or publishing integration is required.
 
 ### Photography authoring
 

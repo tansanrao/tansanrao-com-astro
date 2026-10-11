@@ -2,13 +2,13 @@
 interface Props {
 	sensitive: boolean;
 	back: string;
-	variant?: "writing";
+	variant?: "writing" | "garden";
 }
 const { sensitive = false, back, variant } = Astro.props;
 ---
 
 {sensitive ? (
-	<details data-content-warning class:list={{ "writing-warning": variant === "writing" }}>
+	<details data-content-warning class:list={{ "writing-warning": !!variant }}>
 		<summary class="list-none cursor-pointer">
 			<div class="flex flex-col items-center justify-end gap-6">
 				<h2>Content Warning</h2>

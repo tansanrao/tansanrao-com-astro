@@ -1,9 +1,9 @@
 # Design system
 
 `styles/tokens.css` owns the site's design values. The homepage, Writing index
-and posts, shared header, and footer are migrated; other pages are pending review.
-Do not migrate other pages unless requested. Shared reader/prose components use
-the Writing variant to keep legacy consumers unchanged until their redesign.
+and posts, Garden, shared header, and footer are migrated; other pages are pending
+review. Do not migrate other pages unless requested. Shared prose and warning
+components use the Writing/Garden variants to leave legacy consumers unchanged.
 
 - Use complete `--type-*` roles through `font: var(--type-...)`. Do not set local
   font sizes, weights, line heights, letter spacing, or font families, including

@@ -1,19 +1,37 @@
 ---
+import { getCollection } from "astro:content";
 import Base from "$layouts/Base.astro";
-import GardenNav from "$components/GardenNav.astro";
+import GardenLayout from "$layouts/GardenLayout.astro";
+import NoteCard from "$components/NoteCard.astro";
+import GardenLink from "$components/GardenLink.astro";
+import BookCard from "$components/BookCard.astro";
+
+const [allNotes, allLinks, allBooks] = await Promise.all([
+	getCollection("notes", entry => !entry.data.draft),
+	getCollection("links", entry => !entry.data.draft),
+	getCollection("books", entry => !entry.data.draft)
+]);
+const notes = allNotes
+	.sort((a, b) => (b.data.updatedAt ?? b.data.publishedAt).getTime() - (a.data.updatedAt ?? a.data.publishedAt).getTime())
+	.slice(0, 4);
+const links = allLinks.sort((a, b) => b.data.savedAt.getTime() - a.data.savedAt.getTime() || a.data.title.localeCompare(b.data.title)).slice(0, 3);
+const reading = allBooks.filter(book => book.data.status === "reading");
+const books = (reading.length ? reading : allBooks).sort((a, b) => b.data.addedAt.getTime() - a.data.addedAt.getTime()).slice(0, 3);
 ---
 
 <Base title="Garden" description="Notes, links, and books: a growing collection of things I’m learning and exploring.">
-	<main class="flex flex-col gap-8 grow">
-		<header class="flex flex-col gap-3">
-			<h1>Garden</h1>
-			<p class="text-secondary">A growing collection of things I’m learning, reading, and exploring.</p>
-		</header>
-		<GardenNav />
-		<div class="grid gap-8 sm:grid-cols-3">
-			<section><h2><a class="link" href="/garden/notes">Notes</a></h2><p class="mt-3">Working ideas, technical notes, and things to return to.</p></section>
-			<section><h2><a class="link" href="/garden/links">Links</a></h2><p class="mt-3">Useful resources and people whose work I follow.</p></section>
-			<section><h2><a class="link" href="/garden/books">Books</a></h2><p class="mt-3">What I’m reading, with notes and reflections along the way.</p></section>
-		</div>
-	</main>
+	<GardenLayout title="Garden">
+		<section class="garden-section" aria-labelledby="recent-notes">
+			<div class="garden-section-heading"><h2 id="recent-notes">Recently tended</h2><a href="/garden/notes">All notes →</a></div>
+			{notes.length ? <div class="garden-grid">{notes.map(entry => <NoteCard {entry} heading="h3" />)}</div> : <p class="garden-empty">Room for working ideas, observations, and things to return to.</p>}
+		</section>
+		<section class="garden-section" aria-labelledby="recent-links">
+			<div class="garden-section-heading"><h2 id="recent-links">Recently saved</h2><a href="/garden/links">All links →</a></div>
+			{links.length ? <div class="garden-link-list">{links.map(entry => <GardenLink {entry} heading="h3" />)}</div> : <p class="garden-empty">No links saved yet.</p>}
+		</section>
+		<section class="garden-section" aria-labelledby="recent-books">
+			<div class="garden-section-heading"><h2 id="recent-books">{reading.length ? "Reading now" : "On the shelf"}</h2><a href="/garden/books">All books →</a></div>
+			{books.length ? <div class="garden-grid">{books.map(book => <BookCard {book} />)}</div> : <p class="garden-empty">The shelf is waiting for its first book.</p>}
+		</section>
+	</GardenLayout>
 </Base>
