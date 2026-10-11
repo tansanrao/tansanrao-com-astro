@@ -56,10 +56,27 @@ export default defineConfig({
 	integrations: [sitemap({ filter: url => !/^\/(?:blog|cv)(?:\/|$)/.test(new URL(url).pathname) })],
 	fonts: [
 		{
+			name: "HK Grotesk",
+			provider: fontProviders.local(),
+			cssVariable: "--font-hk-grotesk",
+			options: {
+				// Keep the public sources available to the standalone feed stylesheet.
+				variants: [
+					{ src: ["./public/fonts/HKGrotesk-Regular.woff2"], weight: 400, style: "normal" },
+					{ src: ["./public/fonts/HKGrotesk-Italic.woff2"], weight: 400, style: "italic" },
+					{ src: ["./public/fonts/HKGrotesk-Medium.woff2"], weight: 500, style: "normal" },
+					{ src: ["./public/fonts/HKGrotesk-SemiBold.woff2"], weight: 600, style: "normal" },
+					{ src: ["./public/fonts/HKGrotesk-SemiBoldItalic.woff2"], weight: 600, style: "italic" },
+					{ src: ["./public/fonts/HKGrotesk-Bold.woff2"], weight: 700, style: "normal" },
+					{ src: ["./public/fonts/HKGrotesk-BoldItalic.woff2"], weight: 700, style: "italic" }
+				]
+			}
+		},
+		{
 			name: "IBM Plex Mono",
 			provider: fontProviders.google(),
 			weights: [400, 500, 700],
-			optimizedFallbacks: false,
+			fallbacks: ["monospace"],
 			cssVariable: "--font-ibm-plex-mono"
 		}
 	]
