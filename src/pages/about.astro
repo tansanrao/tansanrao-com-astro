@@ -4,40 +4,48 @@ import { Image } from "astro:assets";
 import Base from "$layouts/Base.astro";
 import Prose from "$components/Prose.astro";
 import Resume from "$components/Resume.astro";
+import { hasText, joinParts, resume } from "$lib/resume";
 import profile from "../images/profile.jpg";
 
 const introduction = await getEntry("information", "introduction");
-
-const { Content: Introduction } = introduction ? await render(introduction) : ({} as any);
+const renderedIntroduction = introduction ? await render(introduction) : undefined;
+const Introduction = renderedIntroduction?.Content;
+const { basics } = resume;
+const location = joinParts([basics.location?.city, basics.location?.region, basics.location?.countryCode]);
 ---
 
 <Base title="About">
-	<main class="flex flex-col gap-8">
-		<h1 class="sr-only">About</h1>
-		<article class="flex flex-col gap-8">
-			{
-				introduction && (
-					<div class="flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-8">
-						<div class="w-full max-w-56 shrink-0 md:max-w-72">
-							<Image
-								src={profile}
-								alt="Portrait of Tanuj Ravi Rao"
-								width={1835}
-								height={1835}
-								class="w-full rounded-2xl object-cover shadow-sm"
-							/>
-						</div>
-
-						<div class="min-w-0 flex-1">
-							<h2 class="mb-4">Introduction</h2>
-							<Prose>
-								<Introduction />
-							</Prose>
-						</div>
-					</div>
-				)
-			}
-		</article>
+	<main class="about-page">
+		<h1>About</h1>
+		<div class="about-intro">
+			<Image src={profile} alt="Portrait of Tanuj Ravi Rao" width={640} class="about-portrait" />
+			<div class="about-copy">
+				{Introduction && <Prose variant="about"><Introduction /></Prose>}
+				<div class="about-contact">
+					{hasText(basics.email) && <a href={`mailto:${basics.email}`}>{basics.email}</a>}
+					{hasText(basics.url) && <a href={basics.url}>{basics.url!.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a>}
+					{hasText(location) && <span>{location}</span>}
+				</div>
+			</div>
+		</div>
 		<Resume />
 	</main>
 </Base>
+
+<style>
+	@reference "../styles/global.css";
+	.about-page { display: flex; flex-direction: column; gap: var(--section-gap); min-width: 0; overflow-wrap: anywhere; }
+	h1 { font: var(--type-page); }
+	.about-intro { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+	.about-intro {
+		@variant md { grid-template-columns: var(--label-width) minmax(0, 1fr); gap: var(--reading-gap); }
+	}
+	.about-portrait { width: var(--label-width); max-width: 100%; height: auto; border-radius: var(--radius-card); }
+	.about-copy { display: flex; flex-direction: column; gap: var(--space-6); max-width: var(--reading-width); min-width: 0; }
+	.about-contact { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-6); font: var(--type-meta); color: var(--secondary-color); }
+	.about-contact a { display: inline-flex; align-items: center; min-height: var(--control-size); color: var(--accent-color); text-decoration: underline; text-underline-offset: var(--link-offset); }
+	a:hover { color: var(--primary-color); }
+	@media print {
+		.about-intro { grid-template-columns: var(--label-width) minmax(0, 1fr); gap: var(--space-6); }
+	}
+</style>

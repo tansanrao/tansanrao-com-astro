@@ -1,9 +1,9 @@
 # Design system
 
 `styles/tokens.css` owns the site's design values. The homepage, Writing index
-and posts, Garden, shared header, and footer are migrated; other pages are pending
-review. Do not migrate other pages unless requested. Shared prose and warning
-components use the Writing/Garden variants to leave legacy consumers unchanged.
+and posts, Garden, About/CV, shared header, and footer are migrated; other pages
+are pending review. Do not migrate other pages unless requested. Shared prose and
+warning components use explicit variants to leave legacy consumers unchanged.
 
 - Section landing pages have titles only, without subtitle/tagline text. Keep
   metadata descriptions and actual content summaries separate from page headings.
