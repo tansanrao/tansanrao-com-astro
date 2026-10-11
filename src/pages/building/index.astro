@@ -10,7 +10,7 @@ const projects = (await getCollection("projects", entry => !entry.data.draft)).s
 
 <Base title="Building" description="Side projects, experiments, and things I’m building.">
 	<main class="flex flex-col gap-8 grow">
-		<header class="flex flex-col gap-3"><h1>Building</h1><p class="text-secondary">Side projects, experiments, and things I’m building.</p></header>
+		<h1>Building</h1>
 		{projects.length === 0 && <p>Project write-ups are on their way.</p>}
 		<div class="grid gap-8 sm:grid-cols-2">
 			{

@@ -8,7 +8,7 @@ const { collections, photoById } = await getPhotography();
 
 <Base title="Photography" description="One photo a day, and collections from along the way.">
 	<main class="flex flex-col gap-8 grow">
-		<header class="flex flex-col gap-3"><h1>Photography</h1><p class="text-secondary">One photo a day, and collections from along the way.</p></header>
+		<h1>Photography</h1>
 		{
 			!collections.some(collection => collection.id === "365") && (
 				<section class="flex flex-col gap-3">
