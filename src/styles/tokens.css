@@ -87,6 +87,11 @@
 	--type-meta: 400 0.875rem / 1.5 var(--font-mono);
 	--type-caption: 400 0.8125rem / 1.538462 var(--font-mono);
 	--type-code: 400 0.875rem / 1.5 var(--font-mono);
+
+	/* Fixed 1200×630 social-image roles, also read by the Satori renderer. */
+	--type-social-title: 700 80px / 1.1 var(--font-sans);
+	--type-social-identity: 400 28px / 1.5 var(--font-sans);
+	--type-social-meta: 400 24px / 1.5 var(--font-mono);
 }
 
 @variant sm {

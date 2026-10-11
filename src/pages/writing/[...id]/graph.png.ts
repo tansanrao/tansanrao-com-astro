@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import { writingEntryRestParam } from "$lib/paths";
+import Time from "$lib/time";
 import config from "$config";
 import graph from "$graph/content";
 
@@ -10,24 +11,20 @@ export async function getStaticPaths() {
 	return entries.map(entry => ({
 		params: { id: writingEntryRestParam(entry) },
 		props: {
-			type: "Writing",
+			type: "writing",
 			title: entry.data.title,
-			time: entry.data.publishedAt.toISOString().split("T")[0].replace(/-/g, "/"),
-			series: entry.data.series,
-			tags: entry.data.tags
+			time: Time.toLocaleDateString(entry.data.publishedAt, "en-US")
 		}
 	}));
 }
 
-export const GET: APIRoute = async ({ props }) => {
+export const GET: APIRoute = async ({ props, site }) => {
 	const image = await graph({
 		type: props.type,
-		site: config.title,
+		domain: site!.hostname,
 		author: config.author.name,
 		title: props.title,
-		time: props.time,
-		series: props.series,
-		tags: props.tags
+		time: props.time
 	});
 
 	return new Response(new Uint8Array(image), { headers: { "Content-Type": "image/png" } });

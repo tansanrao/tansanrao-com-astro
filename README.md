@@ -212,6 +212,26 @@ Before changing presentation, run `pnpm check`, `pnpm lint`, `pnpm test`, and
 `pnpm build`; inspect desktop/narrow and light/dark layouts in the browser. For
 interaction changes, also check keyboard navigation and JavaScript-disabled pages.
 
+### Social images
+
+Open Graph images are static 1200×630 PNGs generated with Satori and Sharp.
+All cards use the same text-only editorial masthead, with the top-level category
+at bottom left and a publication date when available at bottom right. Notes,
+books, and links belong to `garden`; the homepage and About use `home` and `about`.
+`src/graph/pages.ts` is the shared list of section image routes and metadata targets.
+Pages without their own image use their category card, or the homepage card outside
+those categories. Legacy image redirects remain unchanged.
+
+The template reads the light palette, spacing, and `--type-social-*` roles from
+`src/styles/tokens.css`. Headlines shrink only when measured text would overflow;
+an unreasonably long title fails the build instead of silently clipping. Tags and
+series remain on the page, not in its image.
+
+Image generation uses bundled fonts without network requests. The regular HK
+Grotesk TTF was decoded from the existing WOFF2 with FontTools; IBM Plex Mono
+Regular is the Google Fonts TTF distribution. Their OFL licenses are alongside
+the fonts in `public/fonts/`.
+
 ## Amp Orbs
 
 `.agents/setup` installs the Node version in `.nvmrc`, the pnpm version in
