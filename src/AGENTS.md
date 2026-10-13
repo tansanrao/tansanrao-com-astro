@@ -19,7 +19,7 @@ warning components use explicit variants to leave legacy consumers unchanged.
   for standalone icon actions. Keep visible icon size separate from hit area.
 - Use shared responsive variants (`sm`, `md`, `lg`), with `@reference` to
   `styles/global.css` in Astro stylesheets. Nest `@variant` inside the selector so
-  Astro preserves its scoped specificity. The navigation disclosure's `sm`
+  Astro preserves its scoped specificity. The navigation disclosure's `md`
   threshold must agree with `layouts/header/Header.astro`; article drawer
   thresholds must agree with `lib/drawers.ts`.
 - Local CSS may arrange content with flex/grid, fractions, percentages, zero,

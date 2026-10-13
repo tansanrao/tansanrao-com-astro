@@ -28,17 +28,16 @@ const route = Astro.url.pathname;
 	#primary-navigation {
 		width: 100%; display: flex; flex-direction: column; gap: var(--space-4);
 		padding-block: var(--space-4); border-block: var(--border-width) solid var(--shadow-color);
-		@variant sm { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-6); padding: 0; border: 0; }
-		@variant md { width: auto; margin-inline-start: auto; }
+		@variant md { width: auto; margin-inline-start: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-6); padding: 0; border: 0; }
 	}
 
 	.navigation-links {
 		display: flex; flex-direction: column; gap: var(--space-2);
-		@variant sm { flex-direction: row; flex-wrap: wrap; align-items: center; }
+		@variant md { flex-direction: row; flex-wrap: wrap; align-items: center; }
 	}
 	.navigation-actions {
 		display: flex; align-items: center; gap: var(--space-2);
-		@variant sm { border-inline-start: var(--border-width) solid var(--shadow-color); padding-inline-start: var(--space-2); }
+		@variant md { border-inline-start: var(--border-width) solid var(--shadow-color); padding-inline-start: var(--space-2); }
 	}
 
 	#menu-toggle [data-menu-open] { display: contents; }
@@ -72,8 +71,8 @@ const route = Astro.url.pathname;
 	const toggle = document.getElementById("menu-toggle")!;
 	const navigation = document.getElementById("primary-navigation")!;
 	const header = toggle.closest("header")!;
-	// Keep this threshold in sync with the shared sm breakpoint.
-	const desktop = matchMedia("(min-width: 640px)");
+	// Keep this threshold in sync with the shared md breakpoint and navigation styles above.
+	const desktop = matchMedia("(min-width: 900px)");
 
 	function setExpanded(expanded: boolean) {
 		toggle.setAttribute("aria-expanded", String(expanded));
