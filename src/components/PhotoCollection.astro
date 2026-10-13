@@ -57,7 +57,7 @@ const months = [...new Set(entries.flatMap(item => (item.day ? [item.day.slice(0
 		)
 	}
 	{entries.length === 0 && <p class="photo-meta">No photographs published yet.</p>}
-	<div class="photo-grid">
+	<div class="photo-grid flex flex-wrap items-start">
 		{
 			entries.map((item, index) => {
 				const photo = photoById.get(item.photo.id)!;
@@ -65,8 +65,8 @@ const months = [...new Set(entries.flatMap(item => (item.day ? [item.day.slice(0
 				const month = item.day?.slice(0, 7);
 				return (
 					<figure id={month && entries[index - 1]?.day?.slice(0, 7) !== month ? `month-${month}` : undefined} class="photo-card" style={`--photo-aspect-ratio: ${photo.data.image.width / photo.data.image.height}`}>
-						<a href={photoPath(entry!, item)}>
-							<Image src={photo.data.image} alt={photo.data.alt} width={640} widths={[320, 640, 960]} sizes="(min-width: 1100px) 350px, (min-width: 640px) 50vw, 100vw" format="webp" loading={index < 3 ? "eager" : "lazy"} />
+						<a id={`photo-${item.slug ?? item.day}`} href={photoPath(entry!, item)}>
+							<Image src={photo.data.image} alt={photo.data.alt} width={960} widths={[320, 640, 960, 1600]} sizes="(min-width: 1100px) 1088px, 100vw" format="webp" loading={index < 3 ? "eager" : "lazy"} />
 						</a>
 						<figcaption class="photo-caption">
 							{(item.day ?? photo.data.takenOn) ? <time datetime={item.day ?? photo.data.takenOn}>{item.day ?? photo.data.takenOn}</time> : <span>Date unknown</span>}

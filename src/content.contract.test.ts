@@ -35,6 +35,7 @@ beforeAll(() => {
 			compilerOptions: {
 				baseUrl: ".",
 				paths: {
+					$config: ["site.config.ts"],
 					"$lib/*": ["src/lib/*"],
 					"$components/*": ["src/components/*"],
 					"$layouts/*": ["src/layouts/*"],
@@ -44,11 +45,16 @@ beforeAll(() => {
 		})
 	);
 	write("src/layouts/Base.astro", "<html><head><title>{Astro.props.title}</title></head><body><slot /></body></html>");
+	write("src/layouts/App.astro", "<html><head><title>{Astro.props.subtitle}</title></head><body><slot /></body></html>");
+	write("site.config.ts", 'export default { title: "Fixture", author: { name: "Photographer" } };');
 	write("src/components/Prose.astro", "<div data-prose><slot /></div>");
 	write("src/styles/photography.css", "");
+	write("src/styles/global.css", "");
+	write("src/styles/markdown.css", "");
 	for (const path of [
 		"src/components/PhotoDetail.astro",
 		"src/components/PhotoCollection.astro",
+		"src/pages/photography/index.astro",
 		"src/pages/photography/[...path].astro",
 		"src/pages/photography/photos/[...id].astro"
 	]) {
@@ -160,6 +166,30 @@ it("loads real content, keeps capture dates and album order, hides drafts, and v
 	});
 }, 40000);
 
+it("lists public collections newest first with counts, known dates, previews, and static collection links", () => {
+	entry("photoCollections", "empty", { title: "Empty", kind: "album" });
+	entry("photoCollections", "undated", { title: "Undated", kind: "album", entries: [{ photo: "undated", slug: "portrait" }] });
+	try {
+		const result = build();
+		expect(result.status, result.stdout + result.stderr).toBe(0);
+		const html = readFileSync(join(fixture, "dist/photography/index.html"), "utf8");
+		const rows = [...html.matchAll(/<a\b[^>]*href="(\/photography\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+		expect(rows.map(row => row[1])).toEqual(["/photography/daily", "/photography/album", "/photography/empty", "/photography/undated"]);
+		expect(rows[0][2]).toContain('datetime="2026-03-01"');
+		expect(rows[0][2]).toContain("2 / 2");
+		expect(rows[0][2].match(/<img\b/g)).toHaveLength(2);
+		// Capture dates, not publication timestamps, describe albums; unknown dates are not invented.
+		expect(rows[1][2]).toContain('datetime="2026-02-28"');
+		expect(rows[2][2]).not.toContain("<img");
+		expect(rows[2][2]).not.toContain("<time");
+		expect(rows[3][2]).toContain("Unknown");
+		expect(rows[3][2]).not.toContain("<time");
+	} finally {
+		rmSync(join(fixture, "src/content/photoCollections/empty.md"));
+		rmSync(join(fixture, "src/content/photoCollections/undated.md"));
+	}
+}, 40000);
+
 it("maps one nested source to different collection URLs with collection-local navigation", () => {
 	entry("photos", "archive/center-for-the-arts", {
 		image: "../../../photo.jpg",
@@ -207,6 +237,15 @@ it("maps one nested source to different collection URLs with collection-local na
 	expect(daily.match(/<img\b[^>]*src="([^"]+)"/)![1]).toBe(album.match(/<img\b[^>]*src="([^"]+)"/)![1]);
 	expect(daily).toContain('href="/photography/365"');
 	expect(album).toContain('href="/photography/virginia-tech"');
+	// Closing a direct link returns to this photo in its own collection, without browser history or JavaScript.
+	expect(daily).toMatch(/<a\b[^>]*href="\/photography\/365#photo-2026-10-12"[^>]*aria-label="Close viewer, back to 365"/);
+	expect(album).toMatch(
+		/<a\b[^>]*href="\/photography\/virginia-tech#photo-center-for-the-arts"[^>]*aria-label="Close viewer, back to Virginia Tech"/
+	);
+	expect(page("365")).toContain('id="photo-2026-10-12"');
+	expect(page("virginia-tech")).toContain('id="photo-center-for-the-arts"');
+	expect(daily).toContain('aria-label="Photo 3 of 3"');
+	expect(album).toContain('aria-label="Photo 2 of 3"');
 	expect(daily).toMatch(/<h1[^>]*>Photo from 2026-10-12<\/h1>/);
 	expect(album).toMatch(/<h1[^>]*>Center for the Arts<\/h1>/);
 	expect(page("365")).toContain('href="/photography/365/2026-10-12"');

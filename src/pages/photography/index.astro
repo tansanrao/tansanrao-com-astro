@@ -1,45 +1,75 @@
 ---
 import { Image } from "astro:assets";
+import { Temporal } from "temporal-polyfill";
 import Base from "$layouts/Base.astro";
-import { getPhotography, photoCollectionPath } from "$lib/photography";
+import { getPhotography, orderedPhotoEntries, photoCollectionPath } from "$lib/photography";
 import "$styles/photography.css";
 
 const { collections, photoById } = await getPhotography();
+const rows = collections
+	.map(collection => {
+		const entries = orderedPhotoEntries(collection);
+		const photos = entries.map(item => photoById.get(item.photo.id)!);
+		const cover = photos.find(photo => photo.id === collection.data.cover?.id);
+		const previews = (cover ? [cover, ...photos.filter(photo => photo.id !== cover.id)] : photos).slice(0, 4);
+		const latestDate = entries
+			.flatMap(item => {
+				const date = item.day ?? photoById.get(item.photo.id)!.data.takenOn;
+				return date ? [date] : [];
+			})
+			.sort()
+			.at(-1);
+		return { collection, previews, latestDate };
+	})
+	.sort((a, b) => (b.latestDate ?? "").localeCompare(a.latestDate ?? "") || a.collection.data.title.localeCompare(b.collection.data.title));
 ---
 
 <Base title="Photography" description="One photo a day, and collections from along the way.">
 	<main class="photography-page">
 		<h1>Photography</h1>
 		{collections.length === 0 && <p class="photo-meta">No photo collections published yet.</p>}
-		<div>
-			{
-				collections.map(collection => {
-					const cover = photoById.get(collection.data.cover?.id ?? collection.data.entries[0]?.photo.id);
-					const count = collection.data.entries.length;
-					return (
-						<article class="photo-collection">
-							{cover && (
-								<a class="collection-cover" href={photoCollectionPath(collection.id)} aria-label={`View ${collection.data.title}`}>
-									<Image src={cover.data.image} alt={cover.data.alt} width={960} widths={[480, 960, 1600]} sizes="(min-width: 900px) 800px, 100vw" format="webp" />
-								</a>
-							)}
-							<div class="photo-copy">
-								<h2>
-									<a href={photoCollectionPath(collection.id)}>{collection.data.title}</a>
-								</h2>
-								{collection.data.description && <p>{collection.data.description}</p>}
-								<p class="photo-meta">
-									{count}
-									{collection.data.challenge ? ` / ${collection.data.challenge.days} photos` : ` ${count === 1 ? "photo" : "photos"}`}
-								</p>
-								<a class="photo-action" href={photoCollectionPath(collection.id)}>
-									View {collection.data.kind === "daily" ? "project" : "collection"} →
-								</a>
-							</div>
-						</article>
-					);
-				})
-			}
-		</div>
+		{
+			rows.length > 0 && (
+				<div class="collection-list">
+					<div class="collection-list-header" aria-hidden="true">
+						<span>Collection</span>
+						<span>Count</span>
+						<span>Latest photo</span>
+						<span>Photos</span>
+					</div>
+					<ul aria-label="Photo collections">
+						{rows.map(({ collection, previews, latestDate }) => {
+							const count = collection.data.entries.length;
+							const countLabel = collection.data.challenge ? `${count} / ${collection.data.challenge.days}` : String(count);
+							const dateLabel = latestDate ? Temporal.PlainDate.from(latestDate).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "Unknown";
+							return (
+								<li>
+									<a class="collection-row" href={photoCollectionPath(collection.id)}>
+										<h2 class="collection-name">{collection.data.title}</h2>
+										<span class="collection-count photo-meta">
+											<span class="sr-only">Photos: </span>
+											{countLabel}
+											<span class="collection-count-unit" aria-hidden="true">
+												{" "}
+												{count === 1 && !collection.data.challenge ? "photo" : "photos"}
+											</span>
+										</span>
+										<span class="collection-date photo-meta">
+											<span class="collection-date-label">Latest: </span>
+											{latestDate ? <time datetime={latestDate}>{dateLabel}</time> : count ? "Unknown" : "—"}
+										</span>
+										<span class="collection-previews" aria-hidden="true">
+											{previews.map(photo => (
+												<Image src={photo.data.image} alt="" width={160} widths={[80, 160, 320]} sizes="auto, 160px" format="webp" loading="lazy" style={`--photo-aspect-ratio: ${photo.data.image.width / photo.data.image.height}`} />
+											))}
+										</span>
+									</a>
+								</li>
+							);
+						})}
+					</ul>
+				</div>
+			)
+		}
 	</main>
 </Base>

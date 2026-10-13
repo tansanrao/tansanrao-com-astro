@@ -1,9 +1,12 @@
 ---
 import { type CollectionEntry, render } from "astro:content";
 import { Image } from "astro:assets";
-import Base from "$layouts/Base.astro";
+import config from "$config";
+import App from "$layouts/App.astro";
 import Prose from "$components/Prose.astro";
 import { getPhotography, orderedPhotoEntries, photoCollectionPath, photoPath } from "$lib/photography";
+import "$styles/global.css";
+import "$styles/markdown.css";
 import "$styles/photography.css";
 
 interface Props {
@@ -20,39 +23,66 @@ const ordered = collection ? orderedPhotoEntries(collection) : [];
 const index = ordered.findIndex(item => item.photo.id === entry.id);
 const previous = ordered[index - 1];
 const next = ordered[index + 1];
+const collectionURL = collection ? photoCollectionPath(collection.id) : "/photography";
+const closeURL = collection ? `${collectionURL}#photo-${ordered[index].slug ?? ordered[index].day}` : collectionURL;
 const title = (is365 ? undefined : data.title) ?? (data.takenOn ? `Photo from ${data.takenOn}` : "Photograph");
 const settings = data.settings;
 const exposure = settings?.exposureSeconds;
 const shutter = exposure && exposure < 1 && Math.abs(1 / exposure - Math.round(1 / exposure)) < 0.01 ? `1/${Math.round(1 / exposure)}` : exposure;
 ---
 
-<Base {title} description={data.alt}>
-	<main class="photography-page">
-		<header class="photo-heading">
-			<a class="photo-action" href={collection ? photoCollectionPath(collection.id) : "/photography"}>← {collection ? `Back to ${collection.data.title}` : "Photography"}</a>
-			<h1 class:list={{ "sr-only": is365 }}>{title}</h1>
-		</header>
-		<div class="photo-detail">
-			<div class="photo-copy">
-				<Image src={data.image} alt={data.alt} width={Math.min(1600, data.image.width)} widths={[640, 960, 1600].filter(width => width <= data.image.width)} sizes="(min-width: 900px) 800px, 100vw" format="webp" loading="eager" class="photo-image" />
+<App title={config.title} subtitle={title} description={data.alt} author={config.author.name}>
+	<main class="photography-page photo-viewer">
+		<header class="viewer-toolbar">
+			<div class="viewer-context">
+				<a class="viewer-collection" href={collectionURL}>
+					<span class="icon-[lucide--images]" aria-hidden="true"></span>
+					{collection?.data.title ?? "Photography"}
+				</a>
 				{
-					collection && (previous || next) && (
-						<nav aria-label="Photos" class="photo-navigation">
+					collection && (
+						<span class="photo-meta" aria-label={`Photo ${index + 1} of ${ordered.length}`}>
+							{index + 1} / {ordered.length}
+						</span>
+					)
+				}
+			</div>
+			<a class="icon-control viewer-close" href={closeURL} aria-label={`Close viewer, back to ${collection?.data.title ?? "Photography"}`} title="Close (Esc)">
+				<span class="icon-[lucide--x]" aria-hidden="true"></span>
+			</a>
+		</header>
+		<div class="viewer-layout">
+			<div class="viewer-stage">
+				<figure class="viewer-image">
+					<Image src={data.image} alt={data.alt} width={Math.min(2400, data.image.width)} widths={[640, 960, 1600, 2400].filter(width => width <= data.image.width)} sizes="(min-width: 900px) calc(100vw - 20rem), 100vw" format="webp" loading="eager" fetchpriority="high" />
+				</figure>
+				{
+					collection && (
+						<nav aria-label="Photos" class="viewer-navigation">
 							{previous ? (
-								<a class="photo-action" rel="prev" href={photoPath(collection, previous)}>
-									← Previous photo
+								<a rel="prev" href={photoPath(collection, previous)} aria-label="Previous photo" title="Previous photo (←)">
+									<span class="icon-[lucide--arrow-left]" aria-hidden="true" /> Previous
 								</a>
 							) : (
-								<span />
+								<span aria-disabled="true">
+									<span class="icon-[lucide--arrow-left]" aria-hidden="true" /> Previous
+								</span>
 							)}
-							{next && (
-								<a class="photo-action" rel="next" href={photoPath(collection, next)}>
-									Next photo →
+							{next ? (
+								<a rel="next" href={photoPath(collection, next)} aria-label="Next photo" title="Next photo (→)">
+									Next <span class="icon-[lucide--arrow-right]" aria-hidden="true" />
 								</a>
+							) : (
+								<span aria-disabled="true">
+									Next <span class="icon-[lucide--arrow-right]" aria-hidden="true" />
+								</span>
 							)}
 						</nav>
 					)
 				}
+			</div>
+			<aside class="viewer-info" aria-label="Photo information">
+				<h1 class:list={{ "sr-only": is365 }}>{title}</h1>
 				{
 					entry.body?.trim() && (
 						<Prose variant="photography">
@@ -60,110 +90,123 @@ const shutter = exposure && exposure < 1 && Math.abs(1 / exposure - Math.round(1
 						</Prose>
 					)
 				}
-			</div>
-			<dl class="photo-details">
-				<dt>Date</dt><dd>{data.takenOn ? <time datetime={data.takenAt ?? data.takenOn}>{data.takenOn}</time> : "Unknown"}</dd>
-				{
-					(["camera", "lens", "film"] as const).map(kind => {
-						const ref = data[kind];
-						const item = ref ? equipmentById.get(ref.id) : undefined;
-						return (
-							item && (
-								<>
+				<dl class="photo-details">
+					<dt>Date</dt><dd>{data.takenOn ? <time datetime={data.takenAt ?? data.takenOn}>{data.takenOn}</time> : "Unknown"}</dd>
+					{
+						(["camera", "lens", "film"] as const).map(kind => {
+							const ref = data[kind];
+							const item = ref ? equipmentById.get(ref.id) : undefined;
+							return (
+								item && (
 									<>
-										<dt class="capitalize">{kind}</dt>
-										<dd>
-											{item.data.url ? (
-												<a class="link" href={item.data.url}>
-													{item.data.name}
-												</a>
-											) : (
-												item.data.name
-											)}
-										</dd>
+										<>
+											<dt class="capitalize">{kind}</dt>
+											<dd>
+												{item.data.url ? (
+													<a class="link" href={item.data.url}>
+														{item.data.name}
+													</a>
+												) : (
+													item.data.name
+												)}
+											</dd>
+										</>
 									</>
+								)
+							);
+						})
+					}
+					{
+						settings?.focalLengthMm && (
+							<>
+								<>
+									<dt>Focal length</dt>
+									<dd>{settings.focalLengthMm}mm</dd>
 								</>
-							)
-						);
-					})
-				}
-				{
-					settings?.focalLengthMm && (
-						<>
-							<>
-								<dt>Focal length</dt>
-								<dd>{settings.focalLengthMm}mm</dd>
 							</>
-						</>
-					)
-				}
-				{
-					settings?.aperture && (
-						<>
+						)
+					}
+					{
+						settings?.aperture && (
 							<>
-								<dt>Aperture</dt>
-								<dd>ƒ/{settings.aperture}</dd>
+								<>
+									<dt>Aperture</dt>
+									<dd>ƒ/{settings.aperture}</dd>
+								</>
 							</>
-						</>
-					)
-				}
-				{
-					exposure && (
-						<>
+						)
+					}
+					{
+						exposure && (
 							<>
-								<dt>Shutter speed</dt>
-								<dd>{shutter}s</dd>
+								<>
+									<dt>Shutter speed</dt>
+									<dd>{shutter}s</dd>
+								</>
 							</>
-						</>
-					)
-				}
-				{
-					settings?.iso && (
-						<>
+						)
+					}
+					{
+						settings?.iso && (
 							<>
-								<dt>ISO</dt>
-								<dd>{settings.iso}</dd>
+								<>
+									<dt>ISO</dt>
+									<dd>{settings.iso}</dd>
+								</>
 							</>
-						</>
-					)
-				}
-				{
-					settings?.exposureCompensationEv !== undefined && (
-						<>
+						)
+					}
+					{
+						settings?.exposureCompensationEv !== undefined && (
 							<>
-								<dt>Exposure compensation</dt>
-								<dd>{settings.exposureCompensationEv} EV</dd>
+								<>
+									<dt>Exposure compensation</dt>
+									<dd>{settings.exposureCompensationEv} EV</dd>
+								</>
 							</>
-						</>
-					)
-				}
-				{
-					data.location && (
-						<>
+						)
+					}
+					{
+						data.location && (
 							<>
-								<dt>Location</dt>
-								<dd>{data.location}</dd>
+								<>
+									<dt>Location</dt>
+									<dd>{data.location}</dd>
+								</>
 							</>
-						</>
-					)
-				}
-				{
-					memberships.length > 0 && (
-						<>
+						)
+					}
+					{
+						memberships.length > 0 && (
 							<>
-								<dt>Collections</dt>
-								<dd class="photo-memberships">
-									{memberships.map(membership => (
-										<a class="link" href={photoPath(membership, membership.data.entries.find(item => item.photo.id === entry.id)!)} aria-current={membership.id === collection?.id ? "page" : undefined}>
-											{membership.data.title}
-										</a>
-									))}
-								</dd>
+								<>
+									<dt>Collections</dt>
+									<dd class="photo-memberships">
+										{memberships.map(membership => (
+											<a class="link" href={photoPath(membership, membership.data.entries.find(item => item.photo.id === entry.id)!)} aria-current={membership.id === collection?.id ? "page" : undefined}>
+												{membership.data.title}
+											</a>
+										))}
+									</dd>
+								</>
 							</>
-						</>
-					)
-				}
-			</dl>
+						)
+					}
+				</dl>
+			</aside>
 		</div>
 	</main>
-</Base>
+</App>
+
+<script>
+	document.addEventListener("keydown", event => {
+		if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.repeat) return;
+		if (event.target instanceof HTMLElement && event.target.closest("input, textarea, select, [contenteditable]")) return;
+		const selector = { ArrowLeft: 'a[rel="prev"]', ArrowRight: 'a[rel="next"]', Escape: ".viewer-close" }[event.key];
+		const link = selector && document.querySelector<HTMLAnchorElement>(`.photo-viewer ${selector}`);
+		if (link) {
+			event.preventDefault();
+			link.click();
+		}
+	});
+</script>
