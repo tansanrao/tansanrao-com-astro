@@ -25,6 +25,7 @@ const legacyRedirects = Object.fromEntries(
 export default defineConfig({
 	site: "https://tansanrao.com",
 	trailingSlash: "never",
+	prerenderConflictBehavior: "error",
 	redirects: legacyRedirects,
 	markdown: {
 		processor: satteri({

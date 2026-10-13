@@ -2,45 +2,40 @@
 import { Image } from "astro:assets";
 import Base from "$layouts/Base.astro";
 import { getPhotography, photoCollectionPath } from "$lib/photography";
+import "$styles/photography.css";
 
 const { collections, photoById } = await getPhotography();
 ---
 
 <Base title="Photography" description="One photo a day, and collections from along the way.">
-	<main class="flex flex-col gap-8 grow">
+	<main class="photography-page">
 		<h1>Photography</h1>
-		{
-			!collections.some(collection => collection.id === "365") && (
-				<section class="flex flex-col gap-3">
-					<>
-						<h2>
-							<a class="link" href="/photography/365">
-								365 — one photo a day
-							</a>
-						</h2>
-						<p>A daily photography practice. Photos coming soon.</p>
-					</>
-				</section>
-			)
-		}
-		<div class="grid gap-8 sm:grid-cols-2">
+		{collections.length === 0 && <p class="photo-meta">No photo collections published yet.</p>}
+		<div>
 			{
 				collections.map(collection => {
 					const cover = photoById.get(collection.data.cover?.id ?? collection.data.entries[0]?.photo.id);
+					const count = collection.data.entries.length;
 					return (
-						<article class="flex flex-col gap-3">
+						<article class="photo-collection">
 							{cover && (
-								<a href={photoCollectionPath(collection.id)}>
-									<Image src={cover.data.image} alt={cover.data.alt} width={640} format="webp" class="w-full h-auto" />
+								<a class="collection-cover" href={photoCollectionPath(collection.id)} aria-label={`View ${collection.data.title}`}>
+									<Image src={cover.data.image} alt={cover.data.alt} width={960} widths={[480, 960, 1600]} sizes="(min-width: 900px) 800px, 100vw" format="webp" />
 								</a>
 							)}
-							<h2>
-								<a class="link" href={photoCollectionPath(collection.id)}>
-									{collection.data.title}
+							<div class="photo-copy">
+								<h2>
+									<a href={photoCollectionPath(collection.id)}>{collection.data.title}</a>
+								</h2>
+								{collection.data.description && <p>{collection.data.description}</p>}
+								<p class="photo-meta">
+									{count}
+									{collection.data.challenge ? ` / ${collection.data.challenge.days} photos` : ` ${count === 1 ? "photo" : "photos"}`}
+								</p>
+								<a class="photo-action" href={photoCollectionPath(collection.id)}>
+									View {collection.data.kind === "daily" ? "project" : "collection"} →
 								</a>
-							</h2>
-							<p class="text-secondary">{collection.data.entries.length} photos</p>
-							{collection.data.description && <p>{collection.data.description}</p>}
+							</div>
 						</article>
 					);
 				})

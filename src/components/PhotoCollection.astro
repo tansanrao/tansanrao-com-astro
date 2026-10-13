@@ -3,7 +3,8 @@ import { type CollectionEntry, render } from "astro:content";
 import { Image } from "astro:assets";
 import { Temporal } from "temporal-polyfill";
 import Prose from "$components/Prose.astro";
-import { getPhotography } from "$lib/photography";
+import { getPhotography, orderedPhotoEntries, photoPath } from "$lib/photography";
+import "$styles/photography.css";
 
 interface Props {
 	entry?: CollectionEntry<"photoCollections">;
@@ -12,60 +13,66 @@ const { entry } = Astro.props;
 const { photoById } = await getPhotography();
 const rendered = entry ? await render(entry) : undefined;
 const Content = rendered?.Content;
-const entries = [...(entry?.data.entries ?? [])];
-if (entry?.data.kind === "daily") entries.sort((a, b) => a.day!.localeCompare(b.day!));
+const entries = entry ? orderedPhotoEntries(entry) : [];
 const challenge = entry?.data.challenge;
 const months = [...new Set(entries.flatMap(item => (item.day ? [item.day.slice(0, 7)] : [])))];
 ---
 
-<main class="flex flex-col gap-8 grow">
-	<a class="link self-start" href="/photography">All collections</a>
-	<header class="flex flex-col gap-3">
+<main class="photography-page">
+	<header class="photo-heading">
+		<a class="photo-action" href="/photography">← Photography</a>
 		<h1>{entry?.data.title ?? "365 — one photo a day"}</h1>
-		{entry?.data.description && <p>{entry.data.description}</p>}
+	</header>
+	<section class="photo-copy" aria-label="About this collection">
+		{entry?.data.description && <p class="photo-intro">{entry.data.description}</p>}
 		{
 			challenge && (
-				<p class="text-secondary">
-					{entries.length} / {challenge.days} photos · Started <time datetime={challenge.startsOn}>{challenge.startsOn}</time>
-				</p>
+				<div class="photo-summary photo-meta">
+					<p>
+						{entries.length} / {challenge.days} photos
+					</p>
+					<p>
+						Started <time datetime={challenge.startsOn}>{challenge.startsOn}</time>
+					</p>
+				</div>
 			)
 		}
-	</header>
+	</section>
 	{
-		Content && (
-			<Prose>
+		Content && entry?.body?.trim() && (
+			<Prose variant="photography">
 				<Content />
 			</Prose>
 		)
 	}
 	{
 		months.length > 1 && (
-			<nav aria-label="Challenge months" class="flex flex-wrap gap-5">
+			<nav aria-label="Challenge months" class="photo-months">
 				{months.map(month => (
-					<a class="link" href={`#month-${month}`}>
+					<a class="photo-action" href={`#month-${month}`}>
 						{month}
 					</a>
 				))}
 			</nav>
 		)
 	}
-	{entries.length === 0 && <p class="text-secondary">No photographs published yet.</p>}
-	<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+	{entries.length === 0 && <p class="photo-meta">No photographs published yet.</p>}
+	<div class="photo-grid">
 		{
 			entries.map((item, index) => {
 				const photo = photoById.get(item.photo.id)!;
 				const day = challenge && item.day ? Temporal.PlainDate.from(challenge.startsOn).until(Temporal.PlainDate.from(item.day)).days + 1 : undefined;
 				const month = item.day?.slice(0, 7);
 				return (
-					<figure id={month && entries[index - 1]?.day?.slice(0, 7) !== month ? `month-${month}` : undefined} class="flex flex-col gap-3 scroll-mt-20">
-						<a href={`/photography/photos/${photo.id}`}>
-							<Image src={photo.data.image} alt={photo.data.alt} width={640} format="webp" class="w-full h-auto" />
+					<figure id={month && entries[index - 1]?.day?.slice(0, 7) !== month ? `month-${month}` : undefined} class="photo-card">
+						<a href={photoPath(entry!, item)}>
+							<Image src={photo.data.image} alt={photo.data.alt} width={640} widths={[320, 640, 960]} sizes="(min-width: 1100px) 350px, (min-width: 640px) 50vw, 100vw" format="webp" loading={index < 3 ? "eager" : "lazy"} />
 						</a>
-						<figcaption class="flex flex-col gap-1 text-sm">
-							{day && <span>Day {day}</span>}
+						<figcaption class="photo-caption">
 							{(item.day ?? photo.data.takenOn) ? <time datetime={item.day ?? photo.data.takenOn}>{item.day ?? photo.data.takenOn}</time> : <span>Date unknown</span>}
-							{photo.data.title && (
-								<a class="link" href={`/photography/photos/${photo.id}`}>
+							{day && <span>Day {day}</span>}
+							{!challenge && photo.data.title && (
+								<a class="link" href={photoPath(entry!, item)}>
 									{photo.data.title}
 								</a>
 							)}

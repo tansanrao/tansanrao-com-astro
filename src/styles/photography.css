@@ -1,0 +1,139 @@
+@reference "./global.css";
+
+.photography-page {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	gap: var(--section-gap);
+	min-width: 0;
+	overflow-wrap: anywhere;
+	padding-block-end: var(--section-gap);
+	font: var(--type-body);
+
+	.photo-heading,
+	.photo-copy {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
+		min-width: 0;
+	}
+
+	.photo-heading h1 {
+		font: var(--type-page);
+	}
+	h2 {
+		font: var(--type-section);
+	}
+	.photo-meta {
+		font: var(--type-meta);
+		color: var(--secondary-color);
+	}
+	.photo-action {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--control-size);
+		width: fit-content;
+		font: var(--type-label);
+		color: var(--accent-color);
+	}
+	a:hover {
+		color: var(--accent-color);
+	}
+	.photo-action:hover {
+		text-decoration: underline;
+		text-underline-offset: var(--link-offset);
+	}
+	.photo-intro {
+		max-width: var(--reading-width);
+	}
+	.photo-summary,
+	.photo-caption,
+	.photo-navigation {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--space-3) var(--space-6);
+	}
+	.photo-summary {
+		padding-block: var(--space-4);
+		border-block: var(--border-width) solid var(--shadow-color);
+	}
+	.photo-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--space-8) var(--grid-gap);
+		@variant sm {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		@variant lg {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+	.photo-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		scroll-margin-block-start: var(--space-6);
+	}
+	.photo-card img,
+	.collection-cover img {
+		width: 100%;
+		height: auto;
+	}
+	.photo-card > a {
+		display: block;
+	}
+	.photo-caption {
+		font: var(--type-caption);
+	}
+	.photo-caption span {
+		color: var(--secondary-color);
+	}
+	.photo-months {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-6);
+	}
+	.photo-collection,
+	.photo-detail {
+		display: grid;
+		align-items: start;
+		gap: var(--grid-gap);
+		min-width: 0;
+		@variant md {
+			grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+		}
+	}
+	.photo-collection + .photo-collection {
+		padding-block-start: var(--section-gap);
+		border-block-start: var(--border-width) solid var(--shadow-color);
+	}
+	.photo-image {
+		width: 100%;
+		height: auto;
+	}
+	.photo-details {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		font: var(--type-meta);
+	}
+	.photo-details dt {
+		color: var(--secondary-color);
+	}
+	.photo-details dd + dt {
+		margin-block-start: var(--space-6);
+	}
+	.photo-details a {
+		color: var(--accent-color);
+	}
+	.photo-memberships {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+	.photo-navigation {
+		border-block-start: var(--border-width) solid var(--shadow-color);
+		padding-block-start: var(--space-3);
+	}
+}

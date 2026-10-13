@@ -1,0 +1,20 @@
+---
+import Base from "$layouts/Base.astro";
+import PhotoCollection from "$components/PhotoCollection.astro";
+import PhotoDetail from "$components/PhotoDetail.astro";
+import { getPhotography } from "$lib/photography";
+
+export async function getStaticPaths() {
+	const { collections, photoById } = await getPhotography();
+	return collections.flatMap(collection => [
+		{ params: { path: collection.id }, props: { collection, photo: undefined } },
+		...collection.data.entries.map(item => ({
+			params: { path: `${collection.id}/${item.slug ?? item.day}` },
+			props: { collection, photo: photoById.get(item.photo.id)! }
+		}))
+	]);
+}
+const { collection, photo } = Astro.props;
+---
+
+{photo ? <PhotoDetail entry={photo} {collection} /> : <Base title={collection.data.title} description={collection.data.description}><PhotoCollection entry={collection} /></Base>}

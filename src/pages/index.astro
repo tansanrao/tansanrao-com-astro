@@ -2,22 +2,23 @@
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import { writingEntryPath } from "$lib/paths";
+import { getPhotography, photoPath } from "$lib/photography";
 import Time from "$lib/time";
 import Base from "$layouts/Base.astro";
 import Icon from "$components/Icon.astro";
 import HomeArtwork from "$components/HomeArtwork.astro";
 
-const [allWriting, allProjects, allPhotos, allNotes, allBooks, allLinks] = await Promise.all([
+const [allWriting, allProjects, photography, allNotes, allBooks, allLinks] = await Promise.all([
 	getCollection("writing", entry => !entry.data.draft),
 	getCollection("projects", entry => !entry.data.draft),
-	getCollection("photos", entry => !entry.data.draft),
+	getPhotography(),
 	getCollection("notes", entry => !entry.data.draft),
 	getCollection("books", entry => !entry.data.draft),
 	getCollection("links", entry => !entry.data.draft)
 ]);
 const writing = allWriting.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()).slice(0, 3);
 const projects = allProjects.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()).slice(0, 2);
-const photos = allPhotos.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()).slice(0, 3);
+const photos = photography.photos.sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()).slice(0, 3);
 const notes = allNotes
 	.sort((a, b) => (b.data.updatedAt ?? b.data.publishedAt).getTime() - (a.data.updatedAt ?? a.data.publishedAt).getTime())
 	.slice(0, 3);
@@ -106,10 +107,15 @@ const projectPreviews = [
 		<section aria-labelledby="home-photography">
 			<div class="section-heading"><h2 id="home-photography">Photography</h2><a class="section-link" href="/photography">All photographs <Icon name="lucide--arrow-right" size="var(--icon-size)" /></a></div>
 			<div class="photo-grid">
-				{photos.map(({ id, data }) => <figure>
-					<a class="photo-frame" href={`/photography/photos/${id}`}><Image src={data.image} alt={data.alt} width={800} sizes="(max-width: 639px) 100vw, 45vw" loading="lazy" format="webp" /></a>
-					<figcaption><a href={`/photography/photos/${id}`}>{data.title ?? data.alt}</a>{data.location && <span>{data.location}</span>}</figcaption>
-				</figure>)}
+				{photos.map(({ id, data }) => {
+					const collection = photography.collections.find(collection => collection.data.entries.some(item => item.photo.id === id));
+					const item = collection?.data.entries.find(item => item.photo.id === id);
+					const href = collection && item ? photoPath(collection, item) : `/photography/photos/${id}`;
+					const label = `${collection?.data.title ?? "Photos"} | ${item?.slug ?? item?.day ?? id.split("/").at(-1)}`;
+					return <figure style={{ "--photo-aspect-ratio": data.image.width / data.image.height }}>
+					<a class="photo-frame" href={href}><Image src={data.image} alt={data.alt} width={800} sizes="(max-width: 639px) 100vw, 45vw" loading="lazy" format="webp" /></a>
+					<figcaption><a href={href}>{label}</a></figcaption>
+				</figure>})}
 				{photos.length === 0 && (["landscape", "architecture", "botanical"] as const).map(kind => <figure data-placeholder>
 					<div class="photo-frame"><HomeArtwork kind={kind} /></div>
 					<figcaption>Photo placeholder<span>Caption / location</span></figcaption>
@@ -171,15 +177,12 @@ const projectPreviews = [
 	.project-copy p, .status, figcaption, .preview-note, .empty-message { color: var(--secondary-color); }
 	.status { font: var(--type-meta); padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--shadow-color); margin-top: var(--space-2); }
 	.photo-grid {
-		display: grid; gap: var(--grid-gap);
-		@variant sm { grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); }
+		display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--grid-gap);
 	}
-	.photo-grid > figure { min-width: 0; }
-	.photo-frame {
-		display: block; aspect-ratio: 3 / 2; overflow: hidden; background: var(--block-color);
-		@variant sm { aspect-ratio: auto; height: var(--media-preview-height); }
-	}
-	.photo-frame :global(img) { width: 100%; height: 100%; object-fit: cover; }
+	.photo-grid > figure { min-width: 0; width: calc(var(--media-preview-height) * var(--photo-aspect-ratio, 1.5)); max-width: 100%; }
+	.photo-frame { display: block; background: var(--block-color); }
+	[data-placeholder] .photo-frame { aspect-ratio: 3 / 2; }
+	.photo-frame :global(img) { display: block; width: 100%; height: auto; }
 	figcaption { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-2); font: var(--type-caption); }
 	.preview-note { font: var(--type-meta); margin-bottom: var(--space-6); }
 	.garden-groups { display: flex; flex-direction: column; gap: var(--space-8); }

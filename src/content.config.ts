@@ -1,9 +1,42 @@
+import { existsSync } from "node:fs";
+import { extname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { glob } from "astro/loaders";
 import { defineCollection, reference } from "astro:content";
 import { z } from "astro/zod";
+import { slug } from "github-slugger";
 import { Temporal } from "temporal-polyfill";
 
 const markdown = (name: string) => glob({ pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"], base: `./src/content/${name}` });
+const photographyMarkdown = (name: "photos" | "photoCollections"): ReturnType<typeof glob> => ({
+	name: "photography-markdown",
+	async load(context) {
+		const ids = new Map<string, string>();
+		await glob({
+			pattern: ["**/*.md", "!**/_*.md", "!**/_*/*.md"],
+			base: `./src/content/${name}`,
+			generateId({ entry, data, base }) {
+				// Match Astro's default IDs, but reserve them before its asynchronous parsing/cache checks.
+				const id = data.slug
+					? String(data.slug)
+					: entry
+							.slice(0, -extname(entry).length)
+							.split("/")
+							.map(segment => slug(segment))
+							.join("/")
+							.replace(/\/index$/, "");
+				ids.delete(entry);
+				for (const [other, otherId] of ids) {
+					if (otherId === id && existsSync(resolve(fileURLToPath(base), other))) {
+						throw new Error(`Duplicate content ID "${id}" in ${name}: ${other} and ${entry}`);
+					}
+				}
+				ids.set(entry, id);
+				return id;
+			}
+		}).load(context);
+	}
+});
 const text = z.string().trim().min(1);
 const date = z.iso.date();
 const datetime = z.union([z.date(), z.iso.datetime({ offset: true }).transform(value => new Date(value))]);
@@ -121,7 +154,7 @@ const books = defineCollection({
 });
 
 const photos = defineCollection({
-	loader: markdown("photos"),
+	loader: photographyMarkdown("photos"),
 	schema: ({ image }) =>
 		z
 			.object({
@@ -154,14 +187,22 @@ const photos = defineCollection({
 });
 
 const photoCollections = defineCollection({
-	loader: markdown("photoCollections"),
+	loader: photographyMarkdown("photoCollections"),
 	schema: z
 		.object({
 			title: text,
 			description: text.optional(),
 			kind: z.enum(["album", "daily"]),
 			cover: reference("photos").optional(),
-			entries: z.array(z.object({ photo: reference("photos"), day: date.optional() })).default([]),
+			entries: z
+				.array(
+					z.object({
+						photo: reference("photos"),
+						day: date.optional(),
+						slug: text.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use a lowercase URL segment with letters, numbers, and hyphens").optional()
+					})
+				)
+				.default([]),
 			challenge: z.object({ startsOn: date, days: z.number().int().positive() }).optional(),
 			draft: z.boolean().default(false)
 		})
@@ -171,9 +212,16 @@ const photoCollections = defineCollection({
 			if (value.kind === "album" && value.challenge) issue("Albums cannot define a challenge", ["challenge"]);
 			const photos = new Set<string>();
 			const days = new Set<string>();
+			const slugs = new Set<string>();
 			value.entries.forEach((entry, index) => {
 				if (photos.has(entry.photo.id)) issue("A photo can only appear once in a collection", ["entries", index, "photo"]);
 				photos.add(entry.photo.id);
+				const slug = entry.slug ?? entry.day;
+				if (!slug) issue("Album entries require a slug", ["entries", index, "slug"]);
+				else {
+					if (slugs.has(slug)) issue("Photo URLs must be unique within a collection", ["entries", index, "slug"]);
+					slugs.add(slug);
+				}
 				if (value.kind === "album" && entry.day) issue("Only daily collections assign days", ["entries", index, "day"]);
 				if (value.kind !== "daily") return;
 				if (!entry.day) {

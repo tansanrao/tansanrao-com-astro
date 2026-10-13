@@ -1,11 +1,12 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterAll, beforeAll, expect, it } from "vitest";
 
 // Exercise the real Astro loader, references, image schema, and publication filtering.
-// The fixture has no fonts or UI dependencies and never writes into the site's content.
+// Real photography routes/components use minimal shells without site chrome or fonts.
+// The fixture never writes into the site's content.
 const root = resolve(import.meta.dirname, "..");
 const fixture = mkdtempSync(join(tmpdir(), "site-content-"));
 function write(path: string, contents: string) {
@@ -26,8 +27,33 @@ function build() {
 beforeAll(() => {
 	symlinkSync(join(root, "node_modules"), join(fixture, "node_modules"), "dir");
 	write("package.json", '{"type":"module"}');
-	write("astro.config.mjs", 'export default { site: "https://example.test" };');
+	write("astro.config.mjs", 'export default { site: "https://example.test", prerenderConflictBehavior: "error" };');
 	write("src/pages/index.astro", "<h1>Content fixture</h1>");
+	write(
+		"tsconfig.json",
+		JSON.stringify({
+			compilerOptions: {
+				baseUrl: ".",
+				paths: {
+					"$lib/*": ["src/lib/*"],
+					"$components/*": ["src/components/*"],
+					"$layouts/*": ["src/layouts/*"],
+					"$styles/*": ["src/styles/*"]
+				}
+			}
+		})
+	);
+	write("src/layouts/Base.astro", "<html><head><title>{Astro.props.title}</title></head><body><slot /></body></html>");
+	write("src/components/Prose.astro", "<div data-prose><slot /></div>");
+	write("src/styles/photography.css", "");
+	for (const path of [
+		"src/components/PhotoDetail.astro",
+		"src/components/PhotoCollection.astro",
+		"src/pages/photography/[...path].astro",
+		"src/pages/photography/photos/[...id].astro"
+	]) {
+		write(path, readFileSync(join(root, path), "utf8"));
+	}
 	cpSync(join(root, "src/content.config.ts"), join(fixture, "src/content.config.ts"));
 	write("src/lib/photography.ts", readFileSync(join(root, "src/lib/photography.ts"), "utf8"));
 	cpSync(join(root, "src/images/profile.jpg"), join(fixture, "src/photo.jpg"));
@@ -54,8 +80,15 @@ beforeAll(() => {
 		],
 		cover: "dated"
 	});
-	entry("photoCollections", "album", { title: "Album", kind: "album", entries: [{ photo: "undated" }, { photo: "dated" }] });
-	entry("photoCollections", "private", { title: "Private", kind: "album", entries: [{ photo: "private" }], draft: true });
+	entry("photoCollections", "album", {
+		title: "Album",
+		kind: "album",
+		entries: [
+			{ photo: "undated", slug: "undated" },
+			{ photo: "dated", slug: "dated" }
+		]
+	});
+	entry("photoCollections", "private", { title: "Private", kind: "album", entries: [{ photo: "private", slug: "private" }], draft: true });
 	write(
 		"src/pages/contract.json.ts",
 		`
@@ -84,7 +117,11 @@ export async function GET() {
       missingDay: accepts({ ...daily, entries: [{ photo: "dated" }] }),
       duplicatePhoto: accepts({ ...daily, entries: [{ photo: "dated", day: "2024-02-28" }, { photo: "dated", day: "2024-02-29" }] }),
       nonMemberCover: accepts({ ...daily, cover: "private" }),
-      albumWithDay: accepts({ title: "Album", kind: "album", entries: [{ photo: "dated", day: "2024-02-28" }] })
+      albumWithDay: accepts({ title: "Album", kind: "album", entries: [{ photo: "dated", day: "2024-02-28" }] }),
+      albumWithoutSlug: accepts({ title: "Album", kind: "album", entries: [{ photo: "dated" }] }),
+      invalidSlug: accepts({ title: "Album", kind: "album", entries: [{ photo: "dated", slug: "../escape" }] }),
+      duplicateSlug: accepts({ ...daily, entries: [{ photo: "dated", day: "2024-02-28", slug: "same" }, { photo: "undated", day: "2024-02-29", slug: "same" }] }),
+      slugMatchesDay: accepts({ ...daily, entries: [{ photo: "dated", day: "2024-02-28", slug: "2024-02-29" }, { photo: "undated", day: "2024-02-29" }] })
     }
   });
 }
@@ -114,10 +151,92 @@ it("loads real content, keeps capture dates and album order, hides drafts, and v
 			missingDay: false,
 			duplicatePhoto: false,
 			nonMemberCover: false,
-			albumWithDay: false
+			albumWithDay: false,
+			albumWithoutSlug: false,
+			invalidSlug: false,
+			duplicateSlug: false,
+			slugMatchesDay: false
 		}
 	});
 }, 40000);
+
+it("maps one nested source to different collection URLs with collection-local navigation", () => {
+	entry("photos", "archive/center-for-the-arts", {
+		image: "../../../photo.jpg",
+		alt: "Shared center photograph",
+		title: "Center for the Arts",
+		publishedAt: "2026-10-13T00:00:00Z",
+		takenOn: "2026-10-12"
+	});
+	entry("photoCollections", "365", {
+		title: "365",
+		kind: "daily",
+		challenge: { startsOn: "2026-10-12", days: 365 },
+		entries: [
+			{ photo: "archive/center-for-the-arts", day: "2026-10-12" },
+			{ photo: "dated", day: "2026-10-14" },
+			{ photo: "undated", day: "2026-10-13" }
+		]
+	});
+	entry("photoCollections", "virginia-tech", {
+		title: "Virginia Tech",
+		kind: "album",
+		entries: [
+			{ photo: "dated", slug: "campus" },
+			{ photo: "archive/center-for-the-arts", slug: "center-for-the-arts" },
+			{ photo: "undated", slug: "evening" }
+		]
+	});
+	const result = build();
+	expect(result.status, result.stdout + result.stderr).toBe(0);
+	const page = (path: string) => readFileSync(join(fixture, `dist/photography/${path}/index.html`), "utf8");
+	const daily = page("365/2026-10-12");
+	const album = page("virginia-tech/center-for-the-arts");
+	const hrefs = (html: string, rel: string) =>
+		[...html.matchAll(/<a\b[^>]*>/g)].filter(([tag]) => tag.includes(`rel="${rel}"`)).map(([tag]) => tag.match(/href="([^"]+)"/)![1]);
+	expect(hrefs(daily, "prev")).toEqual(["/photography/365/2026-10-13"]);
+	expect(hrefs(daily, "next")).toEqual([]);
+	expect(hrefs(album, "prev")).toEqual(["/photography/virginia-tech/campus"]);
+	expect(hrefs(album, "next")).toEqual(["/photography/virginia-tech/evening"]);
+	for (const html of [daily, album]) {
+		expect(html).toContain('alt="Shared center photograph"');
+		expect(html).toContain('href="/photography/365/2026-10-12"');
+		expect(html).toContain('href="/photography/virginia-tech/center-for-the-arts"');
+		expect(html).toContain("Fixture body.");
+	}
+	expect(daily.match(/<img\b[^>]*src="([^"]+)"/)![1]).toBe(album.match(/<img\b[^>]*src="([^"]+)"/)![1]);
+	expect(daily).toContain('href="/photography/365"');
+	expect(album).toContain('href="/photography/virginia-tech"');
+	expect(daily).toMatch(/<h1[^>]*>Photo from 2026-10-12<\/h1>/);
+	expect(album).toMatch(/<h1[^>]*>Center for the Arts<\/h1>/);
+	expect(page("365")).toContain('href="/photography/365/2026-10-12"');
+	expect(page("virginia-tech")).toContain('href="/photography/virginia-tech/center-for-the-arts"');
+	expect(existsSync(join(fixture, "dist/photography/photos/archive/center-for-the-arts/index.html"))).toBe(false);
+	expect(existsSync(join(fixture, "dist/photography/private/index.html"))).toBe(false);
+}, 40000);
+
+it("rejects collection files that resolve to the same content ID", () => {
+	entry("photoCollections", "travel", { title: "Travel", kind: "album", entries: [{ photo: "dated", slug: "daylight" }] });
+	try {
+		for (const data of [
+			{ title: "Other travel", kind: "album", entries: [{ photo: "undated", slug: "evening" }] },
+			{ title: "Travel", kind: "album", entries: [{ photo: "dated", slug: "daylight" }] }
+		]) {
+			entry("photoCollections", "travel/index", data);
+			const result = build();
+			expect(result.status, result.stdout + result.stderr).toBe(1);
+			expect(result.stdout + result.stderr).toContain('Duplicate content ID "travel" in photoCollections');
+			expect(result.stdout + result.stderr).toContain("travel.md");
+			expect(result.stdout + result.stderr).toContain("travel/index.md");
+		}
+		rmSync(join(fixture, "src/content/photoCollections/travel/index.md"));
+		const recovered = build();
+		expect(recovered.status, recovered.stdout + recovered.stderr).toBe(0);
+	} finally {
+		rmSync(join(fixture, "src/content/photoCollections/travel.md"));
+		rmSync(join(fixture, "src/content/photoCollections/travel"), { recursive: true });
+	}
+}, 100000);
 
 it("rejects a lens used as a camera and draft photos in a public collection", () => {
 	entry("photos", "wrong-kind", { image: "../../photo.jpg", alt: "Wrong equipment", publishedAt: "2026-03-01T00:00:00Z", camera: "lens" });
@@ -125,7 +244,7 @@ it("rejects a lens used as a camera and draft photos in a public collection", ()
 	expect(result.status).not.toBe(0);
 	expect(result.stdout + result.stderr).toContain("camera must reference existing camera equipment (lens)");
 	rmSync(join(fixture, "src/content/photos/wrong-kind.md"));
-	entry("photoCollections", "exposed", { title: "Exposed", kind: "album", entries: [{ photo: "private" }] });
+	entry("photoCollections", "exposed", { title: "Exposed", kind: "album", entries: [{ photo: "private", slug: "private" }] });
 	result = build();
 	expect(result.status).not.toBe(0);
 	expect(result.stdout + result.stderr).toContain("publish photo private before including it in a public collection");

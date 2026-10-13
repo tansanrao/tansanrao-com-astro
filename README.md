@@ -35,8 +35,8 @@ an offset, e.g. `2026-10-10T12:00:00-04:00`.
 | `notes` | `/garden/notes/{id}` | `title`, `publishedAt` |
 | `links` | `/garden/links#{id}` | `title`, `url`, `savedAt`, `kind` (`resource` or `site`) |
 | `books` | `/garden/books/{id}` | `title`, `authors` array, `status`, `addedAt` |
-| `photos` | `/photography/photos/{id}` | `image`, `alt`, `publishedAt` |
-| `photoCollections` | `/photography/collections/{id}`; `365` uses `/photography/365` | `title`, `kind` (`album` or `daily`); daily collections also require `challenge` |
+| `photos` | `/photography/{collection}/{entry-slug-or-day}`; uncollected photos use `/photography/photos/{id}` | `image`, `alt`, `publishedAt` |
+| `photoCollections` | `/photography/{id}` | `title`, `kind` (`album` or `daily`); daily collections also require `challenge` |
 | `equipment` | Metadata referenced by photos | YAML files with `name`, `kind` (`camera`, `lens`, or `film`) |
 
 `pnpm new` creates Writing, Notes, or News entries. New collections can be authored
@@ -111,6 +111,54 @@ No external metadata service or publishing integration is required.
 
 ### Photography authoring
 
+The 365 project starts on **October 12, 2026** at `/photography/365`. Its gallery
+shows the newest day first, while day numbers remain tied to the start date.
+`/photography` lists collections; each thumbnail opens a full photo page.
+
+To add the next photo:
+
+1. Create `src/content/photos/365-project/YYYY-MM-DD/`, with `photo.jpg` and `index.md`.
+   Copy the first entry at `src/content/photos/365-project/2026-10-12/index.md`, then update
+   the alt text, capture date, publication timestamp, and equipment/settings as needed.
+   The 365 project has no visible photo titles. Add an optional description below
+   the frontmatter; leave the body empty when no description is needed.
+   Remove private EXIF/XMP metadata from the source image before adding it:
+   Astro may copy the source into the build alongside optimized images. Preserve
+   the color profile. Camera and exposure details belong in frontmatter.
+2. Add `- photo: "365-project/YYYY-MM-DD"` and its `day: "YYYY-MM-DD"` to `entries` in
+   `src/content/photoCollections/365.md`. Quote date-shaped IDs as well as dates.
+   Change `cover` only if you want a different Photography landing-page image.
+3. Run `pnpm check && pnpm build`. The gallery, progress, and previous/next photo
+   links update automatically. No page edits are needed.
+
+Photo folders can be grouped by project or collection under `src/content/photos/`.
+The relative path is an internal photo ID, not its collection URL. For example,
+`365-project/2026-10-12/index.md` has ID `365-project/2026-10-12`, while its 365
+entry's `day` produces `/photography/365/2026-10-12`. Moving the source only
+requires updating its references, not its public collection URLs.
+
+Each collection entry maps that source to its own URL. Daily entries default to
+their `day`; an explicit `slug` overrides it. Album entries require a `slug`.
+For example, a second collection at `src/content/photoCollections/virginia-tech.md`
+could reuse the first photograph without copying it:
+
+```yaml
+---
+title: Virginia Tech
+kind: album
+entries:
+  - photo: "365-project/2026-10-12"
+    slug: center-for-the-arts
+---
+```
+
+This creates `/photography/virginia-tech/center-for-the-arts` alongside the 365 URL.
+Back and previous/next links stay within the current collection; the Collections
+links switch to the same photo in another collection. Home links to the first
+public collection containing a photo. URL names must be unique within a collection
+and use lowercase letters, numbers, and hyphens. The collection ID `photos` is
+reserved for photographs that do not belong to any public collection.
+
 A photo's body is its caption/story; `alt` separately describes its visual content.
 `takenOn` is the local calendar date, independent of publication time. Omit it when
 unknown (e.g. a film scan); do not substitute the scan date. Optional `takenAt`
@@ -145,7 +193,7 @@ kind: camera
 name: My camera
 ```
 
-Create `src/content/photoCollections/365.md` when the start date is known:
+Daily collection example (the live project is `src/content/photoCollections/365.md`):
 
 ```yaml
 ---
@@ -166,7 +214,8 @@ An optional collection introduction goes here.
 Daily dates must be unique and inside the challenge window; gaps are allowed.
 Day numbers and progress are derived, so late publication does not renumber days.
 Albums use `kind: album`, omit `challenge` and entry `day`, and retain the order
-of `entries`. A photo can belong to multiple collections but only once in each.
+of `entries`. Each album entry specifies its own `slug`. A photo can belong to
+multiple collections but only once in each.
 Covers must belong to their collection. Public collections cannot reference draft
 photos. Publish the photos before publishing their collection.
 

@@ -1,4 +1,4 @@
-import { getCollection } from "astro:content";
+import { type CollectionEntry, getCollection } from "astro:content";
 
 /** Resolve the public photography graph and reject broken or mistyped references at build time. */
 export async function getPhotography() {
@@ -18,6 +18,9 @@ export async function getPhotography() {
 		}
 	}
 	for (const collection of allCollections) {
+		if (collection.id === "photos" || collection.id.startsWith("photos/")) {
+			throw new Error("The collection ID photos is reserved for uncollected photographs");
+		}
 		for (const entry of collection.data.entries) {
 			const photo = photoById.get(entry.photo.id);
 			if (!photo) throw new Error(`Collection ${collection.id}: missing photo ${entry.photo.id}`);
@@ -28,9 +31,27 @@ export async function getPhotography() {
 	}
 	const photos = allPhotos.filter(photo => !photo.data.draft);
 	const collections = allCollections.filter(collection => !collection.data.draft);
-	return { photos, collections, photoById, equipmentById };
+	const uncollected = photos.filter(photo => !collections.some(collection => collection.data.entries.some(item => item.photo.id === photo.id)));
+	const paths = new Set(collections.map(collection => photoCollectionPath(collection.id)));
+	for (const path of [
+		...collections.flatMap(collection => collection.data.entries.map(item => photoPath(collection, item))),
+		...uncollected.map(photo => `/photography/photos/${photo.id}`)
+	]) {
+		if (paths.has(path)) throw new Error(`Duplicate photography URL: ${path}. Use distinct photo slugs within each collection.`);
+		paths.add(path);
+	}
+	return { photos, collections, uncollected, photoById, equipmentById };
 }
 
 export function photoCollectionPath(id: string) {
-	return id === "365" ? "/photography/365" : `/photography/collections/${id}`;
+	return `/photography/${id}`;
+}
+
+export function photoPath(collection: CollectionEntry<"photoCollections">, item: CollectionEntry<"photoCollections">["data"]["entries"][number]) {
+	return `${photoCollectionPath(collection.id)}/${item.slug ?? item.day}`;
+}
+
+export function orderedPhotoEntries(collection: CollectionEntry<"photoCollections">) {
+	const entries = [...collection.data.entries];
+	return collection.data.kind === "daily" ? entries.sort((a, b) => b.day!.localeCompare(a.day!)) : entries;
 }

@@ -4,7 +4,7 @@ import "medium-zoom/dist/style.css";
 
 interface Props extends HTMLAttributes<"div"> {
 	as?: "div" | "section" | "article";
-	variant?: "writing" | "garden" | "about";
+	variant?: "writing" | "garden" | "about" | "photography";
 }
 const { as: Tag = "div", class: className, variant, ...attributes } = Astro.props;
 ---
