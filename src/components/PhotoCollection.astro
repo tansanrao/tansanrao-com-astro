@@ -64,7 +64,7 @@ const months = [...new Set(entries.flatMap(item => (item.day ? [item.day.slice(0
 				const day = challenge && item.day ? Temporal.PlainDate.from(challenge.startsOn).until(Temporal.PlainDate.from(item.day)).days + 1 : undefined;
 				const month = item.day?.slice(0, 7);
 				return (
-					<figure id={month && entries[index - 1]?.day?.slice(0, 7) !== month ? `month-${month}` : undefined} class="photo-card">
+					<figure id={month && entries[index - 1]?.day?.slice(0, 7) !== month ? `month-${month}` : undefined} class="photo-card" style={`--photo-aspect-ratio: ${photo.data.image.width / photo.data.image.height}`}>
 						<a href={photoPath(entry!, item)}>
 							<Image src={photo.data.image} alt={photo.data.alt} width={640} widths={[320, 640, 960]} sizes="(min-width: 1100px) 350px, (min-width: 640px) 50vw, 100vw" format="webp" loading={index < 3 ? "eager" : "lazy"} />
 						</a>

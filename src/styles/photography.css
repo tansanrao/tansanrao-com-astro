@@ -60,21 +60,23 @@
 		border-block: var(--border-width) solid var(--shadow-color);
 	}
 	.photo-grid {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr);
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
 		gap: var(--space-8) var(--grid-gap);
-		@variant sm {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		@variant lg {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
 	}
 	.photo-card {
 		display: flex;
+		flex: 0 0 auto;
 		flex-direction: column;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
 		gap: var(--space-3);
 		scroll-margin-block-start: var(--space-6);
+		@variant sm {
+			width: calc(var(--media-preview-height) * var(--photo-aspect-ratio));
+		}
 	}
 	.photo-card img,
 	.collection-cover img {

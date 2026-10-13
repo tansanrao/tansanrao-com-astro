@@ -179,7 +179,12 @@ const projectPreviews = [
 	.photo-grid {
 		display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--grid-gap);
 	}
-	.photo-grid > figure { min-width: 0; width: calc(var(--media-preview-height) * var(--photo-aspect-ratio, 1.5)); max-width: 100%; }
+	.photo-grid > figure {
+		min-width: 0; width: 100%; max-width: 100%;
+		@variant sm {
+			width: calc(var(--media-preview-height) * var(--photo-aspect-ratio, 1.5));
+		}
+	}
 	.photo-frame { display: block; background: var(--block-color); }
 	[data-placeholder] .photo-frame { aspect-ratio: 3 / 2; }
 	.photo-frame :global(img) { display: block; width: 100%; height: auto; }
