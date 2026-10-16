@@ -68,8 +68,8 @@
 		min-width: 0;
 		scroll-margin-block-start: var(--space-6);
 		@variant sm {
-			/* Proportional basis and growth keep every image in a row the same height. */
-			flex: var(--photo-aspect-ratio) 1 calc(var(--media-preview-height) * var(--photo-aspect-ratio));
+			/* Keep the preview height consistent, including on incomplete rows. */
+			flex: 0 0 calc(var(--media-preview-height) * var(--photo-aspect-ratio));
 		}
 	}
 	.photo-card img {
